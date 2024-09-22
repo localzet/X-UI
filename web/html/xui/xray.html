@@ -822,20 +822,11 @@
                 },
                 ips: {
                     local: ["geoip:private"],
-                    cn: ["geoip:cn"],
-                    ir: ["ext:geoip_IR.dat:ir"],
                     ru: ["geoip:ru"],
-                    vn: ["ext:geoip_VN.dat:vn"],
                 },
                 domains: {
                     ads: [
                         "geosite:category-ads-all",
-                        "ext:geosite_IR.dat:category-ads-all"
-                    ],
-                    security: [
-                        "ext:geosite_IR.dat:malware",
-                        "ext:geosite_IR.dat:phishing",
-                        "ext:geosite_IR.dat:cryptominers"
                     ],
                     speedtest: ["geosite:speedtest"],
                     openai: ["geosite:openai"],
@@ -845,24 +836,9 @@
                     meta: ["geosite:meta"],
                     apple: ["geosite:apple"],
                     reddit: ["geosite:reddit"],
-                    cn: [
-                        "geosite:cn",
-                        "regexp:.*\\.cn$"
-                    ],
                     ru: [
                         "geosite:category-ru",  //https://github.com/v2fly/domain-list-community/blob/master/data/category-ru
                         "regexp:.*\\.ru$"
-                    ],
-                    ir: [
-                        "geosite:category-ir",  // https://github.com/v2fly/domain-list-community/blob/master/data/category-ir
-                        "regexp:.*\\.ir$",
-                        "regexp:.*\\.xn--mgba3a4f16a$",  // .ایران
-                        "ext:geosite_IR.dat:ir"
-                    ],
-                    vn: [
-                        "regexp:.*\\.vn$",
-                        "ext:geosite_VN.dat:vn",
-                        "ext:geosite_VN.dat:ads"
                     ]
                 },
                 familyProtectDNS: {

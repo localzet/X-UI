@@ -21,7 +21,7 @@ class AllSetting {
         this.tgBotBackup = false;
         this.tgBotLoginNotify = true;
         this.tgCpu = 80;
-        this.tgLang = "en-US";
+        this.tgLang = "ru-RU";
         this.xrayTemplateConfig = "";
         this.secretEnable = false;
         this.subEnable = false;
@@ -42,7 +42,7 @@ class AllSetting {
         this.subJsonMux = "";
         this.subJsonRules = "";
 
-        this.timeLocation = "Asia/Tehran";
+        this.timeLocation = "Europe/Moscow";
 
         if (data == null) {
             return

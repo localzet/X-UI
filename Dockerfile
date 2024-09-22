@@ -2,10 +2,10 @@
 # Stage: Builder
 # ========================================================
 FROM golang:1.23-alpine AS builder
-LABEL authors = "Ivan Zorin <creator@localzet.com>"
-LABEL org.opencontainers.image.source = "https://github.com/localzet/x-ui"
-LABEL org.opencontainers.image.description = "x-ui"
-LABEL org.opencontainers.image.licenses = "AGPL-3.0-or-later"
+LABEL authors="Ivan Zorin <creator@localzet.com>"
+LABEL org.opencontainers.image.source="https://github.com/localzet/x-ui"
+LABEL org.opencontainers.image.description="x-ui"
+LABEL org.opencontainers.image.licenses="AGPL-3.0-or-later"
 
 WORKDIR /app
 ARG TARGETARCH
