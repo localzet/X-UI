@@ -7,10 +7,10 @@ plain='\033[0m'
 
 cur_dir=$(pwd)
 
-# check root
-[[ $EUID -ne 0 ]] && echo -e "${red}Fatal error: ${plain} Please run this script with root privilege \n " && exit 1
+# Проверка прав
+[[ $EUID -ne 0 ]] && echo -e "${red}Ошибка: ${plain} Пожалуйста, запустите скрипт с root-правами \n " && exit 1
 
-# Check OS and set release variable
+# Проверка ОС
 if [[ -f /etc/os-release ]]; then
     source /etc/os-release
     release=$ID
@@ -18,10 +18,10 @@ elif [[ -f /usr/lib/os-release ]]; then
     source /usr/lib/os-release
     release=$ID
 else
-    echo "Failed to check the system OS, please contact the author!" >&2
+    echo "Не удалось проверить ОС системы, свяжитесь с автором!" >&2
     exit 1
 fi
-echo "The OS release is: $release"
+echo "Ваша OS: $release"
 
 arch() {
     case "$(uname -m)" in
@@ -32,56 +32,56 @@ arch() {
     armv6* | armv6) echo 'armv6' ;;
     armv5* | armv5) echo 'armv5' ;;
     s390x) echo 's390x' ;;
-    *) echo -e "${green}Unsupported CPU architecture! ${plain}" && rm -f install.sh && exit 1 ;;
+    *) echo -e "${green}Неподдерживаемая архитектура CPU! ${plain}" && rm -f install.sh && exit 1 ;;
     esac
 }
 
-echo "arch: $(arch)"
+echo "Архитектура: $(arch)"
 
 os_version=""
 os_version=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
 
 if [[ "${release}" == "arch" ]]; then
-    echo "Your OS is Arch Linux"
+    echo "Ваша OS - Arch Linux"
 elif [[ "${release}" == "parch" ]]; then
-    echo "Your OS is Parch linux"
+    echo "Ваша OS - Parch linux"
 elif [[ "${release}" == "manjaro" ]]; then
-    echo "Your OS is Manjaro"
+    echo "Ваша OS - Manjaro"
 elif [[ "${release}" == "armbian" ]]; then
-    echo "Your OS is Armbian"
+    echo "Ваша OS - Armbian"
 elif [[ "${release}" == "opensuse-tumbleweed" ]]; then
-    echo "Your OS is OpenSUSE Tumbleweed"
+    echo "Ваша OS - OpenSUSE Tumbleweed"
 elif [[ "${release}" == "centos" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red} Please use CentOS 8 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте CentOS 8 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "ubuntu" ]]; then
     if [[ ${os_version} -lt 20 ]]; then
-        echo -e "${red} Please use Ubuntu 20 or higher version!${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Ubuntu 20 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "fedora" ]]; then
     if [[ ${os_version} -lt 36 ]]; then
-        echo -e "${red} Please use Fedora 36 or higher version!${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Fedora 36 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "debian" ]]; then
     if [[ ${os_version} -lt 11 ]]; then
-        echo -e "${red} Please use Debian 11 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Debian 11 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "almalinux" ]]; then
     if [[ ${os_version} -lt 9 ]]; then
-        echo -e "${red} Please use AlmaLinux 9 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте AlmaLinux 9 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "rocky" ]]; then
     if [[ ${os_version} -lt 9 ]]; then
-        echo -e "${red} Please use Rocky Linux 9 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Rocky Linux 9 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "oracle" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red} Please use Oracle Linux 8 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Oracle Linux 8 или выше ${plain}\n" && exit 1
     fi
 else
-    echo -e "${red}Your operating system is not supported by this script.${plain}\n"
-    echo "Please ensure you are using one of the following supported operating systems:"
+    echo -e "${red}Ваша операционная система не поддерживается данным скриптом.${plain}\n"
+    echo "Убедитесь, что вы используете одну из поддерживаемых операционных систем:"
     echo "- Ubuntu 20.04+"
     echo "- Debian 11+"
     echo "- CentOS 8+"
@@ -127,42 +127,42 @@ gen_random_string() {
     echo "$random_string"
 }
 
-# This function will be called when user installed x-ui out of security
+# Установка зоны безопасности
 config_after_install() {
-    echo -e "${yellow}Install/update finished! For security it's recommended to modify panel settings ${plain}"
-    read -p "Would you like to customize the panel settings? (If not, random settings will be applied) [y/n]: " config_confirm
+    echo -e "${yellow}Установка/обновление завершено! В целях безопасности рекомендую изменить настройки панели ${plain}"
+    read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [y/n]: " config_confirm
     if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" ]]; then
-        read -p "Please set up your username: " config_account
-        echo -e "${yellow}Your username will be: ${config_account}${plain}"
-        read -p "Please set up your password: " config_password
-        echo -e "${yellow}Your password will be: ${config_password}${plain}"
-        read -p "Please set up the panel port: " config_port
-        echo -e "${yellow}Your panel port is: ${config_port}${plain}"
-        read -p "Please set up the web base path (ip:port/webbasepath/): " config_webBasePath
-        echo -e "${yellow}Your web base path is: ${config_webBasePath}${plain}"
-        echo -e "${yellow}Initializing, please wait...${plain}"
+        read -p "Установите имя пользователя: " config_account
+        echo -e "${yellow}Имя пользователя: ${config_account}${plain}"
+        read -p "Установите пароль: " config_password
+        echo -e "${yellow}Пароль: ${config_password}${plain}"
         /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password}
-        echo -e "${yellow}Account name and password set successfully!${plain}"
+        echo -e "${yellow}Данные для входа заданы!${plain}"
+
+        read -p "Установите порт диспетчерской: " config_port
+        echo -e "${yellow}Порт диспетчерской: ${config_port}${plain}"
         /usr/local/x-ui/x-ui setting -port ${config_port}
-        echo -e "${yellow}Panel port set successfully!${plain}"
+        echo -e "${yellow}Порт диспетчерской установлен!${plain}"
+
+        read -p "Установите путь диспетчерской ({ip}:{порт}/путь-диспетчерской/): " config_webBasePath
+        echo -e "${yellow}Путь диспетчерской: ${config_webBasePath}${plain}"
         /usr/local/x-ui/x-ui setting -webBasePath ${config_webBasePath}
-        echo -e "${yellow}Web base path set successfully!${plain}"
+        echo -e "${yellow}Путь диспетчерской установлен!${plain}"
     else
-        echo -e "${red}Cancel...${plain}"
         if [[ ! -f "/etc/x-ui/x-ui.db" ]]; then
             local usernameTemp=$(head -c 6 /dev/urandom | base64)
             local passwordTemp=$(head -c 6 /dev/urandom | base64)
             local webBasePathTemp=$(gen_random_string 10)
             /usr/local/x-ui/x-ui setting -username ${usernameTemp} -password ${passwordTemp} -webBasePath ${webBasePathTemp}
-            echo -e "This is a fresh installation, will generate random login info for security concerns:"
+            echo -e "Это свежая установка, генерируем случайные данные в целях безопасности:"
             echo -e "###############################################"
-            echo -e "${green}Username: ${usernameTemp}${plain}"
-            echo -e "${green}Password: ${passwordTemp}${plain}"
-            echo -e "${green}WebBasePath: ${webBasePathTemp}${plain}"
+            echo -e "${green}Имя пользователя: ${usernameTemp}${plain}"
+            echo -e "${green}Пароль: ${passwordTemp}${plain}"
+            echo -e "${green}Путь диспетчерской: ${webBasePathTemp}${plain}"
             echo -e "###############################################"
-            echo -e "${yellow}If you forgot your login info, you can type "x-ui settings" to check after installation${plain}"
+            echo -e "${yellow}Если вы забыли данные для входа, выполните "x-ui settings" для проверки после установки${plain}"
         else
-            echo -e "${yellow}This is your upgrade, will keep old settings. If you forgot your login info, you can type "x-ui settings" to check${plain}"
+            echo -e "${yellow}Это обновление, оставляем старые данные. Если вы забыли данные для входа, выполните "x-ui settings" для проверки${plain}"
         fi
     fi
     /usr/local/x-ui/x-ui migrate
@@ -174,22 +174,22 @@ install_x-ui() {
     if [ $# == 0 ]; then
         last_version=$(curl -Ls "https://api.github.com/repos/localzet/x-ui/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$last_version" ]]; then
-            echo -e "${red}Failed to fetch x-ui version, it maybe due to Github API restrictions, please try it later${plain}"
+            echo -e "${red}Ошибка получения версии x-ui, возможно, это связано с ограничениями API Github, попробуйте позже${plain}"
             exit 1
         fi
-        echo -e "Got x-ui latest version: ${last_version}, beginning the installation..."
+        echo -e "Получена версия x-ui: ${last_version}, запуск установки..."
         wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch).tar.gz https://github.com/localzet/x-ui/releases/download/${last_version}/x-ui-linux-$(arch).tar.gz
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}Downloading x-ui failed, please be sure that your server can access Github ${plain}"
+            echo -e "${red}Ошибка загрузки x-ui, пожалуйста, убедитесь, что ваш сервер имеет доступ к Github ${plain}"
             exit 1
         fi
     else
         last_version=$1
         url="https://github.com/localzet/x-ui/releases/download/${last_version}/x-ui-linux-$(arch).tar.gz"
-        echo -e "Beginning to install x-ui $1"
+        echo -e "Запуск установки x-ui $1"
         wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch).tar.gz ${url}
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}Download x-ui $1 failed,please check the version exists ${plain}"
+            echo -e "${red}Ошибка загрузки x-ui $1, пожалуйста, проверьте, существует ли версия ${plain}"
             exit 1
         fi
     fi
@@ -204,7 +204,7 @@ install_x-ui() {
     cd x-ui
     chmod +x x-ui
 
-    # Check the system's architecture and rename the file accordingly
+    # Проверка архитектуры системы и именование файла соответствующим образом.
     if [[ $(arch) == "armv5" || $(arch) == "armv6" || $(arch) == "armv7" ]]; then
         mv bin/xray-linux-$(arch) bin/xray-linux-arm
         chmod +x bin/xray-linux-arm
@@ -220,28 +220,28 @@ install_x-ui() {
     systemctl daemon-reload
     systemctl enable x-ui
     systemctl start x-ui
-    echo -e "${green}x-ui ${last_version}${plain} installation finished, it is running now..."
+    echo -e "${green}x-ui ${last_version}${plain} установка завершена, программа запущена..."
     echo -e ""
-    echo -e "x-ui control menu usages: "
+    echo -e "Аппаратная панель управления x-ui: "
     echo -e "----------------------------------------------"
-    echo -e "SUBCOMMANDS:"
-    echo -e "x-ui              - Admin Management Script"
-    echo -e "x-ui start        - Start"
-    echo -e "x-ui stop         - Stop"
-    echo -e "x-ui restart      - Restart"
-    echo -e "x-ui status       - Current Status"
-    echo -e "x-ui settings     - Current Settings"
-    echo -e "x-ui enable       - Enable Autostart on OS Startup"
-    echo -e "x-ui disable      - Disable Autostart on OS Startup"
-    echo -e "x-ui log          - Check logs"
-    echo -e "x-ui banlog       - Check Fail2ban ban logs"
-    echo -e "x-ui update       - Update"
-    echo -e "x-ui custom       - custom version"
-    echo -e "x-ui install      - Install"
-    echo -e "x-ui uninstall    - Uninstall"
+    echo -e "ПОДКОМАНДЫ:"
+    echo -e "x-ui              - Панель управления"
+    echo -e "x-ui start        - Запуск"
+    echo -e "x-ui stop         - Остановка"
+    echo -e "x-ui restart      - Перезапуск"
+    echo -e "x-ui status       - Текущий статус"
+    echo -e "x-ui settings     - Текущие настройки"
+    echo -e "x-ui enable       - Включить автозапуск при запуске ОС"
+    echo -e "x-ui disable      - Отключить автозапуск при запуске ОС"
+    echo -e "x-ui log          - Проверка журналов"
+    echo -e "x-ui banlog       - Проверка журналов бана Fail2ban"
+    echo -e "x-ui update       - Обновление"
+    echo -e "x-ui custom       - Пользовательская версия"
+    echo -e "x-ui install      - Установка"
+    echo -e "x-ui uninstall    - Удаление"
     echo -e "----------------------------------------------"
 }
 
-echo -e "${green}Running...${plain}"
+echo -e "${green}Запуск...${plain}"
 install_base
 install_x-ui $1
