@@ -136,16 +136,17 @@ config_after_install() {
         echo -e "${yellow}Имя пользователя: ${config_account}${plain}"
         read -p "Установите пароль: " config_password
         echo -e "${yellow}Пароль: ${config_password}${plain}"
+        read -p "Установите порт диспетчерской: " config_port
+        echo -e "${yellow}Порт диспетчерской: ${config_port}${plain}"
+        read -p "Установите путь диспетчерской ({ip}:{порт}/путь-диспетчерской/): " config_webBasePath
+        echo -e "${yellow}Путь диспетчерской: ${config_webBasePath}${plain}"
+
         /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password}
         echo -e "${yellow}Данные для входа заданы!${plain}"
 
-        read -p "Установите порт диспетчерской: " config_port
-        echo -e "${yellow}Порт диспетчерской: ${config_port}${plain}"
         /usr/local/x-ui/x-ui setting -port ${config_port}
         echo -e "${yellow}Порт диспетчерской установлен!${plain}"
 
-        read -p "Установите путь диспетчерской ({ip}:{порт}/путь-диспетчерской/): " config_webBasePath
-        echo -e "${yellow}Путь диспетчерской: ${config_webBasePath}${plain}"
         /usr/local/x-ui/x-ui setting -webBasePath ${config_webBasePath}
         echo -e "${yellow}Путь диспетчерской установлен!${plain}"
     else
