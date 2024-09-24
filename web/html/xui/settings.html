@@ -183,60 +183,7 @@
                   </a-list-item>
                 </a-list>
               </a-tab-pane>
-              <a-tab-pane key="2" tab='{{ i18n "pages.settings.securitySettings"}}' style="padding: 20px;">
-                <a-divider>{{ i18n "pages.settings.security.admin"}}</a-divider>
-                <a-form layout="horizontal" :colon="false" style="float: left; margin-bottom: 2rem;" :label-col="{ md: {span:10} }" :wrapper-col="{ md: {span:14} }">
-                  <a-form-item label='{{ i18n "pages.settings.oldUsername"}}'>
-                    <a-input autocomplete="username" v-model="user.oldUsername"></a-input>
-                  </a-form-item>
-                  <a-form-item label='{{ i18n "pages.settings.currentPassword"}}'>
-                    <password-input autocomplete="current-password" v-model="user.oldPassword"></password-input>
-                  </a-form-item>
-                  <a-form-item label='{{ i18n "pages.settings.newUsername"}}'>
-                    <a-input v-model="user.newUsername"></a-input>
-                  </a-form-item>
-                  <a-form-item label='{{ i18n "pages.settings.newPassword"}}'>
-                    <password-input autocomplete="new-password" v-model="user.newPassword"></password-input>
-                  </a-form-item>
-                  <a-form-item label=" ">
-                    <a-button type="primary" @click="updateUser">{{ i18n "confirm" }}</a-button>
-                  </a-form-item>
-                </a-form>
-                <a-divider>{{ i18n "pages.settings.security.secret"}}</a-divider>
-                <a-form style="padding: 0 20px;">
-                  <a-list-item>
-                    <a-row>
-                      <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='{{ i18n "pages.settings.security.loginSecurity" }}'
-                          description='{{ i18n "pages.settings.security.loginSecurityDesc" }}'>
-                        </a-list-item-meta>
-                      </a-col>
-                      <a-col :lg="24" :xl="12">
-                        <template>
-                          <a-switch @change="toggleToken(allSetting.secretEnable)" v-model="allSetting.secretEnable"></a-switch>
-                          <a-icon style="margin-left: 1rem;" v-if="allSetting.secretEnable" :spin="this.changeSecret" type="sync" @click="getNewSecret"></a-icon>
-                        </template>
-                      </a-col>
-                    </a-row>
-                  </a-list-item>
-                  <a-list-item>
-                    <a-row>
-                      <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='{{ i18n "pages.settings.security.secretToken" }}'
-                          description='{{ i18n "pages.settings.security.secretTokenDesc" }}'>
-                        </a-list-item-meta>
-                      </a-col>
-                      <a-col :lg="24" :xl="12">
-                        <template>
-                          <a-textarea type="text" :disabled="!allSetting.secretEnable" v-model="user.loginSecret"></a-textarea>
-                        </template>
-                      </a-col>
-                    </a-row>
-                  </a-list-item>
-                  <a-button type="primary" :loading="this.changeSecret" @click="updateSecret">{{ i18n "confirm" }}</a-button>
-                </a-form>
-              </a-tab-pane>
-              <a-tab-pane key="3" tab='{{ i18n "pages.settings.TGBotSettings"}}'>
+              <a-tab-pane key="2" tab='{{ i18n "pages.settings.TGBotSettings"}}'>
                 <a-list item-layout="horizontal">
                   <setting-list-item type="switch" title='{{ i18n "pages.settings.telegramBotEnable" }}' desc='{{ i18n "pages.settings.telegramBotEnableDesc" }}' v-model="allSetting.tgBotEnable"></setting-list-item>
                   <setting-list-item type="text" title='{{ i18n "pages.settings.telegramToken"}}' desc='{{ i18n "pages.settings.telegramTokenDesc"}}' v-model="allSetting.tgBotToken"></setting-list-item>
@@ -264,7 +211,7 @@
                   </a-list-item>
                 </a-list>
               </a-tab-pane>
-              <a-tab-pane key="4" tab='{{ i18n "pages.settings.subSettings" }}'>
+              <a-tab-pane key="3" tab='{{ i18n "pages.settings.subSettings" }}'>
                 <a-list item-layout="horizontal">
                   <setting-list-item type="switch" title='{{ i18n "pages.settings.subEnable"}}' desc='{{ i18n "pages.settings.subEnableDesc"}}' v-model="allSetting.subEnable"></setting-list-item>
                   <setting-list-item type="switch" title='{{ i18n "pages.settings.subEncrypt"}}' desc='{{ i18n "pages.settings.subEncryptDesc"}}' v-model="allSetting.subEncrypt"></setting-list-item>
@@ -279,7 +226,7 @@
                   <setting-list-item type="number" title='{{ i18n "pages.settings.subUpdates"}}' desc='{{ i18n "pages.settings.subUpdatesDesc"}}' v-model="allSetting.subUpdates" :min="1"></setting-list-item>
                 </a-list>
               </a-tab-pane>
-              <a-tab-pane key="5" tab='{{ i18n "pages.settings.subSettings" }} Json' v-if="allSetting.subEnable">
+              <a-tab-pane key="4" tab='{{ i18n "pages.settings.subSettings" }} Json' v-if="allSetting.subEnable">
                 <a-list item-layout="horizontal">
                   <setting-list-item type="text" title='{{ i18n "pages.settings.subPath"}}' desc='{{ i18n "pages.settings.subPathDesc"}}' v-model="allSetting.subJsonPath"></setting-list-item>
                   <setting-list-item type="text" title='{{ i18n "pages.settings.subURI"}}' desc='{{ i18n "pages.settings.subURIDesc"}}' v-model="allSetting.subJsonURI" placeholder="(http|https)://domain[:port]/path/"></setting-list-item>
