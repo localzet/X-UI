@@ -5,7 +5,6 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
-#Add some basic function here
 function LOGD() {
     echo -e "${yellow}[DEG] $* ${plain}"
 }
@@ -18,10 +17,10 @@ function LOGI() {
     echo -e "${green}[INF] $* ${plain}"
 }
 
-# check root
-[[ $EUID -ne 0 ]] && LOGE "ERROR: You must be root to run this script! \n" && exit 1
+# Проверка прав
+[[ $EUID -ne 0 ]] && LOGE "Ошибка: Пожалуйста, запустите скрипт с root-правами! \n" && exit 1
 
-# Check OS and set release variable
+# Проверка ОС
 if [[ -f /etc/os-release ]]; then
     source /etc/os-release
     release=$ID
@@ -29,56 +28,71 @@ elif [[ -f /usr/lib/os-release ]]; then
     source /usr/lib/os-release
     release=$ID
 else
-    echo "Failed to check the system OS, please contact the author!" >&2
+    echo "Не удалось проверить ОС системы, свяжитесь с автором!" >&2
     exit 1
 fi
 
-echo "The OS release is: $release"
+echo "Ваша OS: $release"
+
+arch() {
+    case "$(uname -m)" in
+    x86_64 | x64 | amd64) echo 'amd64' ;;
+    i*86 | x86) echo '386' ;;
+    armv8* | armv8 | arm64 | aarch64) echo 'arm64' ;;
+    armv7* | armv7 | arm) echo 'armv7' ;;
+    armv6* | armv6) echo 'armv6' ;;
+    armv5* | armv5) echo 'armv5' ;;
+    s390x) echo 's390x' ;;
+    *) echo -e "${green}Неподдерживаемая архитектура CPU! ${plain}" && rm -f install.sh && exit 1 ;;
+    esac
+}
+
+echo "Архитектура: $(arch)"
 
 os_version=""
 os_version=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
 
 if [[ "${release}" == "arch" ]]; then
-    echo "Your OS is Arch Linux"
+    echo "Ваша OS - Arch Linux"
 elif [[ "${release}" == "parch" ]]; then
-    echo "Your OS is Parch linux"
+    echo "Ваша OS - Parch linux"
 elif [[ "${release}" == "manjaro" ]]; then
-    echo "Your OS is Manjaro"
+    echo "Ваша OS - Manjaro"
 elif [[ "${release}" == "armbian" ]]; then
-    echo "Your OS is Armbian"
+    echo "Ваша OS - Armbian"
 elif [[ "${release}" == "opensuse-tumbleweed" ]]; then
-    echo "Your OS is OpenSUSE Tumbleweed"
+    echo "Ваша OS - OpenSUSE Tumbleweed"
 elif [[ "${release}" == "centos" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red} Please use CentOS 8 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте CentOS 8 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "ubuntu" ]]; then
     if [[ ${os_version} -lt 20 ]]; then
-        echo -e "${red} Please use Ubuntu 20 or higher version!${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Ubuntu 20 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "fedora" ]]; then
     if [[ ${os_version} -lt 36 ]]; then
-        echo -e "${red} Please use Fedora 36 or higher version!${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Fedora 36 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "debian" ]]; then
     if [[ ${os_version} -lt 11 ]]; then
-        echo -e "${red} Please use Debian 11 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Debian 11 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "almalinux" ]]; then
     if [[ ${os_version} -lt 9 ]]; then
-        echo -e "${red} Please use AlmaLinux 9 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте AlmaLinux 9 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "rocky" ]]; then
     if [[ ${os_version} -lt 9 ]]; then
-        echo -e "${red} Please use Rocky Linux 9 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Rocky Linux 9 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "oracle" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red} Please use Oracle Linux 8 or higher ${plain}\n" && exit 1
+        echo -e "${red} Пожалуйста используйте Oracle Linux 8 или выше ${plain}\n" && exit 1
     fi
 else
-    echo -e "${red}Your operating system is not supported by this script.${plain}\n"
-    echo "Please ensure you are using one of the following supported operating systems:"
+    echo -e "${red}Ваша операционная система не поддерживается данным скриптом.${plain}\n"
+    echo "Убедитесь, что вы используете одну из поддерживаемых операционных систем:"
     echo "- Ubuntu 20.04+"
     echo "- Debian 11+"
     echo "- CentOS 8+"
@@ -92,10 +106,8 @@ else
     echo "- Oracle Linux 8+"
     echo "- OpenSUSE Tumbleweed"
     exit 1
-
 fi
 
-# Declare Variables
 log_folder="${XUI_LOG_FOLDER:=/var/log}"
 iplimit_log_path="${log_folder}/3xipl.log"
 iplimit_banned_log_path="${log_folder}/3xipl-banned.log"
@@ -117,7 +129,7 @@ confirm() {
 }
 
 confirm_restart() {
-    confirm "Restart the panel, Attention: Restarting the panel will also restart xray" "y"
+    confirm "Перезапустите панель. Внимание: перезапуск панели также приведет к перезапуску Xray" "y"
     if [[ $? == 0 ]]; then
         restart
     else
@@ -753,23 +765,23 @@ update_geo() {
 
 install_acme() {
     cd ~
-    LOGI "install acme..."
+    LOGI "Установка acme..."
     curl https://get.acme.sh | sh
     if [ $? -ne 0 ]; then
-        LOGE "install acme failed"
+        LOGE "Установка acme не удалась"
         return 1
     else
-        LOGI "install acme succeed"
+        LOGI "Установка acme прошла успешно"
     fi
     return 0
 }
 
 ssl_cert_issue_main() {
-    echo -e "${green}\t1.${plain} Get SSL"
-    echo -e "${green}\t2.${plain} Revoke"
-    echo -e "${green}\t3.${plain} Force Renew"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -p "Choose an option: " choice
+    echo -e "${green}\t1.${plain} Получить SSL"
+    echo -e "${green}\t2.${plain} Отозвать"
+    echo -e "${green}\t3.${plain} Принудительно продлить"
+    echo -e "${green}\t0.${plain} Вернуться в главное меню"
+    read -p "Выберите вариант: " choice
     case "$choice" in
     0)
         show_menu
@@ -779,30 +791,30 @@ ssl_cert_issue_main() {
         ;;
     2)
         local domain=""
-        read -p "Please enter your domain name to revoke the certificate: " domain
+        read -p "Введите свой домен, чтобы отозвать сертификат.: " domain
         ~/.acme.sh/acme.sh --revoke -d ${domain}
-        LOGI "Certificate revoked"
+        LOGI "Сертификат отозван"
         ;;
     3)
         local domain=""
-        read -p "Please enter your domain name to forcefully renew an SSL certificate: " domain
+        read -p "Введите свой домен для принудительного продления SSL-сертификата.: " domain
         ~/.acme.sh/acme.sh --renew -d ${domain} --force
         ;;
-    *) echo "Invalid choice" ;;
+    *) echo "Неверный выбор" ;;
     esac
 }
 
 ssl_cert_issue() {
-    # check for acme.sh first
+    # Сначала проверим скрипт
     if ! command -v ~/.acme.sh/acme.sh &>/dev/null; then
-        echo "acme.sh could not be found. we will install it"
+        echo "acme.sh не найден. Так установим же его!"
         install_acme
         if [ $? -ne 0 ]; then
-            LOGE "install acme failed, please check logs"
+            LOGE "Установка acme не удалась, проверьте журналы"
             exit 1
         fi
     fi
-    # install socat second
+    # Теперь установим socat
     case "${release}" in
     ubuntu | debian | armbian)
         apt update && apt install socat -y
@@ -817,34 +829,34 @@ ssl_cert_issue() {
         pacman -Sy --noconfirm socat
         ;;
     *)
-        echo -e "${red}Unsupported operating system. Please check the script and install the necessary packages manually.${plain}\n"
+        echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
         exit 1
         ;;
     esac
     if [ $? -ne 0 ]; then
-        LOGE "install socat failed, please check logs"
+        LOGE "Установка socat не удалась, проверьте журналы"
         exit 1
     else
-        LOGI "install socat succeed..."
+        LOGI "Установка socat прошла успешно..."
     fi
 
-    # get the domain here,and we need verify it
+    # Проверка домена
     local domain=""
-    read -p "Please enter your domain name:" domain
-    LOGD "your domain is:${domain},check it..."
-    # here we need to judge whether there exists cert already
+    read -p "Пожалуйста, введите домен:" domain
+    LOGD "Ваш домен: ${domain}, проверка..."
+    # Проверим, существует ли сертификат
     local currentCert=$(~/.acme.sh/acme.sh --list | tail -1 | awk '{print $1}')
 
     if [ ${currentCert} == ${domain} ]; then
         local certInfo=$(~/.acme.sh/acme.sh --list)
-        LOGE "system already has certs here,can not issue again,current certs details:"
+        LOGE "Система уже имеет сертификаты здесь и не может выпустить их снова, текущие сведения о сертификатах:"
         LOGI "$certInfo"
         exit 1
     else
-        LOGI "your domain is ready for issuing cert now..."
+        LOGI "Ваш домен готов к выпуску сертификата прямо сейчас..."
     fi
 
-    # create a directory for install cert
+    # Создание папки для сертификатов
     certPath="/root/cert/${domain}"
     if [ ! -d "$certPath" ]; then
         mkdir -p "$certPath"
@@ -853,45 +865,46 @@ ssl_cert_issue() {
         mkdir -p "$certPath"
     fi
 
-    # get needed port here
+    # Получение порта
     local WebPort=80
-    read -p "please choose which port do you use,default will be 80 port:" WebPort
+    read -p "Выберите, какой порт использовать (По умолчанию: 80):" WebPort
     if [[ ${WebPort} -gt 65535 || ${WebPort} -lt 1 ]]; then
-        LOGE "your input ${WebPort} is invalid,will use default port"
+        LOGE "Вы ввели порт ${WebPort}, он недействителен, будем использован порт по умолчанию"
     fi
-    LOGI "will use port:${WebPort} to issue certs,please make sure this port is open..."
-    # NOTE:This should be handled by user
-    # open the port and kill the occupied progress
+    LOGI "Мы будем использовать порт ${WebPort} для выдачи сертификатов убедитесь, что этот порт открыт..."
+    # ПРИМЕЧАНИЕ: Это должен сделать пользователь
+    # открыть порт и завершить занятый процесс
     ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
     ~/.acme.sh/acme.sh --issue -d ${domain} --listen-v6 --standalone --httpport ${WebPort}
     if [ $? -ne 0 ]; then
-        LOGE "issue certs failed,please check logs"
+        LOGE "Не удалось выдать сертификаты, проверьте журналы"
         rm -rf ~/.acme.sh/${domain}
         exit 1
     else
-        LOGE "issue certs succeed,installing certs..."
+        LOGE "Сертификаты выпущены, установка..."
     fi
-    # install cert
+
+    # Установка сертификатов
     ~/.acme.sh/acme.sh --installcert -d ${domain} \
         --key-file /root/cert/${domain}/privkey.pem \
         --fullchain-file /root/cert/${domain}/fullchain.pem
 
     if [ $? -ne 0 ]; then
-        LOGE "install certs failed,exit"
+        LOGE "Установка сертификатов не удалась, выход..."
         rm -rf ~/.acme.sh/${domain}
         exit 1
     else
-        LOGI "install certs succeed,enable auto renew..."
+        LOGI "Установка сертификатов прошла успешно, включаю автоматическое продление..."
     fi
 
     ~/.acme.sh/acme.sh --upgrade --auto-upgrade
     if [ $? -ne 0 ]; then
-        LOGE "auto renew failed, certs details:"
+        LOGE "Автопродление не удалось, сведения о сертификатах:"
         ls -lah cert/*
         chmod 755 $certPath/*
         exit 1
     else
-        LOGI "auto renew succeed, certs details:"
+        LOGI "Автопродление успешно, сведения о сертификатах:"
         ls -lah cert/*
         chmod 755 $certPath/*
     fi
@@ -899,20 +912,20 @@ ssl_cert_issue() {
 
 ssl_cert_issue_CF() {
     echo -E ""
-    LOGD "******Instructions for use******"
-    LOGI "This Acme script requires the following data:"
-    LOGI "1.Cloudflare Registered e-mail"
-    LOGI "2.Cloudflare Global API Key"
-    LOGI "3.The domain name that has been resolved dns to the current server by Cloudflare"
-    LOGI "4.The script applies for a certificate. The default installation path is /root/cert "
-    confirm "Confirmed?[y/n]" "y"
+    LOGD "******Инструкция по применению******"
+    LOGI "Для этого скрипта требуются следующие данные:"
+    LOGI "1.Зарегистрированный Email Cloudflare"
+    LOGI "2.Глобальный API-ключ Cloudflare"
+    LOGI "3.Домен, добавленный в Cloudflare"
+    LOGI "4.Скрипт отправит запрос на сертификат. Путь установки по умолчанию: /root/cert "
+    confirm "Продолжить? [y/n]" "y"
     if [ $? -eq 0 ]; then
-        # check for acme.sh first
+        # Сначала проверим скрипт
         if ! command -v ~/.acme.sh/acme.sh &>/dev/null; then
-            echo "acme.sh could not be found. we will install it"
+            echo "acme.sh не найден. Так установим же его!"
             install_acme
             if [ $? -ne 0 ]; then
-                LOGE "install acme failed, please check logs"
+                LOGE "Установка acme не удалась, проверьте журналы"
                 exit 1
             fi
         fi
@@ -926,46 +939,47 @@ ssl_cert_issue_CF() {
             rm -rf $certPath
             mkdir $certPath
         fi
-        LOGD "Please set a domain name:"
-        read -p "Input your domain here:" CF_Domain
-        LOGD "Your domain name is set to:${CF_Domain}"
-        LOGD "Please set the API key:"
-        read -p "Input your key here:" CF_GlobalKey
-        LOGD "Your API key is:${CF_GlobalKey}"
-        LOGD "Please set up registered email:"
-        read -p "Input your email here:" CF_AccountEmail
-        LOGD "Your registered email address is:${CF_AccountEmail}"
+
+        read -p "Пожалуйста, укажите домен:" CF_Domain
+        LOGD "Ваш домен: ${CF_Domain}"
+
+        read -p "Пожалуйста, укажите ключ API:" CF_GlobalKey
+        LOGD "Ваш ключ API: ${CF_GlobalKey}"
+
+        read -p "Пожалуйста, укажите адрес электронной почты:" CF_AccountEmail
+        LOGD "Ваш адрес электронной почты: ${CF_AccountEmail}"
+
         ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
         if [ $? -ne 0 ]; then
-            LOGE "Default CA, Lets'Encrypt fail, script exiting..."
+            LOGE "CA по умолчанию, Lets'Encrypt не работает... Хъюстон, мы его теряем..."
             exit 1
         fi
         export CF_Key="${CF_GlobalKey}"
         export CF_Email=${CF_AccountEmail}
         ~/.acme.sh/acme.sh --issue --dns dns_cf -d ${CF_Domain} -d *.${CF_Domain} --log
         if [ $? -ne 0 ]; then
-            LOGE "Certificate issuance failed, script exiting..."
+            LOGE "Выдача сертификата не удалась, мы его теряем..."
             exit 1
         else
-            LOGI "Certificate issued Successfully, Installing..."
+            LOGI "Сертификат успешно выдан, установка..."
         fi
         ~/.acme.sh/acme.sh --installcert -d ${CF_Domain} -d *.${CF_Domain} --ca-file /root/cert/ca.cer \
             --cert-file /root/cert/${CF_Domain}.cer --key-file /root/cert/${CF_Domain}.key \
             --fullchain-file /root/cert/fullchain.cer
         if [ $? -ne 0 ]; then
-            LOGE "Certificate installation failed, script exiting..."
+            LOGE "Установка сертификата не удалась, мы его теряем..."
             exit 1
         else
-            LOGI "Certificate installed Successfully,Turning on automatic updates..."
+            LOGI "Сертификат успешно установлен, активирую автоматическое обновление..."
         fi
         ~/.acme.sh/acme.sh --upgrade --auto-upgrade
         if [ $? -ne 0 ]; then
-            LOGE "Auto update setup Failed, script exiting..."
+            LOGE "Настройка автоматического обновления не удалась, мы его теряем..."
             ls -lah cert
             chmod 755 $certPath
             exit 1
         else
-            LOGI "The certificate is installed and auto-renewal is turned on, Specific information is as follows"
+            LOGI "Сертификат установлен и включено автоматическое продление. Конкретная информация приведена ниже."
             ls -lah cert
             chmod 755 $certPath
         fi
@@ -975,9 +989,9 @@ ssl_cert_issue_CF() {
 }
 
 run_speedtest() {
-    # Check if Speedtest is already installed
+    # Проверим, установлен ли тот самый Speedtest
     if ! command -v speedtest &>/dev/null; then
-        # If not installed, install it
+        # Не можешь - научим, не хочешь - заставим
         local pkg_manager=""
         local speedtest_install_script=""
 
@@ -996,7 +1010,7 @@ run_speedtest() {
         fi
 
         if [[ -z $pkg_manager ]]; then
-            echo "Error: Package manager not found. You may need to install Speedtest manually."
+            echo "Ошибка: Менеджер пакетов не найден. Возможно, придется установить Speedtest вручную."
             return 1
         else
             curl -s $speedtest_install_script | bash
@@ -1004,18 +1018,18 @@ run_speedtest() {
         fi
     fi
 
-    # Run Speedtest
+    # Запуск Speedtest
     speedtest
 }
 
 create_iplimit_jails() {
-    # Use default bantime if not passed => 15 minutes
+    # Использовать время бана по умолчанию => 15 минут
     local bantime="${1:-15}"
 
-    # Uncomment 'allowipv6 = auto' in fail2ban.conf
+    # Раскомментируем «allowipv6 = auto» в fail2ban.conf
     sed -i 's/#allowipv6 = auto/allowipv6 = auto/g' /etc/fail2ban/fail2ban.conf
 
-    #On Debian 12+ fail2ban's default backend should be changed to systemd
+    # В Debian 12+ бэкэнд fail2ban по умолчанию следует изменить на systemd
     if [[  "${release}" == "debian" && ${os_version} -ge 12 ]]; then
         sed -i '0,/action =/s/backend = auto/backend = systemd/' /etc/fail2ban/jail.conf
     fi
@@ -1055,15 +1069,15 @@ actionstop = <iptables> -D <chain> -p <protocol> -j f2b-<name>
 actioncheck = <iptables> -n -L <chain> | grep -q 'f2b-<name>[ \t]'
 
 actionban = <iptables> -I f2b-<name> 1 -s <ip> -j <blocktype>
-            echo "\$(date +"%%Y/%%m/%%d %%H:%%M:%%S")   BAN   [Email] = <F-USER> [IP] = <ip> banned for <bantime> seconds." >> ${iplimit_banned_log_path}
+            echo "\$(date +"%%Y/%%m/%%d %%H:%%M:%%S")   BAN   [Email] = <F-USER> [IP] = <ip> забанен на <bantime> сек." >> ${iplimit_banned_log_path}
 
 actionunban = <iptables> -D f2b-<name> -s <ip> -j <blocktype>
-              echo "\$(date +"%%Y/%%m/%%d %%H:%%M:%%S")   UNBAN   [Email] = <F-USER> [IP] = <ip> unbanned." >> ${iplimit_banned_log_path}
+              echo "\$(date +"%%Y/%%m/%%d %%H:%%M:%%S")   UNBAN   [Email] = <F-USER> [IP] = <ip> разбанен." >> ${iplimit_banned_log_path}
 
 [Init]
 EOF
 
-    echo -e "${green}Ip Limit jail files created with a bantime of ${bantime} minutes.${plain}"
+    echo -e "${green}Ограничения IP созданы на ${bantime} мин.${plain}"
 }
 
 iplimit_remove_conflicts() {
@@ -1073,30 +1087,30 @@ iplimit_remove_conflicts() {
     )
 
     for file in "${jail_files[@]}"; do
-        # Check for [3x-ipl] config in jail file then remove it
+        # Проверка наличия конфигурации [3x-ipl] в файле jail, затем удаление.
         if test -f "${file}" && grep -qw '3x-ipl' ${file}; then
             sed -i "/\[3x-ipl\]/,/^$/d" ${file}
-            echo -e "${yellow}Removing conflicts of [3x-ipl] in jail (${file})!${plain}\n"
+            echo -e "${yellow}Устранение конфликтов [3x-ipl] в jail (${file})!${plain}\n"
         fi
     done
 }
 
 iplimit_main() {
-    echo -e "\n${green}\t1.${plain} Install Fail2ban and configure IP Limit"
-    echo -e "${green}\t2.${plain} Change Ban Duration"
-    echo -e "${green}\t3.${plain} Unban Everyone"
-    echo -e "${green}\t4.${plain} Check Logs"
-    echo -e "${green}\t5.${plain} Fail2ban Status"
-    echo -e "${green}\t6.${plain} Restart Fail2ban"
-    echo -e "${green}\t7.${plain} Uninstall Fail2ban"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -p "Choose an option: " choice
+    echo -e "\n${green}\t1.${plain} Установить Fail2ban и настроить ограничения IP"
+    echo -e "${green}\t2.${plain} Изменить длительность бана"
+    echo -e "${green}\t3.${plain} Разбанить всех"
+    echo -e "${green}\t4.${plain} Проверить логи"
+    echo -e "${green}\t5.${plain} Статус Fail2ban"
+    echo -e "${green}\t6.${plain} Перезапустить Fail2ban"
+    echo -e "${green}\t7.${plain} Удалить Fail2ban"
+    echo -e "${green}\t0.${plain} Вернуться в главное меню"
+    read -p "Выберите вариант: " choice
     case "$choice" in
     0)
         show_menu
         ;;
     1)
-        confirm "Proceed with installation of Fail2ban & IP Limit?" "y"
+        confirm "Продолжить установку Fail2ban и ограничений IP?" "y"
         if [[ $? == 0 ]]; then
             install_iplimit
         else
@@ -1104,24 +1118,24 @@ iplimit_main() {
         fi
         ;;
     2)
-        read -rp "Please enter new Ban Duration in Minutes [default 30]: " NUM
+        read -rp "Введите новую продолжительность бана в минутах. [По умолчанию: 30]: " NUM
         if [[ $NUM =~ ^[0-9]+$ ]]; then
             create_iplimit_jails ${NUM}
             systemctl restart fail2ban
         else
-            echo -e "${red}${NUM} is not a number! Please, try again.${plain}"
+            echo -e "${red}${NUM} не число! Попробуйте еще раз.${plain}"
         fi
         iplimit_main
         ;;
     3)
-        confirm "Proceed with Unbanning everyone from IP Limit jail?" "y"
+        confirm "Вы уверены, что хотите разбанить все IP?" "y"
         if [[ $? == 0 ]]; then
             fail2ban-client reload --restart --unban 3x-ipl
             truncate -s 0 "${iplimit_banned_log_path}"
-            echo -e "${green}All users Unbanned successfully.${plain}"
+            echo -e "${green}Все пользователи успешно разбанены.${plain}"
             iplimit_main
         else
-            echo -e "${yellow}Cancelled.${plain}"
+            echo -e "${yellow}Отмена...${plain}"
         fi
         iplimit_main
         ;;
@@ -1137,13 +1151,13 @@ iplimit_main() {
     7)
         remove_iplimit
         ;;
-    *) echo "Invalid choice" ;;
+    *) echo "Неверный выбор" ;;
     esac
 }
 
 install_iplimit() {
     if ! command -v fail2ban-client &>/dev/null; then
-        echo -e "${green}Fail2ban is not installed. Installing now...!${plain}\n"
+        echo -e "${green}Fail2ban не установлен! Устанавливаю...${plain}\n"
 
         # Check the OS and install necessary packages
         case "${release}" in
@@ -1168,41 +1182,40 @@ install_iplimit() {
             pacman -Syu --noconfirm fail2ban
             ;;
         *)
-            echo -e "${red}Unsupported operating system. Please check the script and install the necessary packages manually.${plain}\n"
+            echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
             exit 1
             ;;
         esac
 
         if ! command -v fail2ban-client &>/dev/null; then
-            echo -e "${red}Fail2ban installation failed.${plain}\n"
+            echo -e "${red}Установка Fail2ban не удалась.${plain}\n"
             exit 1
         fi
 
-        echo -e "${green}Fail2ban installed successfully!${plain}\n"
+        echo -e "${green}Fail2ban успешно установлен!${plain}\n"
     else
-        echo -e "${yellow}Fail2ban is already installed.${plain}\n"
+        echo -e "${yellow}Fail2ban уже установлен.${plain}\n"
     fi
 
-    echo -e "${green}Configuring IP Limit...${plain}\n"
+    echo -e "${green}Конфигурация ограничений IP...${plain}\n"
 
-    # make sure there's no conflict for jail files
+    # Проверка конфиликтов jail
     iplimit_remove_conflicts
 
-    # Check if log file exists
+    # Проверка существования логов
     if ! test -f "${iplimit_banned_log_path}"; then
         touch ${iplimit_banned_log_path}
     fi
 
-    # Check if service log file exists so fail2ban won't return error
+    # Проверка существования логов службы
     if ! test -f "${iplimit_log_path}"; then
         touch ${iplimit_log_path}
     fi
 
-    # Create the iplimit jail files
-    # we didn't pass the bantime here to use the default value
+    # Создание файлов jail
     create_iplimit_jails
 
-    # Launching fail2ban
+    # Запуск fail2ban
     if ! systemctl is-active --quiet fail2ban; then
         systemctl start fail2ban
         systemctl enable fail2ban
@@ -1211,22 +1224,22 @@ install_iplimit() {
     fi
     systemctl enable fail2ban
 
-    echo -e "${green}IP Limit installed and configured successfully!${plain}\n"
+    echo -e "${green}Ограничения IP установлены и конфигурированы успешно!${plain}\n"
     before_show_menu
 }
 
 remove_iplimit() {
-    echo -e "${green}\t1.${plain} Only remove IP Limit configurations"
-    echo -e "${green}\t2.${plain} Uninstall Fail2ban and IP Limit"
-    echo -e "${green}\t0.${plain} Abort"
-    read -p "Choose an option: " num
+    echo -e "${green}\t1.${plain} Удалить только конфигурации ограничений IP"
+    echo -e "${green}\t2.${plain} Удалить Fail2ban и ограничения IP"
+    echo -e "${green}\t0.${plain} Отмена"
+    read -p "Выберите вариант: " num
     case "$num" in
     1)
         rm -f /etc/fail2ban/filter.d/3x-ipl.conf
         rm -f /etc/fail2ban/action.d/3x-ipl.conf
         rm -f /etc/fail2ban/jail.d/3x-ipl.conf
         systemctl restart fail2ban
-        echo -e "${green}IP Limit removed successfully!${plain}\n"
+        echo -e "${green}Все ограничения IP сняты!${plain}\n"
         before_show_menu
         ;;
     2)
@@ -1250,82 +1263,82 @@ remove_iplimit() {
             pacman -Rns --noconfirm fail2ban
             ;;
         *)
-            echo -e "${red}Unsupported operating system. Please uninstall Fail2ban manually.${plain}\n"
+            echo -e "${red}Неподдерживаемая операционная система. Пожалуйста, удалите Fail2ban вручную.${plain}\n"
             exit 1
             ;;
         esac
-        echo -e "${green}Fail2ban and IP Limit removed successfully!${plain}\n"
+        echo -e "${green}Fail2ban удалён, все ограничения IP сняты!${plain}\n"
         before_show_menu
         ;;
     0)
-        echo -e "${yellow}Cancelled.${plain}\n"
+        echo -e "${yellow}Отмена...${plain}\n"
         iplimit_main
         ;;
     *)
-        echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+        echo -e "${red}Неверный вариант. Выберите корректный номер.${plain}\n"
         remove_iplimit
         ;;
     esac
 }
 
 show_usage() {
-    echo "x-ui control menu usages: "
-    echo "------------------------------------------"
-    echo -e "SUBCOMMANDS:"
-    echo -e "x-ui              - Admin Management Script"
-    echo -e "x-ui start        - Start"
-    echo -e "x-ui stop         - Stop"
-    echo -e "x-ui restart      - Restart"
-    echo -e "x-ui status       - Current Status"
-    echo -e "x-ui settings     - Current Settings"
-    echo -e "x-ui enable       - Enable Autostart on OS Startup"
-    echo -e "x-ui disable      - Disable Autostart on OS Startup"
-    echo -e "x-ui log          - Check logs"
-    echo -e "x-ui banlog       - Check Fail2ban ban logs"
-    echo -e "x-ui update       - Update"
-    echo -e "x-ui custom       - custom version"
-    echo -e "x-ui install      - Install"
-    echo -e "x-ui uninstall    - Uninstall"
-    echo "------------------------------------------"
+    echo -e "Аппаратная панель управления X-UI: "
+    echo -e "----------------------------------------------"
+    echo -e "КОМАНДЫ:"
+    echo -e "x-ui              - Панель управления"
+    echo -e "x-ui start        - Запуск"
+    echo -e "x-ui stop         - Остановка"
+    echo -e "x-ui restart      - Перезапуск"
+    echo -e "x-ui status       - Текущий статус"
+    echo -e "x-ui settings     - Текущие настройки"
+    echo -e "x-ui enable       - Включить автозапуск при запуске ОС"
+    echo -e "x-ui disable      - Отключить автозапуск при запуске ОС"
+    echo -e "x-ui log          - Проверка журналов"
+    echo -e "x-ui banlog       - Проверка журналов бана Fail2ban"
+    echo -e "x-ui update       - Обновление"
+    echo -e "x-ui custom       - Пользовательская версия"
+    echo -e "x-ui install      - Установка"
+    echo -e "x-ui uninstall    - Удаление"
+    echo -e "----------------------------------------------"
 }
 
 show_menu() {
     echo -e "
-  ${green}X-UI Panel Management Script${plain}
-  ${green}0.${plain} Exit Script
+  ${green}Аппаратная панель управления X-UI${plain}
+  ${green}0.${plain} Выход
 ————————————————
-  ${green}1.${plain} Install
-  ${green}2.${plain} Update
-  ${green}3.${plain} Update Menu
-  ${green}4.${plain} Custom Version
-  ${green}5.${plain} Uninstall
+  ${green}1.${plain} Установить
+  ${green}2.${plain} Обновить
+  ${green}3.${plain} Обновить меню
+  ${green}4.${plain} Пользовательская версия
+  ${green}5.${plain} Удалить
 ————————————————
-  ${green}6.${plain} Reset Username & Password & Secret Token
-  ${green}7.${plain} Reset Web Base Path
-  ${green}8.${plain} Reset Settings
-  ${green}9.${plain} Change Port
-  ${green}10.${plain} View Current Settings
+  ${green}6.${plain} Сброс имени пользователя, пароля и токена
+  ${green}7.${plain} Сброс пути диспетчерской
+  ${green}8.${plain} Сброс настроек
+  ${green}9.${plain} Изменить порт
+  ${green}10.${plain} Просмотреть текущие настройки
 ————————————————
-  ${green}11.${plain} Start
-  ${green}12.${plain} Stop
-  ${green}13.${plain} Restart
-  ${green}14.${plain} Check Status
-  ${green}15.${plain} Check Logs
+  ${green}11.${plain} Запуск
+  ${green}12.${plain} Остановка
+  ${green}13.${plain} Перезапуск
+  ${green}14.${plain} Проверка статуса
+  ${green}15.${plain} Проверка журналов
 ————————————————
-  ${green}16.${plain} Enable Autostart
-  ${green}17.${plain} Disable Autostart
+  ${green}16.${plain} Включить автозапуск
+  ${green}17.${plain} Отключить автозапуск
 ————————————————
-  ${green}18.${plain} SSL Certificate Management
-  ${green}19.${plain} Cloudflare SSL Certificate
-  ${green}20.${plain} IP Limit Management
-  ${green}21.${plain} Firewall Management
+  ${green}18.${plain} Управление сертификатом SSL
+  ${green}19.${plain} Сертификат SSL Cloudflare
+  ${green}20.${plain} Управление лимитом IP
+  ${green}21.${plain} Управление брандмауэром
 ————————————————
-  ${green}22.${plain} Enable BBR 
-  ${green}23.${plain} Update Geo Files
-  ${green}24.${plain} Speedtest by Ookla
+  ${green}22.${plain} Включить BBR
+  ${green}23.${plain} Обновить файлы Geoip
+  ${green}24.${plain} Speedtest от Ookla
 "
     show_status
-    echo && read -p "Please enter your selection [0-24]: " num
+    echo && read -p "Пожалуйста, введите ваш выбор [0-24]: " num
 
     case "${num}" in
     0)
@@ -1404,7 +1417,7 @@ show_menu() {
         run_speedtest
         ;;
     *)
-        LOGE "Please enter the correct number [0-24]"
+        LOGE "Пожалуйста, введите корректный номер [0-24]"
         ;;
     esac
 }

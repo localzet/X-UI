@@ -5,10 +5,22 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
+function LOGD() {
+    echo -e "${yellow}[DEG] $* ${plain}"
+}
+
+function LOGE() {
+    echo -e "${red}[ERR] $* ${plain}"
+}
+
+function LOGI() {
+    echo -e "${green}[INF] $* ${plain}"
+}
+
 cur_dir=$(pwd)
 
 # Проверка прав
-[[ $EUID -ne 0 ]] && echo -e "${red}Ошибка: ${plain} Пожалуйста, запустите скрипт с root-правами \n " && exit 1
+[[ $EUID -ne 0 ]] && LOGE "Ошибка: Пожалуйста, запустите скрипт с root-правами! \n " && exit 1
 
 # Проверка ОС
 if [[ -f /etc/os-release ]]; then
@@ -21,6 +33,7 @@ else
     echo "Не удалось проверить ОС системы, свяжитесь с автором!" >&2
     exit 1
 fi
+
 echo "Ваша OS: $release"
 
 arch() {
@@ -95,7 +108,6 @@ else
     echo "- Oracle Linux 8+"
     echo "- OpenSUSE Tumbleweed"
     exit 1
-
 fi
 
 install_base() {
@@ -223,9 +235,13 @@ install_x-ui() {
     systemctl start x-ui
     echo -e "${green}x-ui ${last_version}${plain} установка завершена, программа запущена..."
     echo -e ""
-    echo -e "Аппаратная панель управления x-ui: "
+    show_usage
+}
+
+show_usage() {
+    echo -e "Аппаратная панель управления X-UI: "
     echo -e "----------------------------------------------"
-    echo -e "ПОДКОМАНДЫ:"
+    echo -e "КОМАНДЫ:"
     echo -e "x-ui              - Панель управления"
     echo -e "x-ui start        - Запуск"
     echo -e "x-ui stop         - Остановка"
