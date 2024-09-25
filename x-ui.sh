@@ -1127,6 +1127,40 @@ iplimit_main() {
     esac
 }
 
+install_warp() {
+    if ! command -v warp &> /dev/null; then
+        case "${release}" in
+        ubuntu)
+            apt update && apt install wget net-tools -y
+            ;;
+        debian | armbian)
+            apt update && apt install wget net-tools -y
+            ;;
+        centos | almalinux | rocky | oracle)
+            yum update -y && yum install wget net-tools -y
+            ;;
+        fedora)
+            dnf -y update && dnf -y install wget net-tools
+            ;;
+        *)
+            echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
+            exit 1
+            ;;
+        esac
+
+        mkdir -p /etc/wireguard
+        wget -N -P /etc/wireguard https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh
+        chmod +x /etc/wireguard/menu.sh
+        ln -sf /etc/wireguard/menu.sh /usr/bin/warp
+
+        echo -e "${green}WARP успешно установлен!${plain}\n"
+    else
+        echo -e "${yellow}WARP уже установлен.${plain}\n"
+    fi
+
+    warp w <<< $'1\n1\n'"40000"$'\n1\n'
+}
+
 install_iplimit() {
     if ! command -v fail2ban-client &>/dev/null; then
         echo -e "${green}Fail2ban не установлен! Устанавливаю...${plain}\n"
@@ -1306,11 +1340,12 @@ show_menu() {
   ${green}21.${plain} Управление брандмауэром
 ————————————————
   ${green}22.${plain} Включить BBR
-  ${green}23.${plain} Обновить файлы Geoip
-  ${green}24.${plain} Speedtest от Ookla
+  ${green}23.${plain} Установить WARP
+  ${green}24.${plain} Обновить файлы Geoip
+  ${green}25.${plain} Speedtest от Ookla
 "
     show_status
-    echo && read -p "Пожалуйста, введите ваш выбор [0-24]: " num
+    echo && read -p "Пожалуйста, введите ваш выбор [0-25]: " num
 
     case "${num}" in
     0)
@@ -1383,13 +1418,16 @@ show_menu() {
         bbr_menu
         ;;
     23)
-        update_geo
+        install_warp
         ;;
     24)
+        update_geo
+        ;;
+    25)
         run_speedtest
         ;;
     *)
-        LOGE "Пожалуйста, введите корректный номер [0-24]"
+        LOGE "Пожалуйста, введите корректный номер [0-25]"
         ;;
     esac
 }
