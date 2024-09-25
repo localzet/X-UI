@@ -269,26 +269,22 @@ gen_random_string() {
 }
 
 reset_webbasepath() {
-    echo -e "${yellow}Resetting Web Base Path${plain}"
-    
-    # Prompt user to set a new web base path
-    read -rp "Please set the new web base path [press 'y' for a random path]: " config_webBasePath
+    echo -e "${yellow}Сброс пути диспетчерской${plain}"
+    read -rp "Укажите новый путь диспетчерской [Введите 'y' для генерации рандомного]: " config_webBasePath
     
     if [[ $config_webBasePath == "y" ]]; then
         config_webBasePath=$(gen_random_string 10)
     fi
     
-    # Apply the new web base path setting
     /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}" >/dev/null 2>&1
     systemctl restart x-ui
     
-    # Display confirmation message
-    echo -e "Web base path has been reset to: ${green}${config_webBasePath}${plain}"
-    echo -e "${green}Please use the new web base path to access the panel.${plain}"
+    echo -e "Новый путь диспетчерской: ${green}${config_webBasePath}${plain}"
+    echo -e "${green}Используйте новый URL для доступа к панели диспетчера.${plain}"
 }
 
 reset_config() {
-    confirm "Are you sure you want to reset all panel settings, Account data will not be lost, Username and password will not change [д/Н]" "н"
+    confirm "Вы уверены, что хотите сбросить все настройки панели? Данные учетной записи не будут потеряны, имя пользователя и пароль не изменятся. [д/Н]" "н"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
@@ -296,27 +292,27 @@ reset_config() {
         return 0
     fi
     /usr/local/x-ui/x-ui setting -reset
-    echo -e "All panel settings have been reset to default, Please restart the panel now, and use the default ${green}2053${plain} Port to Access the web Panel"
+    echo -e "Все настройки панели сброшены до значений по умолчанию. Пожалуйста, перезапустите панель сейчас и используйте порт ${green}2053${plain} для доступа к веб-панели."
     confirm_restart
 }
 
 check_config() {
     info=$(/usr/local/x-ui/x-ui setting -show true)
     if [[ $? != 0 ]]; then
-        LOGE "get current settings error, please check logs"
+        LOGE "Ошибка текущих настроек. Проверьте журналы."
         show_menu
     fi
     LOGI "${info}"
 }
 
 set_port() {
-    echo && echo -n -e "Enter port number[1-65535]: " && read port
+    echo && echo -n -e "Введите порт [1-65535]: " && read port
     if [[ -z "${port}" ]]; then
         LOGD "Cancelled"
         before_show_menu
     else
         /usr/local/x-ui/x-ui setting -port ${port}
-        echo -e "The port is set, Please restart the panel now, and use the new port ${green}${port}${plain} to access web panel"
+        echo -e "Порт установлен. Пожалуйста, перезагрузите панель и используйте новый порт ${green}${port}${plain} для доступа к веб-панели"
         confirm_restart
     fi
 }
@@ -325,15 +321,15 @@ start() {
     check_status
     if [[ $? == 0 ]]; then
         echo ""
-        LOGI "Panel is running, No need to start again, If you need to restart, please select restart"
+        LOGI "Панель уже запущена. Если нужно её перезапустить, выберите «Перезапустить»."
     else
         systemctl start x-ui
         sleep 2
         check_status
         if [[ $? == 0 ]]; then
-            LOGI "x-ui Started Successfully"
+            LOGI "X-UI запущен!"
         else
-            LOGE "panel Failed to start, Probably because it takes longer than two seconds to start, Please check the log information later"
+            LOGE "Не удалось запустить панель. Вероятно, запуск занял больше двух секунд. Проверьте информацию журнала позже."
         fi
     fi
 
@@ -346,15 +342,15 @@ stop() {
     check_status
     if [[ $? == 1 ]]; then
         echo ""
-        LOGI "Panel stopped, No need to stop again!"
+        LOGI "Панель уже остановлена!"
     else
         systemctl stop x-ui
         sleep 2
         check_status
         if [[ $? == 1 ]]; then
-            LOGI "x-ui and xray stopped successfully"
+            LOGI "X-UI и XRay остановлены!"
         else
-            LOGE "Panel stop failed, Probably because the stop time exceeds two seconds, Please check the log information later"
+            LOGE "Не удалось остановить панель. Вероятно, остановка заняла больше двух секунд. Проверьте информацию журнала позже."
         fi
     fi
 
@@ -368,9 +364,9 @@ restart() {
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
-        LOGI "x-ui and xray Restarted successfully"
+        LOGI "X-UI и XRay перезапущены!"
     else
-        LOGE "Panel restart failed, Probably because it takes longer than two seconds to start, Please check the log information later"
+        LOGE "Перезапуск панели не удался. Вероятно, перезапуск занял больше двух секунд. Проверьте информацию журнала позже."
     fi
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -387,9 +383,9 @@ status() {
 enable() {
     systemctl enable x-ui
     if [[ $? == 0 ]]; then
-        LOGI "x-ui Set to boot automatically on startup successfully"
+        LOGI "Автозапуск X-UI активирован!"
     else
-        LOGE "x-ui Failed to set Autostart"
+        LOGE "Не удалось активировать автозапуск X-UI"
     fi
 
     if [[ $# == 0 ]]; then
@@ -400,9 +396,9 @@ enable() {
 disable() {
     systemctl disable x-ui
     if [[ $? == 0 ]]; then
-        LOGI "x-ui Autostart Cancelled successfully"
+        LOGI "Автозапуск X-UI деактивирован!"
     else
-        LOGE "x-ui Failed to cancel autostart"
+        LOGE "Не удалось деактивировать автозапуск X-UI"
     fi
 
     if [[ $# == 0 ]]; then
@@ -422,10 +418,10 @@ show_banlog() {
         if [[ -s "${iplimit_banned_log_path}" ]]; then
             cat ${iplimit_banned_log_path}
         else
-            echo -e "${red}Log file is empty.${plain}\n"
+            echo -e "${red}Файл журнала пуст.${plain}\n"
         fi
     else
-        echo -e "${red}Log file not found. Please Install Fail2ban and IP Limit first.${plain}\n"
+        echo -e "${red}Файл журнала не найден. Сначала установите Fail2ban и IP Limit.${plain}\n"
     fi
 }
 
