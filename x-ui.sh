@@ -1158,7 +1158,8 @@ install_warp() {
         echo -e "${yellow}WARP уже установлен.${plain}\n"
     fi
 
-    warp w <<< $'1\n1\n'"40000"$'\n1\n'
+    warp w <<< $'1\n1\n40000\n1\n'
+    [[ $? -ne 0 ]] && STEP_STATUS=0 || STEP_STATUS=1
 }
 
 install_iplimit() {
