@@ -289,30 +289,12 @@
                                             </a-alert>
                                         </a-row>
                                         <a-list-item>
-                                            <setting-list-item type="switch" title='{{ i18n "pages.xray.IRIp"}}'
-                                                desc='{{ i18n "pages.xray.IRIpDesc"}}'
-                                                v-model="IRIpSettings"></setting-list-item>
-                                            <setting-list-item type="switch" title='{{ i18n "pages.xray.IRDomain"}}'
-                                                desc='{{ i18n "pages.xray.IRDomainDesc"}}'
-                                                v-model="IRDomainSettings"></setting-list-item>
-                                            <setting-list-item type="switch" title='{{ i18n "pages.xray.ChinaIp"}}'
-                                                desc='{{ i18n "pages.xray.ChinaIpDesc"}}'
-                                                v-model="ChinaIpSettings"></setting-list-item>
-                                            <setting-list-item type="switch" title='{{ i18n "pages.xray.ChinaDomain"}}'
-                                                desc='{{ i18n "pages.xray.ChinaDomainDesc"}}'
-                                                v-model="ChinaDomainSettings"></setting-list-item>
                                             <setting-list-item type="switch" title='{{ i18n "pages.xray.RussiaIp"}}'
                                                 desc='{{ i18n "pages.xray.RussiaIpDesc"}}'
                                                 v-model="RussiaIpSettings"></setting-list-item>
                                             <setting-list-item type="switch" title='{{ i18n "pages.xray.RussiaDomain"}}'
                                                 desc='{{ i18n "pages.xray.RussiaDomainDesc"}}'
                                                 v-model="RussiaDomainSettings"></setting-list-item>
-                                            <setting-list-item type="switch" title='{{ i18n "pages.xray.VNIp"}}'
-                                                desc='{{ i18n "pages.xray.VNIpDesc"}}'
-                                                v-model="VNIpSettings"></setting-list-item>
-                                            <setting-list-item type="switch" title='{{ i18n "pages.xray.VNDomain"}}'
-                                                desc='{{ i18n "pages.xray.VNDomainDesc"}}'
-                                                v-model="VNDomainSettings"></setting-list-item>
                                         </a-list-item>
                                     </a-collapse-panel>
                                     <a-collapse-panel header='{{ i18n "pages.xray.directCountryConfigs"}}'>
@@ -326,21 +308,6 @@
                                             </a-alert>
                                         </a-row>
                                         <a-list-item>
-                                            <setting-list-item type="switch" title='{{ i18n "pages.xray.DirectIRIp"}}'
-                                                desc='{{ i18n "pages.xray.DirectIRIpDesc"}}'
-                                                v-model="IRIpDirectSettings"></setting-list-item>
-                                            <setting-list-item type="switch"
-                                                title='{{ i18n "pages.xray.DirectIRDomain"}}'
-                                                desc='{{ i18n "pages.xray.DirectIRDomainDesc"}}'
-                                                v-model="IRDomainDirectSettings"></setting-list-item>
-                                            <setting-list-item type="switch"
-                                                title='{{ i18n "pages.xray.DirectChinaIp"}}'
-                                                desc='{{ i18n "pages.xray.DirectChinaIpDesc"}}'
-                                                v-model="ChinaIpDirectSettings"></setting-list-item>
-                                            <setting-list-item type="switch"
-                                                title='{{ i18n "pages.xray.DirectChinaDomain"}}'
-                                                desc='{{ i18n "pages.xray.DirectChinaDomainDesc"}}'
-                                                v-model="ChinaDomainDirectSettings"></setting-list-item>
                                             <setting-list-item type="switch"
                                                 title='{{ i18n "pages.xray.DirectRussiaIp"}}'
                                                 desc='{{ i18n "pages.xray.DirectRussiaIpDesc"}}'
@@ -349,13 +316,6 @@
                                                 title='{{ i18n "pages.xray.DirectRussiaDomain"}}'
                                                 desc='{{ i18n "pages.xray.DirectRussiaDomainDesc"}}'
                                                 v-model="RussiaDomainDirectSettings"></setting-list-item>
-                                            <setting-list-item type="switch" title='{{ i18n "pages.xray.DirectVNIp"}}'
-                                                desc='{{ i18n "pages.xray.DirectVNIpDesc"}}'
-                                                v-model="VNIpDirectSettings"></setting-list-item>
-                                            <setting-list-item type="switch"
-                                                title='{{ i18n "pages.xray.DirectVNDomain"}}'
-                                                desc='{{ i18n "pages.xray.DirectVNDomainDesc"}}'
-                                                v-model="VNDomainDirectSettings"></setting-list-item>
                                         </a-list-item>
                                     </a-collapse-panel>
                                     <a-collapse-panel header='{{ i18n "pages.xray.ipv4Configs"}}'>
@@ -2024,54 +1984,6 @@
                         }
                     },
                 },
-                IRIpSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.ips.ir, this.blockedIPs);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.blockedIPs = [...this.blockedIPs, ...this.settingsData.ips.ir];
-                        } else {
-                            this.blockedIPs = this.blockedIPs.filter(data => !this.settingsData.ips.ir.includes(data));
-                        }
-                    }
-                },
-                IRDomainSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.domains.ir, this.blockedDomains);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.blockedDomains = [...this.blockedDomains, ...this.settingsData.domains.ir];
-                        } else {
-                            this.blockedDomains = this.blockedDomains.filter(data => !this.settingsData.domains.ir.includes(data));
-                        }
-                    }
-                },
-                ChinaIpSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.ips.cn, this.blockedIPs);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.blockedIPs = [...this.blockedIPs, ...this.settingsData.ips.cn];
-                        } else {
-                            this.blockedIPs = this.blockedIPs.filter(data => !this.settingsData.ips.cn.includes(data));
-                        }
-                    }
-                },
-                ChinaDomainSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.domains.cn, this.blockedDomains);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.blockedDomains = [...this.blockedDomains, ...this.settingsData.domains.cn];
-                        } else {
-                            this.blockedDomains = this.blockedDomains.filter(data => !this.settingsData.domains.cn.includes(data));
-                        }
-                    }
-                },
                 RussiaIpSettings: {
                     get: function () {
                         return doAllItemsExist(this.settingsData.ips.ru, this.blockedIPs);
@@ -2096,78 +2008,6 @@
                         }
                     }
                 },
-                VNIpSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.ips.vn, this.blockedIPs);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.blockedIPs = [...this.blockedIPs, ...this.settingsData.ips.vn];
-                        } else {
-                            this.blockedIPs = this.blockedIPs.filter(data => !this.settingsData.ips.vn.includes(data));
-                        }
-                    }
-                },
-                VNDomainSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.domains.vn, this.blockedDomains);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.blockedDomains = [...this.blockedDomains, ...this.settingsData.domains.vn];
-                        } else {
-                            this.blockedDomains = this.blockedDomains.filter(data => !this.settingsData.domains.vn.includes(data));
-                        }
-                    }
-                },
-                IRIpDirectSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.ips.ir, this.directIPs);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.directIPs = [...this.directIPs, ...this.settingsData.ips.ir];
-                        } else {
-                            this.directIPs = this.directIPs.filter(data => !this.settingsData.ips.ir.includes(data));
-                        }
-                    }
-                },
-                IRDomainDirectSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.domains.ir, this.directDomains);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.directDomains = [...this.directDomains, ...this.settingsData.domains.ir];
-                        } else {
-                            this.directDomains = this.directDomains.filter(data => !this.settingsData.domains.ir.includes(data));
-                        }
-                    }
-                },
-                ChinaIpDirectSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.ips.cn, this.directIPs);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.directIPs = [...this.directIPs, ...this.settingsData.ips.cn];
-                        } else {
-                            this.directIPs = this.directIPs.filter(data => !this.settingsData.ips.cn.includes(data));
-                        }
-                    }
-                },
-                ChinaDomainDirectSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.domains.cn, this.directDomains);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.directDomains = [...this.directDomains, ...this.settingsData.domains.cn];
-                        } else {
-                            this.directDomains = this.directDomains.filter(data => !this.settingsData.domains.cn.includes(data));
-                        }
-                    }
-                },
                 RussiaIpDirectSettings: {
                     get: function () {
                         return doAllItemsExist(this.settingsData.ips.ru, this.directIPs);
@@ -2189,30 +2029,6 @@
                             this.directDomains = [...this.directDomains, ...this.settingsData.domains.ru];
                         } else {
                             this.directDomains = this.directDomains.filter(data => !this.settingsData.domains.ru.includes(data));
-                        }
-                    }
-                },
-                VNIpDirectSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.ips.vn, this.directIPs);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.directIPs = [...this.directIPs, ...this.settingsData.ips.vn];
-                        } else {
-                            this.directIPs = this.directIPs.filter(data => !this.settingsData.ips.vn.includes(data));
-                        }
-                    }
-                },
-                VNDomainDirectSettings: {
-                    get: function () {
-                        return doAllItemsExist(this.settingsData.domains.vn, this.directDomains);
-                    },
-                    set: function (newValue) {
-                        if (newValue) {
-                            this.directDomains = [...this.directDomains, ...this.settingsData.domains.vn];
-                        } else {
-                            this.directDomains = this.directDomains.filter(data => !this.settingsData.domains.vn.includes(data));
                         }
                     }
                 },
