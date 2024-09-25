@@ -121,7 +121,7 @@ confirm() {
     else
         read -p "$1 [д/Н]: " temp
     fi
-    if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" || "${config_confirm}" == "д" || "${config_confirm}" == "Д" ]]; then
+    if [[ "${temp}" == "y" || "${temp}" == "Y" || "${temp}" == "д" || "${temp}" == "Д" ]]; then
         return 0
     else
         return 1
@@ -171,7 +171,7 @@ update() {
 
 update_menu() {
     echo -e "${yellow}Обновление скрипта${plain}"
-    confirm "Эта функция обновит скрипт до последних изменений.. [Д/н]" "y"
+    confirm "Эта функция обновит скрипт до последних изменений.. [Д/н]" "д"
     if [[ $? != 0 ]]; then
         LOGE "Отмена..."
         if [[ $# == 0 ]]; then
