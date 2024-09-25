@@ -114,14 +114,14 @@ iplimit_banned_log_path="${log_folder}/3xipl-banned.log"
 
 confirm() {
     if [[ $# > 1 ]]; then
-        echo && read -p "$1 [Default $2]: " temp
+        echo && read -p "$1 [По умолчанию $2]: " temp
         if [[ "${temp}" == "" ]]; then
             temp=$2
         fi
     else
-        read -p "$1 [y/n]: " temp
+        read -p "$1 [д/Н]: " temp
     fi
-    if [[ "${temp}" == "y" || "${temp}" == "Y" ]]; then
+    if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" || "${config_confirm}" == "д" || "${config_confirm}" == "Д" ]]; then
         return 0
     else
         return 1
@@ -129,7 +129,7 @@ confirm() {
 }
 
 confirm_restart() {
-    confirm "Перезапустите панель. Внимание: перезапуск панели также приведет к перезапуску Xray" "y"
+    confirm "Перезапустите панель. Внимание: перезапуск панели также приведет к перезапуску Xray [Д/н]" "д"
     if [[ $? == 0 ]]; then
         restart
     else
@@ -138,7 +138,7 @@ confirm_restart() {
 }
 
 before_show_menu() {
-    echo && echo -n -e "${yellow}Press enter to return to the main menu: ${plain}" && read temp
+    echo && echo -n -e "${yellow}Нажмите Enter, чтобы вернуться в главное меню.: ${plain}" && read temp
     show_menu
 }
 
@@ -154,9 +154,9 @@ install() {
 }
 
 update() {
-    confirm "This function will forcefully reinstall the latest version, and the data will not be lost. Do you want to continue?" "y"
+    confirm "Эта функция принудительно переустановит последнюю версию, и данные не будут потеряны. Хотите продолжить? [Д/н]" "д"
     if [[ $? != 0 ]]; then
-        LOGE "Cancelled"
+        LOGE "Отмена..."
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
@@ -164,16 +164,16 @@ update() {
     fi
     bash <(curl -Ls https://raw.githubusercontent.com/localzet/x-ui/main/install.sh)
     if [[ $? == 0 ]]; then
-        LOGI "Update is complete, Panel has automatically restarted "
+        LOGI "Обновление завершено, панель автоматически перезагрузилась."
         exit 0
     fi
 }
 
 update_menu() {
-    echo -e "${yellow}Updating Menu${plain}"
-    confirm "This function will update the menu to the latest changes." "y"
+    echo -e "${yellow}Обновление скрипта${plain}"
+    confirm "Эта функция обновит скрипт до последних изменений.. [Д/н]" "д"
     if [[ $? != 0 ]]; then
-        LOGE "Cancelled"
+        LOGE "Отмена..."
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
@@ -185,40 +185,37 @@ update_menu() {
     chmod +x /usr/bin/x-ui
     
      if [[ $? == 0 ]]; then
-        echo -e "${green}Update successful. The panel has automatically restarted.${plain}"
+        echo -e "${green}Обновление прошло успешно. Панель автоматически перезагрузилась..${plain}"
         exit 0
     else
-        echo -e "${red}Failed to update the menu.${plain}"
+        echo -e "${red}Не удалось обновить скрипт..${plain}"
         return 1
     fi
 }
 
 custom_version() {
-    echo "Enter the panel version (like 2.0.0):"
+    echo "Введите версию панели (Например, 2.0.0):"
     read panel_version
 
     if [ -z "$panel_version" ]; then
-        echo "Panel version cannot be empty. Exiting."
+        echo "Версия панели не может быть пустой. Выход."
         exit 1
     fi
 
     download_link="https://raw.githubusercontent.com/localzet/x-ui/master/install.sh"
-
-    # Use the entered panel version in the download link
     install_command="bash <(curl -Ls $download_link) v$panel_version"
 
-    echo "Downloading and installing panel version $panel_version..."
+    echo "Загрузка и установка версии панели $panel_version..."
     eval $install_command
 }
 
-# Function to handle the deletion of the script file
 delete_script() {
-    rm "$0"  # Remove the script file itself
+    rm "$0"  # Удалить сам файл скрипта
     exit 1
 }
 
 uninstall() {
-    confirm "Are you sure you want to uninstall the panel? xray will also uninstalled!" "n"
+    confirm "Вы уверены, что хотите удалить панель? XRay также будет удален! [д/Н]" "н"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
@@ -234,33 +231,34 @@ uninstall() {
     rm /usr/local/x-ui/ -rf
 
     echo ""
-    echo -e "Uninstalled Successfully.\n"
-    echo "If you need to install this panel again, you can use below command:"
+    echo -e "Успешно удалено.\n"
+    echo "Если вам нужно установить эту панель снова, вы можете использовать следующую команду:"
     echo -e "${green}bash <(curl -Ls https://raw.githubusercontent.com/localzet/x-ui/master/install.sh)${plain}"
     echo ""
-    # Trap the SIGTERM signal
+
+    # Перехват сигнала SIGTERM
     trap delete_script SIGTERM
     delete_script
 }
 
 reset_user() {
-    confirm "Are you sure to reset the username and password of the panel?" "n"
+    confirm "Вы уверены, что хотите сбросить имя пользователя и пароль панели?? [д/Н]" "н"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
         fi
         return 0
     fi
-    read -rp "Please set the login username [default is a random username]: " config_account
+    read -rp "Установите имя пользователя [По умолчанию - случайные данные]: " config_account
     [[ -z $config_account ]] && config_account=$(date +%s%N | md5sum | cut -c 1-8)
-    read -rp "Please set the login password [default is a random password]: " config_password
+    read -rp "Установите пароль [По умолчанию - случайные данные]: " config_password
     [[ -z $config_password ]] && config_password=$(date +%s%N | md5sum | cut -c 1-8)
     /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password} >/dev/null 2>&1
     /usr/local/x-ui/x-ui setting -remove_secret >/dev/null 2>&1
-    echo -e "Panel login username has been reset to: ${green} ${config_account} ${plain}"
-    echo -e "Panel login password has been reset to: ${green} ${config_password} ${plain}"
-    echo -e "${yellow} Panel login secret token disabled ${plain}"
-    echo -e "${green} Please use the new login username and password to access the X-UI panel. Also remember them! ${plain}"
+    echo -e "Имя пользователя: ${green} ${config_account} ${plain}"
+    echo -e "Пароль: ${green} ${config_password} ${plain}"
+    echo -e "${yellow} Секретный токен входа в панель отключен ${plain}"
+    echo -e "${green} Пожалуйста, используйте новое имя пользователя и пароль для входа в панель X-UI. Запомните их! ${plain}"
     confirm_restart
 }
 
@@ -290,7 +288,7 @@ reset_webbasepath() {
 }
 
 reset_config() {
-    confirm "Are you sure you want to reset all panel settings, Account data will not be lost, Username and password will not change" "n"
+    confirm "Are you sure you want to reset all panel settings, Account data will not be lost, Username and password will not change [д/Н]" "н"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
@@ -432,10 +430,10 @@ show_banlog() {
 }
 
 bbr_menu() {
-    echo -e "${green}\t1.${plain} Enable BBR"
-    echo -e "${green}\t2.${plain} Disable BBR"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -p "Choose an option: " choice
+    echo -e "${green}\t1.${plain} Включить BBR"
+    echo -e "${green}\t2.${plain} Отключить BBR"
+    echo -e "${green}\t0.${plain} Вернуться в главное меню"
+    read -p "Выберите вариант: " choice
     case "$choice" in
     0)
         show_menu
@@ -446,39 +444,34 @@ bbr_menu() {
     2)
         disable_bbr
         ;;
-    *) echo "Invalid choice" ;;
+    *) echo "Неверный выбор" ;;
     esac
 }
 
 disable_bbr() {
-
     if ! grep -q "net.core.default_qdisc=fq" /etc/sysctl.conf || ! grep -q "net.ipv4.tcp_congestion_control=bbr" /etc/sysctl.conf; then
-        echo -e "${yellow}BBR is not currently enabled.${plain}"
+        echo -e "${yellow}BBR в настоящее время не включен.${plain}"
         exit 0
     fi
 
-    # Replace BBR with CUBIC configurations
     sed -i 's/net.core.default_qdisc=fq/net.core.default_qdisc=pfifo_fast/' /etc/sysctl.conf
     sed -i 's/net.ipv4.tcp_congestion_control=bbr/net.ipv4.tcp_congestion_control=cubic/' /etc/sysctl.conf
 
-    # Apply changes
     sysctl -p
 
-    # Verify that BBR is replaced with CUBIC
     if [[ $(sysctl net.ipv4.tcp_congestion_control | awk '{print $3}') == "cubic" ]]; then
-        echo -e "${green}BBR has been replaced with CUBIC successfully.${plain}"
+        echo -e "${green}BBR был успешно заменен на CUBIC.${plain}"
     else
-        echo -e "${red}Failed to replace BBR with CUBIC. Please check your system configuration.${plain}"
+        echo -e "${red}Не удалось заменить BBR на CUBIC. Проверьте конфигурацию системы.${plain}"
     fi
 }
 
 enable_bbr() {
     if grep -q "net.core.default_qdisc=fq" /etc/sysctl.conf && grep -q "net.ipv4.tcp_congestion_control=bbr" /etc/sysctl.conf; then
-        echo -e "${green}BBR is already enabled!${plain}"
+        echo -e "${green}BBR уже включен!${plain}"
         exit 0
     fi
 
-    # Check the OS and install necessary packages
     case "${release}" in
     ubuntu | debian | armbian)
         apt-get update && apt-get install -yqq --no-install-recommends ca-certificates
@@ -493,23 +486,20 @@ enable_bbr() {
         pacman -Sy --noconfirm ca-certificates
         ;;
     *)
-        echo -e "${red}Unsupported operating system. Please check the script and install the necessary packages manually.${plain}\n"
+        echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
         exit 1
         ;;
     esac
 
-    # Enable BBR
     echo "net.core.default_qdisc=fq" | tee -a /etc/sysctl.conf
     echo "net.ipv4.tcp_congestion_control=bbr" | tee -a /etc/sysctl.conf
 
-    # Apply changes
     sysctl -p
 
-    # Verify that BBR is enabled
     if [[ $(sysctl net.ipv4.tcp_congestion_control | awk '{print $3}') == "bbr" ]]; then
-        echo -e "${green}BBR has been enabled successfully.${plain}"
+        echo -e "${green}BBR был успешно включен.${plain}"
     else
-        echo -e "${red}Failed to enable BBR. Please check your system configuration.${plain}"
+        echo -e "${red}Не удалось включить BBR. Проверьте конфигурацию системы.${plain}"
     fi
 }
 
@@ -517,15 +507,15 @@ update_shell() {
     wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/localzet/x-ui/raw/main/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
-        LOGE "Failed to download script, Please check whether the machine can connect Github"
+        LOGE "Не удалось загрузить скрипт. Проверьте, может ли устройство подключиться к Github."
         before_show_menu
     else
         chmod +x /usr/bin/x-ui
-        LOGI "Upgrade script succeeded, Please rerun the script" && exit 0
+        LOGI "Обновление скрипта прошло успешно. Пожалуйста, перезапустите его." && exit 0
     fi
 }
 
-# 0: running, 1: not running, 2: not installed
+# 0: работает, 1: не работает, 2: не установлено
 check_status() {
     if [[ ! -f /etc/systemd/system/x-ui.service ]]; then
         return 2
@@ -551,7 +541,7 @@ check_uninstall() {
     check_status
     if [[ $? != 2 ]]; then
         echo ""
-        LOGE "Panel installed, Please do not reinstall"
+        LOGE "Панель установлена. Пожалуйста, не переустанавливайте."
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
@@ -565,7 +555,7 @@ check_install() {
     check_status
     if [[ $? == 2 ]]; then
         echo ""
-        LOGE "Please install the panel first"
+        LOGE "Сначала установите панель"
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
@@ -579,15 +569,15 @@ show_status() {
     check_status
     case $? in
     0)
-        echo -e "Panel state: ${green}Running${plain}"
+        echo -e "Состояние панели: ${green}Запущена${plain}"
         show_enable_status
         ;;
     1)
-        echo -e "Panel state: ${yellow}Not Running${plain}"
+        echo -e "Состояние панели: ${yellow}Не запущена${plain}"
         show_enable_status
         ;;
     2)
-        echo -e "Panel state: ${red}Not Installed${plain}"
+        echo -e "Состояние панели: ${red}Не установлена${plain}"
         ;;
     esac
     show_xray_status
@@ -596,9 +586,9 @@ show_status() {
 show_enable_status() {
     check_enabled
     if [[ $? == 0 ]]; then
-        echo -e "Start automatically: ${green}Yes${plain}"
+        echo -e "Автозапуск: ${green}Да${plain}"
     else
-        echo -e "Start automatically: ${red}No${plain}"
+        echo -e "Автозапуск: ${red}Нет${plain}"
     fi
 }
 
@@ -614,19 +604,19 @@ check_xray_status() {
 show_xray_status() {
     check_xray_status
     if [[ $? == 0 ]]; then
-        echo -e "xray state: ${green}Running${plain}"
+        echo -e "Состояние XRay: ${green}Запущен${plain}"
     else
-        echo -e "xray state: ${red}Not Running${plain}"
+        echo -e "Состояние XRay: ${red}Не запущен${plain}"
     fi
 }
 
 firewall_menu() {
-    echo -e "${green}\t1.${plain} Install Firewall & open ports"
-    echo -e "${green}\t2.${plain} Allowed List"
-    echo -e "${green}\t3.${plain} Delete Ports from List"
-    echo -e "${green}\t4.${plain} Disable Firewall"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -p "Choose an option: " choice
+    echo -e "${green}\t1.${plain} Установить брандмауэр и открыть порты"
+    echo -e "${green}\t2.${plain} Разрешенный список"
+    echo -e "${green}\t3.${plain} Удалить порты из списка"
+    echo -e "${green}\t4.${plain} Отключить брандмауэр"
+    echo -e "${green}\t0.${plain} Вернуться в главное меню"
+    read -p "Выберите вариант: " choice
     case "$choice" in
     0)
         show_menu
@@ -643,50 +633,45 @@ firewall_menu() {
     4)
         sudo ufw disable
         ;;
-    *) echo "Invalid choice" ;;
+    *) echo "Неверный выбор" ;;
     esac
 }
 
 open_ports() {
     if ! command -v ufw &>/dev/null; then
-        echo "ufw firewall is not installed. Installing now..."
+        echo "Не установлен брандмауэр ufw. Установка..."
         apt-get update
         apt-get install -y ufw
     else
-        echo "ufw firewall is already installed"
+        echo "Брандмауэр ufw уже установлен"
     fi
 
-    # Check if the firewall is inactive
     if ufw status | grep -q "Status: active"; then
-        echo "Firewall is already active"
+        echo "Брандмауэр уже активен"
     else
-        echo "Activating firewall..."
-        # Open the necessary ports
+        echo "Активация брандмауэра..."
+
         ufw allow ssh
         ufw allow http
         ufw allow https
         ufw allow 2053/tcp
 
-        # Enable the firewall
         ufw --force enable
     fi
 
-    # Prompt the user to enter a list of ports
-    read -p "Enter the ports you want to open (e.g. 80,443,2053 or range 400-500): " ports
+    read -p "Введите порты, которые вы хотите открыть (например, 80,443,2053 или диапазон 400-500): " ports
 
-    # Check if the input is valid
     if ! [[ $ports =~ ^([0-9]+|[0-9]+-[0-9]+)(,([0-9]+|[0-9]+-[0-9]+))*$ ]]; then
-        echo "Error: Invalid input. Please enter a comma-separated list of ports or a range of ports (e.g. 80,443,2053 or 400-500)." >&2
+        echo "Ошибка: Неверный ввод. Введите список портов, разделенных запятыми, или диапазон портов (например, 80,443,2053 или 400-500)." >&2
         exit 1
     fi
 
-    # Open the specified ports using ufw
     IFS=',' read -ra PORT_LIST <<<"$ports"
     for port in "${PORT_LIST[@]}"; do
         if [[ $port == *-* ]]; then
-            # Split the range into start and end ports
             start_port=$(echo $port | cut -d'-' -f1)
             end_port=$(echo $port | cut -d'-' -f2)
+
             ufw allow $start_port:$end_port/tcp
             ufw allow $start_port:$end_port/udp
         else
@@ -694,50 +679,41 @@ open_ports() {
         fi
     done
 
-    # Confirm that the ports are open
-    echo "The following ports are now open:"
+    echo "Следующие порты теперь открыты:"
     ufw status | grep "ALLOW" | grep -Eo "[0-9]+(/[a-z]+)?"
 
-    echo "Firewall status:"
+    echo "Статус брандмауэра:"
     ufw status verbose
 }
 
 delete_ports() {
-    # Prompt the user to enter the ports they want to delete
-    read -p "Enter the ports you want to delete (e.g. 80,443,2053 or range 400-500): " ports
+    read -p "Введите порты, которые вы хотите удалить (например, 80,443,2053 или диапазон 400-500): " ports
 
-    # Check if the input is valid
     if ! [[ $ports =~ ^([0-9]+|[0-9]+-[0-9]+)(,([0-9]+|[0-9]+-[0-9]+))*$ ]]; then
-        echo "Error: Invalid input. Please enter a comma-separated list of ports or a range of ports (e.g. 80,443,2053 or 400-500)." >&2
+        echo "Ошибка: Неверный ввод. Введите список портов, разделенных запятыми, или диапазон портов (например, 80,443,2053 или 400-500)." >&2
         exit 1
     fi
 
-    # Delete the specified ports using ufw
     IFS=',' read -ra PORT_LIST <<<"$ports"
     for port in "${PORT_LIST[@]}"; do
         if [[ $port == *-* ]]; then
-            # Split the range into start and end ports
             start_port=$(echo $port | cut -d'-' -f1)
             end_port=$(echo $port | cut -d'-' -f2)
-            # Delete the port range
+
             ufw delete allow $start_port:$end_port/tcp
             ufw delete allow $start_port:$end_port/udp
         else
             ufw delete allow "$port"
         fi
     done
-
-    # Confirm that the ports are deleted
     
-    echo "Deleted the specified ports:"
+    echo "Удаляю указанные порты:"
     for port in "${PORT_LIST[@]}"; do
         if [[ $port == *-* ]]; then
             start_port=$(echo $port | cut -d'-' -f1)
             end_port=$(echo $port | cut -d'-' -f2)
-            # Check if the port range has been successfully deleted
             (ufw status | grep -q "$start_port:$end_port") || echo "$start_port-$end_port"
         else
-            # Check if the individual port has been successfully deleted
             (ufw status | grep -q "$port") || echo "$port"
         fi
     done
@@ -745,11 +721,11 @@ delete_ports() {
 
 update_geo() {
     local defaultBinFolder="/usr/local/x-ui/bin"
-    read -p "Please enter x-ui bin folder path. Leave blank for default. (Default: '${defaultBinFolder}')" binFolder
+    read -p "Введите путь к папке x-ui bin. Оставьте пустым для значения по умолчанию. (По умолчанию: '${defaultBinFolder}')" binFolder
     binFolder=${binFolder:-${defaultBinFolder}}
     if [[ ! -d ${binFolder} ]]; then
-        LOGE "Folder ${binFolder} not exists!"
-        LOGI "making bin folder: ${binFolder}..."
+        LOGE "Папка ${binFolder} не существует!"
+        LOGI "Создание папки: ${binFolder}..."
         mkdir -p ${binFolder}
     fi
 
@@ -759,7 +735,7 @@ update_geo() {
     wget -N https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
     wget -N https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
     systemctl start x-ui
-    echo -e "${green}Geosite.dat + Geoip.dat have been updated successfully in bin folder '${binfolder}'!${plain}"
+    echo -e "${green}Geosite.dat + Geoip.dat успешно обновлены в '${binfolder}'!${plain}"
     before_show_menu
 }
 
@@ -918,7 +894,7 @@ ssl_cert_issue_CF() {
     LOGI "2.Глобальный API-ключ Cloudflare"
     LOGI "3.Домен, добавленный в Cloudflare"
     LOGI "4.Скрипт отправит запрос на сертификат. Путь установки по умолчанию: /root/cert "
-    confirm "Продолжить? [y/n]" "y"
+    confirm "Продолжить? [Д/н]" "д"
     if [ $? -eq 0 ]; then
         # Сначала проверим скрипт
         if ! command -v ~/.acme.sh/acme.sh &>/dev/null; then
@@ -1110,7 +1086,7 @@ iplimit_main() {
         show_menu
         ;;
     1)
-        confirm "Продолжить установку Fail2ban и ограничений IP?" "y"
+        confirm "Продолжить установку Fail2ban и ограничений IP? [Д/н]" "д"
         if [[ $? == 0 ]]; then
             install_iplimit
         else
@@ -1128,7 +1104,7 @@ iplimit_main() {
         iplimit_main
         ;;
     3)
-        confirm "Вы уверены, что хотите разбанить все IP?" "y"
+        confirm "Вы уверены, что хотите разбанить все IP? [Д/н]" "д"
         if [[ $? == 0 ]]; then
             fail2ban-client reload --restart --unban 3x-ipl
             truncate -s 0 "${iplimit_banned_log_path}"

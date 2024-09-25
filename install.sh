@@ -142,8 +142,8 @@ gen_random_string() {
 # Установка зоны безопасности
 config_after_install() {
     echo -e "${yellow}Установка/обновление завершено! В целях безопасности рекомендую изменить настройки панели ${plain}"
-    read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [y/n]: " config_confirm
-    if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" ]]; then
+    read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [д/Н]: " config_confirm
+    if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" || "${config_confirm}" == "д" || "${config_confirm}" == "Д" ]]; then
         read -p "Установите имя пользователя: " config_account
         echo -e "${yellow}Имя пользователя: ${config_account}${plain}"
         read -p "Установите пароль: " config_password
