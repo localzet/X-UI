@@ -1,16 +1,15 @@
 {{define "qrcodeModal"}}
 <a-modal id="qrcode-modal" v-model="qrModal.visible" :title="qrModal.title"
-    :dialog-style="isMobileQr ? { top: '18px' } : {}"
-    :closable="true"
-    :class="themeSwitcher.currentTheme"
-    :footer="null" width="fit-content">
+  :dialog-style="isMobileQr ? { top: '18px' } : {}" :closable="true" :class="themeSwitcher.currentTheme" :footer="null"
+  width="fit-content">
   <tr-qr-modal class="qr-modal">
     <template v-if="app.subSettings.enable && qrModal.subId">
       <tr-qr-box class="qr-box">
         <a-tag color="purple" class="qr-tag"><span>{{ i18n "pages.settings.subSettings"}}</span></a-tag>
         <tr-qr-bg class="qr-bg-sub">
           <tr-qr-bg-inner class="qr-bg-sub-inner">
-            <canvas @click="copyToClipboard('qrCode-sub',genSubLink(qrModal.client.subId))" id="qrCode-sub" class="qr-cv"></canvas>
+            <canvas @click="copyToClipboard('qrCode-sub',genSubLink(qrModal.client.subId))" id="qrCode-sub"
+              class="qr-cv"></canvas>
           </tr-qr-bg-inner>
         </tr-qr-bg>
       </tr-qr-box>
@@ -18,7 +17,8 @@
         <a-tag color="purple" class="qr-tag"><span>{{ i18n "pages.settings.subSettings"}} Json</span></a-tag>
         <tr-qr-bg class="qr-bg-sub">
           <tr-qr-bg-inner class="qr-bg-sub-inner">
-            <canvas @click="copyToClipboard('qrCode-subJson',genSubJsonLink(qrModal.client.subId))" id="qrCode-subJson" class="qr-cv"></canvas>
+            <canvas @click="copyToClipboard('qrCode-subJson',genSubJsonLink(qrModal.client.subId))" id="qrCode-subJson"
+              class="qr-cv"></canvas>
           </tr-qr-bg-inner>
         </tr-qr-bg>
       </tr-qr-box>
@@ -44,7 +44,7 @@
     clipboard: null,
     visible: false,
     subId: '',
-    show: function(title = '', dbInbound, client) {
+    show: function (title = '', dbInbound, client) {
       this.title = title;
       this.dbInbound = dbInbound;
       this.inbound = dbInbound.toInbound();
@@ -68,7 +68,7 @@
       }
       this.visible = true;
     },
-    close: function() {
+    close: function () {
       this.visible = false;
     },
   };
@@ -145,8 +145,7 @@
 
       function wrapContentsInMarquee(element) {
         element.classList.add("tr-marquee");
-        element.children[0].style.animation = `move-ltr ${
-            (element.children[0].clientWidth / element.clientWidth) * 5
+        element.children[0].style.animation = `move-ltr ${(element.children[0].clientWidth / element.clientWidth) * 5
           }s ease-in-out infinite`;
         const marqueeText = element.children[0];
         if (element.children.length < 2) {

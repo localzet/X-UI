@@ -233,7 +233,7 @@
                       v-if="isRefreshEnabled"
                       @change="changeRefreshInterval"
                       :dropdown-class-name="themeSwitcher.currentTheme">
-                    <a-select-option v-for="key in [5,10,30,60]" :value="key*1000">[[ key ]]s</a-select-option>
+                    <a-select-option v-for="key in [3,5,10,30,60]" :value="key*1000">[[ key ]] сек</a-select-option>
                   </a-select>
                   <a-icon type="sync" :spin="refreshing" @click="manualRefresh" style="margin: 0 5px;"></a-icon>
                   <a-switch v-model="isRefreshEnabled" @change="toggleRefresh"></a-switch>
@@ -249,11 +249,11 @@
               </a-switch>
               <a-input v-if="!enableFilter" v-model.lazy="searchKey" placeholder='{{ i18n "search" }}' autofocus style="max-width: 300px" :size="isMobile ? 'small' : ''"></a-input>
               <a-radio-group v-if="enableFilter" v-model="filterBy" @change="filterInbounds" button-style="solid" :size="isMobile ? 'small' : ''">
-                <a-radio-button value="">{{ i18n "none" }}</a-radio-button>
-                <a-radio-button value="deactive">{{ i18n "disabled" }}</a-radio-button>
-                <a-radio-button value="depleted">{{ i18n "depleted" }}</a-radio-button>
-                <a-radio-button value="expiring">{{ i18n "depletingSoon" }}</a-radio-button>
-                <a-radio-button value="online">{{ i18n "online" }}</a-radio-button>
+                <a-radio-button value="">Все</a-radio-button>
+                <a-radio-button value="deactive">Отключенные</a-radio-button>
+                <a-radio-button value="depleted">Удаленные</a-radio-button>
+                <a-radio-button value="expiring">Истекающие</a-radio-button>
+                <a-radio-button value="online">Онлайн</a-radio-button>
               </a-radio-group>
             </div>
             <a-back-top></a-back-top>
