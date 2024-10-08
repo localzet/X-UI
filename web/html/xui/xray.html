@@ -72,10 +72,11 @@
     {{ template "commonSider" . }}
     <a-layout id="content-layout">
         <a-layout-content>
-            <a-spin :spinning="spinning" :delay="500" tip='{{ i18n "loading"}}'>
+            <a-spin :spinning="spinning" :delay="500" tip='Загрузка'>
                 <transition name="list" appear>
                     <a-alert type="error" v-if="showAlert" style="margin-bottom: 10px"
-                             message='{{ i18n "secAlertTitle" }}' color="red" description='{{ i18n "secAlertSsl" }}'
+                             message='Система безопасности' color="red"
+                             description='SSL-сертификат не установлен. Укажите путь сертификата и ключа!'
                              show-icon closable>
                     </a-alert>
                 </transition>
@@ -85,14 +86,14 @@
                             <a-col :xs="24" :sm="10" style="padding: 4px;">
                                 <a-space direction="horizontal">
                                     <a-button type="primary" :disabled="saveBtnDisable"
-                                              @click="updateXraySetting">{{ i18n "pages.xray.save" }}
+                                              @click="updateXraySetting">Сохранить параметры
                                     </a-button>
-                                    <a-button type="danger" :disabled="!saveBtnDisable" @click="restartXray">{{ i18n
-                                        "pages.xray.restart" }}
+                                    <a-button type="danger" :disabled="!saveBtnDisable" @click="restartXray">
+                                        Перезапустить XRay
                                     </a-button>
                                     <a-popover v-if="restartResult"
                                                :overlay-class-name="themeSwitcher.currentTheme">
-                                        <span slot="title" style="font-size: 12pt">Error in running xray-core</span>
+                                        <span slot="title" style="font-size: 12pt">Ошибка запуска XRay</span>
                                         <template slot="content">
                                             <p style="max-width: 400px" v-for="line in restartResult.split('\n')">[[
                                                 line ]]</p>
@@ -107,7 +108,8 @@
                                         <a-back-top :target="() => document.getElementById('content-layout')"
                                                     visibility-height="200"></a-back-top>
                                         <a-alert type="warning" style="float: right; width: fit-content"
-                                                 message='{{ i18n "pages.settings.infoDesc" }}' show-icon>
+                                                 message='Для приминения изменений перезапустите XRay после сохранения'
+                                                 show-icon>
                                         </a-alert>
                                     </div>
                                 </template>
@@ -117,24 +119,31 @@
                     <a-tabs class="ant-card-dark-box-nohover" default-active-key="1"
                             @change="(activeKey) => { this.changePage(activeKey); }"
                             :class="themeSwitcher.currentTheme">
-                        <a-tab-pane key="tpl-basic" tab='{{ i18n "pages.xray.basicTemplate"}}'
+                        <a-tab-pane key="tpl-basic" tab='Настройки'
                                     style="padding-top: 20px;">
                             <a-collapse>
-                                <a-collapse-panel header='{{ i18n "pages.xray.generalConfigs"}}'>
+                                <a-collapse-panel header='Основные параметры'>
                                     <a-row :xs="24" :sm="24" :lg="12">
                                         <a-alert type="warning" style="text-align: center;">
                                             <template slot="message">
                                                 <a-icon type="exclamation-circle" theme="filled"
                                                         style="color: #FFA031"></a-icon>
-                                                {{ i18n "pages.xray.generalConfigsDesc" }}
+                                                <b>Доступные стратегии:</b>
+                                                <ul>
+                                                    <li><b>AsIs</b> - Использует домены как есть, без изменений</li>
+                                                    <li><b>UseIP</b> - Преобразует домены в IP-адреса</li>
+                                                    <li><b>UseIPv4</b> - Преобразует домены в IPv4-адреса</li>
+                                                    <li><b>UseIPv6</b> - Преобразует домены в IPv6-адреса</li>
+                                                </ul>
+
                                             </template>
                                         </a-alert>
                                     </a-row>
                                     <a-list-item>
                                         <a-row style="padding: 10px 20px">
                                             <a-col :lg="24" :xl="12">
-                                                <a-list-item-meta title='{{ i18n "pages.xray.FreedomStrategy" }}'
-                                                                  description='{{ i18n "pages.xray.FreedomStrategyDesc" }}'>
+                                                <a-list-item-meta title='Стратегия протокола Freedom'
+                                                                  description='Стратегия прямого выхода в интернет'>
                                                 </a-list-item-meta>
                                             </a-col>
                                             <a-col :lg="24" :xl="12">
@@ -151,8 +160,8 @@
                                         </a-row>
                                         <a-row style="padding: 10px 20px">
                                             <a-col :lg="24" :xl="12">
-                                                <a-list-item-meta title='{{ i18n "pages.xray.RoutingStrategy" }}'
-                                                                  description='{{ i18n "pages.xray.RoutingStrategyDesc" }}'>
+                                                <a-list-item-meta title='Стратегия маршрутизации'
+                                                                  description='Общая стратегия для DNS-запросов'>
                                                 </a-list-item-meta>
                                             </a-col>
                                             <a-col :lg="24" :xl="12">
@@ -167,21 +176,22 @@
                                         </a-row>
                                     </a-list-item>
                                 </a-collapse-panel>
-                                <a-collapse-panel header='{{ i18n "pages.xray.logConfigs" }}'>
+                                <a-collapse-panel header='Журналы'>
                                     <a-row :xs="24" :sm="24" :lg="12">
                                         <a-alert type="warning" style="text-align: center;">
                                             <template slot="message">
                                                 <a-icon type="exclamation-circle" theme="filled"
                                                         style="color: #FFA031"></a-icon>
-                                                {{ i18n "pages.xray.logConfigsDesc" }}
+                                                Осторожно, журналы могут повлиять на производительность! Менять
+                                                параметры с умом!
                                             </template>
                                         </a-alert>
                                     </a-row>
                                     <a-list-item>
                                         <a-row style="padding: 10px 20px">
                                             <a-col :lg="24" :xl="12">
-                                                <a-list-item-meta title='{{ i18n "pages.xray.logLevel" }}'
-                                                                  description='{{ i18n "pages.xray.logLevelDesc" }}'>
+                                                <a-list-item-meta title='Уровень журналов'
+                                                                  description='Уровень журналирования, от которого начинать логирование'>
                                                 </a-list-item-meta>
                                             </a-col>
                                             <a-col :lg="24" :xl="12">
@@ -198,8 +208,8 @@
                                         </a-row>
                                         <a-row style="padding: 10px 20px">
                                             <a-col :lg="24" :xl="12">
-                                                <a-list-item-meta title='{{ i18n "pages.xray.accessLog" }}'
-                                                                  description='{{ i18n "pages.xray.accessLogDesc" }}'>
+                                                <a-list-item-meta title='Журнал доступа'
+                                                                  description='Путь к файлу журнала доступа. «none» - отключает журналирование'>
                                                 </a-list-item-meta>
                                             </a-col>
                                             <a-col :lg="24" :xl="12">
@@ -208,8 +218,7 @@
                                                               :dropdown-class-name="themeSwitcher.currentTheme"
                                                               style="width: 100%">
                                                         <a-select-option value=''>Empty</a-select-option>
-                                                        <a-select-option v-for="s in log.access" :value="s">[[ s
-                                                            ]]
+                                                        <a-select-option v-for="s in log.access" :value="s">[[ s ]]
                                                         </a-select-option>
                                                     </a-select>
                                                 </template>
@@ -217,8 +226,8 @@
                                         </a-row>
                                         <a-row style="padding: 10px 20px">
                                             <a-col :lg="24" :xl="12">
-                                                <a-list-item-meta title='{{ i18n "pages.xray.errorLog" }}'
-                                                                  description='{{ i18n "pages.xray.errorLogDesc" }}'>
+                                                <a-list-item-meta title='Журнал ошибок'
+                                                                  description='Путь к файлу журнала ошибок. «none» - отключает журналирование'>
                                                 </a-list-item-meta>
                                             </a-col>
                                             <a-col :lg="24" :xl="12">
@@ -227,8 +236,7 @@
                                                               :dropdown-class-name="themeSwitcher.currentTheme"
                                                               style="width: 100%">
                                                         <a-select-option value=''>Empty</a-select-option>
-                                                        <a-select-option v-for="s in log.error" :value="s">[[ s
-                                                            ]]
+                                                        <a-select-option v-for="s in log.error" :value="s">[[ s ]]
                                                         </a-select-option>
                                                     </a-select>
                                                 </template>
@@ -258,7 +266,7 @@
                                                            v-model="dnslog"></setting-list-item>
                                     </a-list-item>
                                 </a-collapse-panel>
-                                <a-collapse-panel header='{{ i18n "pages.xray.blockConfigs"}}'>
+                                <a-collapse-panel header='Блокировка подключений'>
                                     <a-row :xs="24" :sm="24" :lg="12">
                                         <a-alert type="warning" style="text-align: center;">
                                             <template slot="message">
@@ -286,7 +294,7 @@
                                                            v-model="SpeedTestSettings"></setting-list-item>
                                     </a-list-item>
                                 </a-collapse-panel>
-                                <a-collapse-panel header='{{ i18n "pages.xray.blockCountryConfigs"}}'>
+                                <a-collapse-panel header='Блокировка гео-подключений'>
                                     <a-row :xs="24" :sm="24" :lg="12">
                                         <a-alert type="warning" style="text-align: center;">
                                             <template slot="message">
@@ -305,7 +313,7 @@
                                                            v-model="RussiaDomainSettings"></setting-list-item>
                                     </a-list-item>
                                 </a-collapse-panel>
-                                <a-collapse-panel header='{{ i18n "pages.xray.directCountryConfigs"}}'>
+                                <a-collapse-panel header='Прямые гео-подключения'>
                                     <a-row :xs="24" :sm="24" :lg="12">
                                         <a-alert type="warning" style="text-align: center;">
                                             <template slot="message">
@@ -326,7 +334,7 @@
                                                            v-model="RussiaDomainDirectSettings"></setting-list-item>
                                     </a-list-item>
                                 </a-collapse-panel>
-                                <a-collapse-panel header='{{ i18n "pages.xray.ipv4Configs"}}'>
+                                <a-collapse-panel header='Параметры IPv4'>
                                     <a-row :xs="24" :sm="24" :lg="12">
                                         <a-alert type="warning" style="text-align: center;">
                                             <template slot="message">
@@ -345,7 +353,7 @@
                                                            v-model="NetflixIPv4Settings"></setting-list-item>
                                     </a-list-item>
                                 </a-collapse-panel>
-                                <a-collapse-panel header='{{ i18n "pages.xray.warpConfigs"}}'>
+                                <a-collapse-panel header='Параметры WARP'>
                                     <a-row :xs="24" :sm="24" :lg="12">
                                         <a-alert type="warning" style="text-align: center;">
                                             <template slot="message">
@@ -390,7 +398,7 @@
                                         </a-button>
                                     </a-list-item>
                                 </a-collapse-panel>
-                                <a-collapse-panel header='{{ i18n "pages.settings.resetDefaultConfig"}}'>
+                                <a-collapse-panel header='Сброс к заводским параметрам'>
                                     <a-space direction="horizontal" style="padding: 0 20px">
                                         <a-button type="danger" @click="resetXrayConfigToDefault">{{ i18n
                                             "pages.settings.resetDefaultConfig" }}
@@ -399,7 +407,7 @@
                                 </a-collapse-panel>
                             </a-collapse>
                         </a-tab-pane>
-                        <a-tab-pane key="tpl-routing" tab='{{ i18n "pages.xray.Routings"}}'
+                        <a-tab-pane key="tpl-routing" tab='Маршрутизация'
                                     style="padding-top: 20px;">
                             <a-button type="primary" icon="plus" @click="addRule">{{ i18n "pages.xray.rules.add"
                                 }}
@@ -557,7 +565,7 @@
                                 </template>
                             </a-table-sortable>
                         </a-tab-pane>
-                        <a-tab-pane key="tpl-outbound" tab='{{ i18n "pages.xray.Outbounds"}}'
+                        <a-tab-pane key="tpl-outbound" tab='Исходящие'
                                     style="padding-top: 20px;" force-render="true">
                             <a-row>
                                 <a-col :xs="12" :sm="12" :lg="12">
@@ -639,7 +647,7 @@
                                 </template>
                             </a-table>
                         </a-tab-pane>
-                        <a-tab-pane key="tpl-reverse" tab='{{ i18n "pages.xray.outbound.reverse"}}'
+                        <a-tab-pane key="tpl-reverse" tab='Реверсы'
                                     style="padding-top: 20px;" force-render="true">
                             <a-button type="primary" icon="plus" @click="addReverse()" style="margin-bottom: 10px;">
                                 {{ i18n "pages.xray.outbound.addReverse" }}
@@ -668,7 +676,7 @@
                                 </template>
                             </a-table>
                         </a-tab-pane>
-                        <a-tab-pane key="tpl-balancer" tab='{{ i18n "pages.xray.Balancers"}}'
+                        <a-tab-pane key="tpl-balancer" tab='Балансировщики'
                                     style="padding-top: 20px;" force-render="true">
                             <a-button type="primary" icon="plus" @click="addBalancer()"
                                       style="margin-bottom: 10px;">
@@ -817,7 +825,7 @@
                                 </a-table>
                             </template>
                         </a-tab-pane>
-                        <a-tab-pane key="tpl-advanced" tab='{{ i18n "pages.xray.advancedTemplate"}}'
+                        <a-tab-pane key="tpl-advanced" tab='Ручное управление'
                                     style="padding-top: 20px;" force-render="true">
                             <a-list-item-meta title='{{ i18n "pages.xray.Template"}}'
                                               description='{{ i18n "pages.xray.TemplateDesc"}}'></a-list-item-meta>

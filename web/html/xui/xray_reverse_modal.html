@@ -1,38 +1,38 @@
 {{define "reverseModal"}}
 <a-modal id="reverse-modal" v-model="reverseModal.visible" :title="reverseModal.title" @ok="reverseModal.ok"
          :confirm-loading="reverseModal.confirmLoading" :closable="true" :mask-closable="false"
-         :ok-text="reverseModal.okText" cancel-text='{{ i18n "close" }}' :class="themeSwitcher.currentTheme">
+         :ok-text="reverseModal.okText" cancel-text='Закрыть' :class="themeSwitcher.currentTheme">
     <a-form :colon="false" :label-col="{ md: {span:8} }" :wrapper-col="{ md: {span:14} }">
-        <a-form-item label='{{ i18n "pages.xray.outbound.type" }}'>
+        <a-form-item label='Исходящий тип'>
             <a-select v-model="reverseModal.reverse.type" :dropdown-class-name="themeSwitcher.currentTheme">
                 <a-select-option v-for="x,y in reverseTypes" :value="y">[[ x ]]</a-select-option>
             </a-select>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.xray.outbound.tag" }}'>
+        <a-form-item label='Исходящий тег}'>
             <a-input v-model.trim="reverseModal.reverse.tag"></a-input>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.xray.outbound.domain" }}'>
+        <a-form-item label='Исходящий домен'>
             <a-input v-model.trim="reverseModal.reverse.domain"></a-input>
         </a-form-item>
         <template v-if="reverseModal.reverse.type=='bridge'">
-            <a-form-item label='{{ i18n "pages.xray.outbound.intercon" }}'>
+            <a-form-item label='Связуемое'>
                 <a-select v-model="reverseModal.rules[0].outboundTag" :dropdown-class-name="themeSwitcher.currentTheme">
                     <a-select-option v-for="x in reverseModal.outboundTags" :value="x">[[ x ]]</a-select-option>
                 </a-select>
             </a-form-item>
-            <a-form-item label='{{ i18n "pages.xray.rules.outbound" }}'>
+            <a-form-item label='Исходящее'>
                 <a-select v-model="reverseModal.rules[1].outboundTag" :dropdown-class-name="themeSwitcher.currentTheme">
                     <a-select-option v-for="x in reverseModal.outboundTags" :value="x">[[ x ]]</a-select-option>
                 </a-select>
             </a-form-item>
         </template>
         <template v-else>
-            <a-form-item label='{{ i18n "pages.xray.outbound.intercon" }}'>
+            <a-form-item label='Связуемое'>
                 <a-checkbox-group
                         v-model="reverseModal.rules[0].inboundTag"
                         :options="reverseModal.inboundTags"></a-checkbox-group>
             </a-form-item>
-            <a-form-item label='{{ i18n "pages.xray.rules.inbound" }}'>
+            <a-form-item label='Входящее'>
                 <a-checkbox-group
                         v-model="reverseModal.rules[1].inboundTag"
                         :options="reverseModal.inboundTags"></a-checkbox-group>
@@ -45,7 +45,7 @@
         title: '',
         visible: false,
         confirmLoading: false,
-        okText: '{{ i18n "sure" }}',
+        okText: 'Уверен',
         isEdit: false,
         confirm: null,
         reverse: {
@@ -74,7 +74,7 @@
             ObjectUtil.execute(reverseModal.confirm, reverseModal.reverse, reverseModal.rules);
         },
         show({
-                 title = '', okText = '{{ i18n "sure" }}', reverse, rules, confirm = (reverse, rules) => {
+                 title = '', okText = 'Уверен', reverse, rules, confirm = (reverse, rules) => {
             }, isEdit = false
              }) {
             this.title = title;
@@ -138,8 +138,8 @@
         data: {
             reverseModal: reverseModal,
             reverseTypes: {
-                bridge: '{{ i18n "pages.xray.outbound.bridge" }}',
-                portal: '{{ i18n "pages.xray.outbound.portal" }}'
+                bridge: 'Мост',
+                portal: 'Портал'
             },
         },
     });

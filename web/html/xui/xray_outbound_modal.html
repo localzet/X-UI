@@ -2,7 +2,7 @@
 <a-modal id="out-modal" v-model="outModal.visible" :title="outModal.title" @ok="outModal.ok"
          :confirm-loading="outModal.confirmLoading" :closable="true" :mask-closable="false"
          :ok-button-props="{ props: { disabled: !outModal.isValid } }" style="overflow: hidden;"
-         :ok-text="outModal.okText" cancel-text='{{ i18n "close" }}' :class="themeSwitcher.currentTheme">
+         :ok-text="outModal.okText" cancel-text='Закрыть' :class="themeSwitcher.currentTheme">
     {{template "form/outbound"}}
 </a-modal>
 <script>
@@ -11,7 +11,7 @@
         title: '',
         visible: false,
         confirmLoading: false,
-        okText: '{{ i18n "sure" }}',
+        okText: 'Уверен',
         isEdit: false,
         confirm: null,
         outbound: new Outbound(),
@@ -26,7 +26,7 @@
             ObjectUtil.execute(outModal.confirm, outModal.outbound.toJson());
         },
         show({
-                 title = '', okText = '{{ i18n "sure" }}', outbound, confirm = (outbound) => {
+                 title = '', okText = 'Уверен', outbound, confirm = (outbound) => {
             }, isEdit = false, tags = []
              }) {
             this.title = title;
@@ -116,10 +116,10 @@
                     this.outModal.outbound = newOutbound;
                     this.outModal.toggleJson(true);
                     this.outModal.check();
-                    this.$message.success('Link imported successfully...');
+                    this.$message.success('Ссылка импортирована!');
                     outModal.link = '';
                 } else {
-                    this.$message.error('Wrong Link!');
+                    this.$message.error('Некорректная ссылка!');
                     outModal.link = '';
                 }
             },

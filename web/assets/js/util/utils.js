@@ -17,27 +17,27 @@ class HttpUtil {
 
     static _respToMsg(resp) {
         if (!resp || !resp.data) {
-            return new Msg(false, 'No response data');
+            return new Msg(false, 'Нет данных');
         }
-        const { data } = resp;
+        const {data} = resp;
         if (data == null) {
             return new Msg(true);
         }
         if (typeof data === 'object' && 'success' in data) {
             return new Msg(data.success, data.msg, data.obj);
         }
-        return typeof data === 'object' ? data : new Msg(false, 'unknown data:', data);
+        return typeof data === 'object' ? data : new Msg(false, 'Неизвестные данные:', data);
     }
 
     static async get(url, params, options = {}) {
         try {
-            const resp = await axios.get(url, { params, ...options });
+            const resp = await axios.get(url, {params, ...options});
             const msg = this._respToMsg(resp);
             this._handleMsg(msg);
             return msg;
         } catch (error) {
-            console.error('GET request failed:', error);
-            const errorMsg = new Msg(false, error.response?.data?.message || error.message || 'Request failed');
+            console.error('Ошибка GET-запроса:', error);
+            const errorMsg = new Msg(false, error.response?.data?.message || error.message || 'Ошибка запроса');
             this._handleMsg(errorMsg);
             return errorMsg;
         }
@@ -50,8 +50,8 @@ class HttpUtil {
             this._handleMsg(msg);
             return msg;
         } catch (error) {
-            console.error('POST request failed:', error);
-            const errorMsg = new Msg(false, error.response?.data?.message || error.message || 'Request failed');
+            console.error('Ошибка POST-запроса:', error);
+            const errorMsg = new Msg(false, error.response?.data?.message || error.message || 'Ошибка запроса');
             this._handleMsg(errorMsg);
             return errorMsg;
         }
