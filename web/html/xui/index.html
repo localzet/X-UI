@@ -53,8 +53,8 @@
                                                 <a-tooltip>
                                                     <a-icon type="area-chart"></a-icon>
                                                     <template slot="title">
-                                                        <div><b>Logical Processors:</b> [[ (status.logicalPro) ]]</div>
-                                                        <div><b>Speed:</b> [[ cpuSpeedFormat(status.cpuSpeedMhz) ]]
+                                                        <div><b>Процессоры:</b> [[ (status.logicalPro) ]]</div>
+                                                        <div><b>Скорость:</b> [[ cpuSpeedFormat(status.cpuSpeedMhz) ]]
                                                         </div>
                                                     </template>
                                                 </a-tooltip>
@@ -65,7 +65,7 @@
                                                         :stroke-color="status.mem.color"
                                                         :percent="status.mem.percent"></a-progress>
                                             <div>
-                                                <b>{{ i18n "pages.index.memory"}}:</b> [[ sizeFormat(status.mem.current)
+                                                <b>RAM:</b> [[ sizeFormat(status.mem.current)
                                                 ]] / [[ sizeFormat(status.mem.total) ]]
                                             </div>
                                         </a-col>
@@ -78,7 +78,7 @@
                                                         :stroke-color="status.swap.color"
                                                         :percent="status.swap.percent"></a-progress>
                                             <div>
-                                                <b>Swap:</b> [[ sizeFormat(status.swap.current) ]] / [[
+                                                <b>SWAP:</b> [[ sizeFormat(status.swap.current) ]] / [[
                                                 sizeFormat(status.swap.total) ]]
                                             </div>
                                         </a-col>
@@ -87,7 +87,7 @@
                                                         :stroke-color="status.disk.color"
                                                         :percent="status.disk.percent"></a-progress>
                                             <div>
-                                                <b>{{ i18n "pages.index.hard"}}:</b> [[ sizeFormat(status.disk.current)
+                                                <b>SSD:</b> [[ sizeFormat(status.disk.current)
                                                 ]] / [[ sizeFormat(status.disk.total) ]]
                                             </div>
                                         </a-col>
