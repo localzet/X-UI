@@ -108,7 +108,7 @@
                                         <a-back-top :target="() => document.getElementById('content-layout')"
                                                     visibility-height="200"></a-back-top>
                                         <a-alert type="warning" style="float: right; width: fit-content"
-                                                 message='Для приминения изменений перезапустите XRay после сохранения'
+                                                 message='Для применения изменений перезапустите XRay после сохранения'
                                                  show-icon>
                                         </a-alert>
                                     </div>
@@ -124,10 +124,8 @@
                             <a-collapse>
                                 <a-collapse-panel header='Основные параметры'>
                                     <a-row :xs="24" :sm="24" :lg="12">
-                                        <a-alert type="warning" style="text-align: center;">
+                                        <a-alert type="warning" show-icon>
                                             <template slot="message">
-                                                <a-icon type="exclamation-circle" theme="filled"
-                                                        style="color: #FFA031"></a-icon>
                                                 <b>Доступные стратегии:</b>
                                                 <ul>
                                                     <li><b>AsIs</b> - Использует домены как есть, без изменений</li>
