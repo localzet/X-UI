@@ -25,6 +25,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Write version to config
+        run: echo "$(echo ${{ github.ref }} | sed 's/refs\/tags\/v//')" > config/version
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -85,7 +88,7 @@ jobs:
           cd x-ui/bin
           
           # Download dependencies
-          Xray_URL="https://github.com/XTLS/Xray-core/releases/download/v24.9.19/"
+          Xray_URL="https://github.com/XTLS/Xray-core/releases/download/v24.9.30/"
           if [ "${{ matrix.platform }}" == "amd64" ]; then
             wget ${Xray_URL}Xray-linux-64.zip
             unzip Xray-linux-64.zip
