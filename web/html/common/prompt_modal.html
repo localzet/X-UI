@@ -1,9 +1,12 @@
 {{define "promptModal"}}
-<a-modal id="prompt-modal" v-model="promptModal.visible" :title="promptModal.title" :closable="true"
-         @ok="promptModal.ok" :mask-closable="false" :confirm-loading="promptModal.confirmLoading"
-         :ok-text="promptModal.okText" cancel-text='Отмена' :class="themeSwitcher.currentTheme">
-    <a-input id="prompt-modal-input" :type="promptModal.type" v-model="promptModal.value"
-             :autosize="{minRows: 10, maxRows: 20}" @keydown.enter.native="promptModal.keyEnter"
+<a-modal id="prompt-modal" v-model="promptModal.visible" :title="promptModal.title"
+         :closable="true" @ok="promptModal.ok" :mask-closable="false"
+         :confirm-loading="promptModal.confirmLoading"
+         :ok-text="promptModal.okText" cancel-text='{{ i18n "cancel" }}' :class="themeSwitcher.currentTheme">
+    <a-input id="prompt-modal-input" :type="promptModal.type"
+             v-model="promptModal.value"
+             :autosize="{minRows: 10, maxRows: 20}"
+             @keydown.enter.native="promptModal.keyEnter"
              @keydown.ctrl.83="promptModal.ctrlS"></a-input>
 </a-modal>
 
@@ -13,7 +16,7 @@
         title: '',
         type: '',
         value: '',
-        okText: 'Уверен',
+        okText: '{{ i18n "sure"}}',
         visible: false,
         confirmLoading: false,
         keyEnter(e) {
@@ -31,16 +34,14 @@
         ok() {
             promptModal.confirm(promptModal.value);
         },
-        confirm() {
-        },
+        confirm() {},
         open({
-                 title = '',
-                 type = 'text',
-                 value = '',
-                 okText = 'Уверен',
-                 confirm = () => {
-                 },
-             }) {
+            title = '',
+            type = 'text',
+            value = '',
+            okText = '{{ i18n "sure"}}',
+            confirm = () => {},
+        }) {
             this.title = title;
             this.type = type;
             this.value = value;
@@ -54,7 +55,7 @@
         close() {
             this.visible = false;
         },
-        loading(loading = true) {
+        loading(loading=true) {
             this.confirmLoading = loading;
         },
     };
