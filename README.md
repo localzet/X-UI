@@ -1,5 +1,3 @@
-[English](/README_EN.md)
-
 <p align="center"><a href="#"><img src="https://static.zorin.space/media/logos/ZorinProjectsSP.svg" alt="Image"></a></p>
 
 **Продвинутая веб-панель • Построена на основе Xray Core**
