@@ -59,7 +59,7 @@ function formatSecond(second) {
         return (second / 3600).toFixed(0) + 'h';
     } else {
         day = Math.floor(second / 3600 / 24);
-        remain = ((second/3600) - (day*24)).toFixed(0);
+        remain = ((second / 3600) - (day * 24)).toFixed(0);
         return day + 'd' + (remain > 0 ? ' ' + remain + 'h' : '');
     }
 }
@@ -149,7 +149,7 @@ function userExpiryColor(threshold, client, isDark = false) {
         return isDark ? '#2c3950' : '#bcbcbc';
     }
     now = new Date().getTime(),
-    expiry = client.expiryTime;
+        expiry = client.expiryTime;
     switch (true) {
         case expiry === null:
             return "#7a316f"; // purple
@@ -175,7 +175,7 @@ function doAllItemsExist(array1, array2) {
     return true;
 }
 
-function buildURL({ host, port, isTLS, base, path }) {
+function buildURL({host, port, isTLS, base, path}) {
     if (!host || host.length === 0) host = window.location.hostname;
     if (!port || port.length === 0) port = window.location.port;
 
