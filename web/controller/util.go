@@ -42,12 +42,12 @@ func jsonMsgObj(c *gin.Context, msg string, obj interface{}, err error) {
 	if err == nil {
 		m.Success = true
 		if msg != "" {
-			m.Msg = msg + " " + I18nWeb(c, "success")
+			m.Msg = "Выполнено: " + msg
 		}
 	} else {
 		m.Success = false
-		m.Msg = msg + " " + I18nWeb(c, "fail") + ": " + err.Error()
-		logger.Warning(msg+" "+I18nWeb(c, "fail")+": ", err)
+		m.Msg = "Ошибка выполнения \"" + msg + "\": " + ": " + err.Error()
+		logger.Warning("Ошибка выполнения \""+msg+"\": "+": ", err)
 	}
 	c.JSON(http.StatusOK, m)
 }
