@@ -52,7 +52,7 @@ arch() {
 echo "Архитектура: $(arch)"
 
 os_version=""
-os_version=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
+os_version=$(grep "^VERSION_ID" /etc/os-release | cut -d '=' -f2 | tr -d '"' | tr -d '.')
 
 if [[ "${release}" == "arch" ]]; then
     echo "Ваша OS - Arch Linux"
@@ -64,31 +64,39 @@ elif [[ "${release}" == "armbian" ]]; then
     echo "Ваша OS - Armbian"
 elif [[ "${release}" == "opensuse-tumbleweed" ]]; then
     echo "Ваша OS - OpenSUSE Tumbleweed"
+elif [[ "${release}" == "openEuler" ]]; then
+    if [[ ${os_version} -lt 2203 ]]; then
+        echo -e "${red} Пожалуйста используйте OpenEuler 22.03 или выше ${plain}\n" && exit 1
+    fi
 elif [[ "${release}" == "centos" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
         echo -e "${red} Пожалуйста используйте CentOS 8 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "ubuntu" ]]; then
-    if [[ ${os_version} -lt 20 ]]; then
+    if [[ ${os_version} -lt 2004 ]]; then
         echo -e "${red} Пожалуйста используйте Ubuntu 20 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "fedora" ]]; then
     if [[ ${os_version} -lt 36 ]]; then
         echo -e "${red} Пожалуйста используйте Fedora 36 или выше ${plain}\n" && exit 1
     fi
+elif [[ "${release}" == "amzn" ]]; then
+    if [[ ${os_version} != "2023" ]]; then
+        echo -e "${red} Пожалуйста используйте Amazon Linux 2023!${plain}\n" && exit 1
+    fi
 elif [[ "${release}" == "debian" ]]; then
     if [[ ${os_version} -lt 11 ]]; then
         echo -e "${red} Пожалуйста используйте Debian 11 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "almalinux" ]]; then
-    if [[ ${os_version} -lt 9 ]]; then
-        echo -e "${red} Пожалуйста используйте AlmaLinux 9 или выше ${plain}\n" && exit 1
+    if [[ ${os_version} -lt 80 ]]; then
+        echo -e "${red} Пожалуйста используйте AlmaLinux 8.0 или выше ${plain}\n" && exit 1
     fi
 elif [[ "${release}" == "rocky" ]]; then
-    if [[ ${os_version} -lt 9 ]]; then
-        echo -e "${red} Пожалуйста используйте Rocky Linux 9 или выше ${plain}\n" && exit 1
+    if [[ ${os_version} -lt 8 ]]; then
+        echo -e "${red} Пожалуйста используйте Rocky Linux 8 или выше ${plain}\n" && exit 1
     fi
-elif [[ "${release}" == "oracle" ]]; then
+elif [[ "${release}" == "ol" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
         echo -e "${red} Пожалуйста используйте Oracle Linux 8 или выше ${plain}\n" && exit 1
     fi
@@ -98,15 +106,17 @@ else
     echo "- Ubuntu 20.04+"
     echo "- Debian 11+"
     echo "- CentOS 8+"
+    echo "- OpenEuler 22.03+"
     echo "- Fedora 36+"
     echo "- Arch Linux"
     echo "- Parch Linux"
     echo "- Manjaro"
     echo "- Armbian"
-    echo "- AlmaLinux 9+"
-    echo "- Rocky Linux 9+"
+    echo "- AlmaLinux 8.0+"
+    echo "- Rocky Linux 8+"
     echo "- Oracle Linux 8+"
     echo "- OpenSUSE Tumbleweed"
+    echo "- Amazon Linux 2023"
     exit 1
 fi
 
@@ -115,10 +125,10 @@ install_base() {
     ubuntu | debian | armbian)
         apt-get update && apt-get install -y -q wget curl tar tzdata cron
         ;;
-    centos | almalinux | rocky | oracle)
+    centos | almalinux | rocky | ol)
         yum -y update && yum install -y -q wget curl tar tzdata
         ;;
-    fedora)
+    fedora | amzn)
         dnf -y update && dnf install -y -q wget curl tar tzdata
         ;;
     arch | manjaro | parch)
@@ -142,7 +152,8 @@ gen_random_string() {
 # Установка зоны безопасности
 config_after_install() {
     echo -e "${yellow}Установка/обновление завершено! В целях безопасности рекомендую изменить настройки панели ${plain}"
-    read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [д/Н]: " config_confirm
+    read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [y/N]: " config_confirm
+
     if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" || "${config_confirm}" == "д" || "${config_confirm}" == "Д" ]]; then
         read -p "Установите имя пользователя: " config_account
         echo -e "${yellow}Имя пользователя: ${config_account}${plain}"
@@ -153,20 +164,17 @@ config_after_install() {
         read -p "Установите путь диспетчерской ({ip}:{порт}/путь-диспетчерской/): " config_webBasePath
         echo -e "${yellow}Путь диспетчерской: ${config_webBasePath}${plain}"
 
-        /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password}
-        echo -e "${yellow}Данные для входа заданы!${plain}"
-
-        /usr/local/x-ui/x-ui setting -port ${config_port}
-        echo -e "${yellow}Порт диспетчерской установлен!${plain}"
-
-        /usr/local/x-ui/x-ui setting -webBasePath ${config_webBasePath}
-        echo -e "${yellow}Путь диспетчерской установлен!${plain}"
+        /usr/local/x-ui/x-ui setting -username "${config_account}" -password "${config_password}" -port "${config_port}" -webBasePath "${config_webBasePath}"
+        echo -e "${yellow}Данные сохранены!${plain}"
     else
         if [[ ! -f "/etc/x-ui/x-ui.db" ]]; then
-            local usernameTemp=$(head -c 6 /dev/urandom | base64)
-            local passwordTemp=$(head -c 6 /dev/urandom | base64)
-            local webBasePathTemp=$(gen_random_string 10)
-            /usr/local/x-ui/x-ui setting -username ${usernameTemp} -password ${passwordTemp} -webBasePath ${webBasePathTemp}
+            local usernameTemp=$(gen_random_string 10)
+            local passwordTemp=$(gen_random_string 10)
+            local portTemp=$(shuf -i 1024-62000 -n 1)
+            local webBasePathTemp=$(gen_random_string 15)
+
+            /usr/local/x-ui/x-ui setting -username "${usernameTemp}" -password "${passwordTemp}" -port "${portTemp}" -webBasePath "${webBasePathTemp}"
+
             echo -e "Это свежая установка, генерируем случайные данные в целях безопасности:"
             echo -e "###############################################"
             echo -e "${green}Имя пользователя: ${usernameTemp}${plain}"
@@ -185,20 +193,28 @@ install_x-ui() {
     cd /usr/local/
 
     if [ $# == 0 ]; then
-        last_version=$(curl -Ls "https://api.github.com/repos/localzet/x-ui/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-        if [[ ! -n "$last_version" ]]; then
+        tag_version=$(curl -Ls "https://api.github.com/repos/localzet/x-ui/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        if [[ ! -n "$tag_version" ]]; then
             echo -e "${red}Ошибка получения версии x-ui, возможно, это связано с ограничениями API Github, попробуйте позже${plain}"
             exit 1
         fi
-        echo -e "Получена версия x-ui: ${last_version}, запуск установки..."
-        wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch).tar.gz https://github.com/localzet/x-ui/releases/download/${last_version}/x-ui-linux-$(arch).tar.gz
+        echo -e "Получена версия x-ui: ${tag_version}, запуск установки..."
+        wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch).tar.gz https://github.com/localzet/x-ui/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz
         if [[ $? -ne 0 ]]; then
             echo -e "${red}Ошибка загрузки x-ui, пожалуйста, убедитесь, что ваш сервер имеет доступ к Github ${plain}"
             exit 1
         fi
     else
-        last_version=$1
-        url="https://github.com/localzet/x-ui/releases/download/${last_version}/x-ui-linux-$(arch).tar.gz"
+        tag_version=$1
+        tag_version_numeric=${tag_version#v}
+        min_version="2.4.4"
+
+        if [[ "$(printf '%s\n' "$min_version" "$tag_version_numeric" | sort -V | head -n1)" != "$min_version" ]]; then
+            echo -e "${red}Пожалуйста используйте более новую версию (v2.4.4 или новее).${plain}"
+            exit 1
+        fi
+
+        url="https://github.com/localzet/x-ui/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz"
         echo -e "Запуск установки x-ui $1"
         wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch).tar.gz ${url}
         if [[ $? -ne 0 ]]; then
@@ -233,7 +249,7 @@ install_x-ui() {
     systemctl daemon-reload
     systemctl enable x-ui
     systemctl start x-ui
-    echo -e "${green}x-ui ${last_version}${plain} установка завершена, программа запущена..."
+    echo -e "${green}x-ui ${tag_version}${plain} установка завершена, программа запущена..."
     echo -e ""
     show_usage
 }
