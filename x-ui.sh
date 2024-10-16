@@ -407,10 +407,25 @@ disable() {
 }
 
 show_log() {
-    journalctl -u x-ui.service -e --no-pager -f
-    if [[ $# == 0 ]]; then
-        before_show_menu
-    fi
+    echo -e "${green}\t1.${plain} Журнал отладки"
+    echo -e "${green}\t2.${plain} Очистить все журналы"
+    echo -e "${green}\t0.${plain} Вернуться в главное меню"
+    read -p "Выберите вариант: " choice
+
+    case "$choice" in
+    0) return ;;
+    1)
+        journalctl -u x-ui -e --no-pager -f -p debug
+        if [[ $# == 0 ]]; then
+            before_show_menu
+        fi ;;
+    2)
+        sudo journalctl --rotate
+        sudo journalctl --vacuum-time=1s
+        echo "All Logs cleared."
+        restart ;;
+    *) echo "Неверный выбор" ;;
+    esac
 }
 
 show_banlog() {
@@ -430,17 +445,12 @@ bbr_menu() {
     echo -e "${green}\t2.${plain} Отключить BBR"
     echo -e "${green}\t0.${plain} Вернуться в главное меню"
     read -p "Выберите вариант: " choice
+
     case "$choice" in
-    0)
-        show_menu
-        ;;
-    1)
-        enable_bbr
-        ;;
-    2)
-        disable_bbr
-        ;;
-    *) echo "Неверный выбор" ;;
+      0) show_menu ;;
+      1) enable_bbr ;;
+      2) disable_bbr ;;
+      *) echo "Неверный выбор" ;;
     esac
 }
 
@@ -564,17 +574,14 @@ check_install() {
 show_status() {
     check_status
     case $? in
-    0)
-        echo -e "Состояние панели: ${green}Запущена${plain}"
-        show_enable_status
-        ;;
-    1)
-        echo -e "Состояние панели: ${yellow}Не запущена${plain}"
-        show_enable_status
-        ;;
-    2)
-        echo -e "Состояние панели: ${red}Не установлена${plain}"
-        ;;
+      0)
+          echo -e "Состояние панели: ${green}Запущена${plain}"
+          show_enable_status ;;
+      1)
+          echo -e "Состояние панели: ${yellow}Не запущена${plain}"
+          show_enable_status ;;
+      2)
+          echo -e "Состояние панели: ${red}Не установлена${plain}" ;;
     esac
     show_xray_status
 }
@@ -614,22 +621,12 @@ firewall_menu() {
     echo -e "${green}\t0.${plain} Вернуться в главное меню"
     read -p "Выберите вариант: " choice
     case "$choice" in
-    0)
-        show_menu
-        ;;
-    1)
-        open_ports
-        ;;
-    2)
-        sudo ufw status
-        ;;
-    3)
-        delete_ports
-        ;;
-    4)
-        sudo ufw disable
-        ;;
-    *) echo "Неверный выбор" ;;
+      0) show_menu ;;
+      1) open_ports ;;
+      2) sudo ufw status ;;
+      3) delete_ports ;;
+      4) sudo ufw disable ;;
+      *) echo "Неверный выбор" ;;
     esac
 }
 
@@ -755,12 +752,8 @@ ssl_cert_issue_main() {
     echo -e "${green}\t0.${plain} Вернуться в главное меню"
     read -p "Выберите вариант: " choice
     case "$choice" in
-    0)
-        show_menu
-        ;;
-    1)
-        ssl_cert_issue
-        ;;
+    0) show_menu ;;
+    1) ssl_cert_issue ;;
     2)
         local domain=""
         read -p "Введите свой домен, чтобы отозвать сертификат.: " domain
@@ -788,22 +781,17 @@ ssl_cert_issue() {
     fi
     # Теперь установим socat
     case "${release}" in
-    ubuntu | debian | armbian)
-        apt update && apt install socat -y
-        ;;
-    centos | almalinux | rocky | oracle)
-        yum -y update && yum -y install socat
-        ;;
-    fedora)
-        dnf -y update && dnf -y install socat
-        ;;
-    arch | manjaro | parch)
-        pacman -Sy --noconfirm socat
-        ;;
-    *)
-        echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
-        exit 1
-        ;;
+      ubuntu | debian | armbian)
+          apt update && apt install socat -y ;;
+      centos | almalinux | rocky | oracle)
+          yum -y update && yum -y install socat ;;
+      fedora)
+          dnf -y update && dnf -y install socat ;;
+      arch | manjaro | parch)
+          pacman -Sy --noconfirm socat ;;
+      *)
+          echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
+          exit 1 ;;
     esac
     if [ $? -ne 0 ]; then
         LOGE "Установка socat не удалась, проверьте журналы"
@@ -1087,8 +1075,7 @@ iplimit_main() {
             install_iplimit
         else
             iplimit_main
-        fi
-        ;;
+        fi ;;
     2)
         read -rp "Введите новую продолжительность бана в минутах. [По умолчанию: 30]: " NUM
         if [[ $NUM =~ ^[0-9]+$ ]]; then
@@ -1097,8 +1084,7 @@ iplimit_main() {
         else
             echo -e "${red}${NUM} не число! Попробуйте еще раз.${plain}"
         fi
-        iplimit_main
-        ;;
+        iplimit_main ;;
     3)
         confirm "Вы уверены, что хотите разбанить все IP? [Д/н]" "д"
         if [[ $? == 0 ]]; then
@@ -1109,20 +1095,11 @@ iplimit_main() {
         else
             echo -e "${yellow}Отмена...${plain}"
         fi
-        iplimit_main
-        ;;
-    4)
-        show_banlog
-        ;;
-    5)
-        service fail2ban status
-        ;;
-    6)
-        systemctl restart fail2ban
-        ;;
-    7)
-        remove_iplimit
-        ;;
+        iplimit_main ;;
+    4) show_banlog ;;
+    5) service fail2ban status ;;
+    6) systemctl restart fail2ban ;;
+    7) remove_iplimit ;;
     *) echo "Неверный выбор" ;;
     esac
 }
@@ -1130,22 +1107,17 @@ iplimit_main() {
 install_warp() {
     if ! command -v warp &> /dev/null; then
         case "${release}" in
-        ubuntu)
-            apt update && apt install wget net-tools -y
-            ;;
-        debian | armbian)
-            apt update && apt install wget net-tools -y
-            ;;
-        centos | almalinux | rocky | oracle)
-            yum update -y && yum install wget net-tools -y
-            ;;
-        fedora)
-            dnf -y update && dnf -y install wget net-tools
-            ;;
-        *)
-            echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
-            exit 1
-            ;;
+          ubuntu)
+              apt update && apt install wget net-tools -y ;;
+          debian | armbian)
+              apt update && apt install wget net-tools -y ;;
+          centos | almalinux | rocky | oracle)
+              yum update -y && yum install wget net-tools -y ;;
+          fedora)
+              dnf -y update && dnf -y install wget net-tools ;;
+          *)
+              echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
+              exit 1 ;;
         esac
 
         mkdir -p /etc/wireguard
@@ -1173,25 +1145,19 @@ install_iplimit() {
                 apt update && apt install python3-pip -y
                 python3 -m pip install pyasynchat --break-system-packages
             fi
-            apt update && apt install fail2ban -y
-            ;;
+            apt update && apt install fail2ban -y ;;
         debian | armbian)
-            apt update && apt install fail2ban -y
-            ;;
+            apt update && apt install fail2ban -y ;;
         centos | almalinux | rocky | oracle)
             yum update -y && yum install epel-release -y
-            yum -y install fail2ban
-            ;;
+            yum -y install fail2ban ;;
         fedora)
-            dnf -y update && dnf -y install fail2ban
-            ;;
+            dnf -y update && dnf -y install fail2ban ;;
         arch | manjaro | parch)
-            pacman -Syu --noconfirm fail2ban
-            ;;
+            pacman -Syu --noconfirm fail2ban ;;
         *)
             echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
-            exit 1
-            ;;
+            exit 1 ;;
         esac
 
         if ! command -v fail2ban-client &>/dev/null; then
@@ -1247,8 +1213,7 @@ remove_iplimit() {
         rm -f /etc/fail2ban/jail.d/3x-ipl.conf
         systemctl restart fail2ban
         echo -e "${green}Все ограничения IP сняты!${plain}\n"
-        before_show_menu
-        ;;
+        before_show_menu ;;
     2)
         rm -rf /etc/fail2ban
         systemctl stop fail2ban
@@ -1256,35 +1221,27 @@ remove_iplimit() {
         ubuntu | debian | armbian)
             apt-get remove -y fail2ban
             apt-get purge -y fail2ban -y
-            apt-get autoremove -y
-            ;;
+            apt-get autoremove -y ;;
         centos | almalinux | rocky | oracle)
             yum remove fail2ban -y
-            yum autoremove -y
-            ;;
+            yum autoremove -y ;;
         fedora)
             dnf remove fail2ban -y
-            dnf autoremove -y
-            ;;
+            dnf autoremove -y ;;
         arch | manjaro | parch)
-            pacman -Rns --noconfirm fail2ban
-            ;;
+            pacman -Rns --noconfirm fail2ban ;;
         *)
             echo -e "${red}Неподдерживаемая операционная система. Пожалуйста, удалите Fail2ban вручную.${plain}\n"
-            exit 1
-            ;;
+            exit 1 ;;
         esac
         echo -e "${green}Fail2ban удалён, все ограничения IP сняты!${plain}\n"
-        before_show_menu
-        ;;
+        before_show_menu ;;
     0)
         echo -e "${yellow}Отмена...${plain}\n"
-        iplimit_main
-        ;;
+        iplimit_main ;;
     *)
         echo -e "${red}Неверный вариант. Выберите корректный номер.${plain}\n"
-        remove_iplimit
-        ;;
+        remove_iplimit ;;
     esac
 }
 
@@ -1300,7 +1257,7 @@ show_usage() {
     echo -e "x-ui settings     - Текущие настройки"
     echo -e "x-ui enable       - Включить автозапуск при запуске ОС"
     echo -e "x-ui disable      - Отключить автозапуск при запуске ОС"
-    echo -e "x-ui log          - Проверка журналов"
+    echo -e "x-ui log          - Управление журналами"
     echo -e "x-ui banlog       - Проверка журналов бана Fail2ban"
     echo -e "x-ui update       - Обновление"
     echo -e "x-ui custom       - Пользовательская версия"
@@ -1330,7 +1287,7 @@ show_menu() {
   ${green}12.${plain} Остановка
   ${green}13.${plain} Перезапуск
   ${green}14.${plain} Проверка статуса
-  ${green}15.${plain} Проверка журналов
+  ${green}15.${plain} Управление журналами
 ————————————————
   ${green}16.${plain} Включить автозапуск
   ${green}17.${plain} Отключить автозапуск
@@ -1349,132 +1306,52 @@ show_menu() {
     echo && read -p "Пожалуйста, введите ваш выбор [0-25]: " num
 
     case "${num}" in
-    0)
-        exit 0
-        ;;
-    1)
-        check_uninstall && install
-        ;;
-    2)
-        check_install && update
-        ;;
-    3)
-        check_install && update_menu
-        ;;
-    4)
-        check_install && custom_version
-        ;;
-    5)
-        check_install && uninstall
-        ;;
-    6)
-        check_install && reset_user
-        ;;
-    7)
-        check_install && reset_webbasepath
-        ;;
-    8)
-        check_install && reset_config
-        ;;
-    9)
-        check_install && set_port
-        ;;
-    10)
-        check_install && check_config
-        ;;
-    11)
-        check_install && start
-        ;;
-    12)
-        check_install && stop
-        ;;
-    13)
-        check_install && restart
-        ;;
-    14)
-        check_install && status
-        ;;
-    15)
-        check_install && show_log
-        ;;
-    16)
-        check_install && enable
-        ;;
-    17)
-        check_install && disable
-        ;;
-    18)
-        ssl_cert_issue_main
-        ;;
-    19)
-        ssl_cert_issue_CF
-        ;;
-    20)
-        iplimit_main
-        ;;
-    21)
-        firewall_menu
-        ;;
-    22)
-        bbr_menu
-        ;;
-    23)
-        install_warp
-        ;;
-    24)
-        update_geo
-        ;;
-    25)
-        run_speedtest
-        ;;
-    *)
-        LOGE "Пожалуйста, введите корректный номер [0-25]"
-        ;;
+      0) exit 0 ;;
+      1) check_uninstall && install ;;
+      2) check_install && update ;;
+      3) check_install && update_menu ;;
+      4) check_install && custom_version ;;
+      5) check_install && uninstall ;;
+      6) check_install && reset_user ;;
+      7) check_install && reset_webbasepath ;;
+      8) check_install && reset_config ;;
+      9) check_install && set_port ;;
+      10) check_install && check_config ;;
+      11) check_install && start ;;
+      12) check_install && stop ;;
+      13) check_install && restart ;;
+      14) check_install && status ;;
+      15) check_install && show_log ;;
+      16) check_install && enable ;;
+      17) check_install && disable ;;
+      18) ssl_cert_issue_main ;;
+      19) ssl_cert_issue_CF ;;
+      20) iplimit_main ;;
+      21) firewall_menu ;;
+      22) bbr_menu ;;
+      23) install_warp ;;
+      24) update_geo ;;
+      25) run_speedtest ;;
+      *) LOGE "Пожалуйста, введите корректный номер [0-25]" ;;
     esac
 }
 
 if [[ $# > 0 ]]; then
     case $1 in
-    "start")
-        check_install 0 && start 0
-        ;;
-    "stop")
-        check_install 0 && stop 0
-        ;;
-    "restart")
-        check_install 0 && restart 0
-        ;;
-    "status")
-        check_install 0 && status 0
-        ;;
-    "settings")
-        check_install 0 && check_config 0
-        ;;
-    "enable")
-        check_install 0 && enable 0
-        ;;
-    "disable")
-        check_install 0 && disable 0
-        ;;
-    "log")
-        check_install 0 && show_log 0
-        ;;
-    "banlog")
-        check_install 0 && show_banlog 0
-        ;;
-    "update")
-        check_install 0 && update 0
-        ;;
-    "custom")
-        check_install 0 && custom_version 0
-        ;;
-    "install")
-        check_uninstall 0 && install 0
-        ;;
-    "uninstall")
-        check_install 0 && uninstall 0
-        ;;
-    *) show_usage ;;
+      "start") check_install 0 && start 0 ;;
+      "stop") check_install 0 && stop 0 ;;
+      "restart") check_install 0 && restart 0 ;;
+      "status") check_install 0 && status 0 ;;
+      "settings") check_install 0 && check_config 0 ;;
+      "enable") check_install 0 && enable 0 ;;
+      "disable") check_install 0 && disable 0 ;;
+      "log") check_install 0 && show_log 0 ;;
+      "banlog") check_install 0 && show_banlog 0 ;;
+      "update") check_install 0 && update 0 ;;
+      "custom") check_install 0 && custom_version 0 ;;
+      "install") check_uninstall 0 && install 0 ;;
+      "uninstall") check_install 0 && uninstall 0 ;;
+      *) show_usage ;;
     esac
 else
     show_menu
