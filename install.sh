@@ -152,21 +152,21 @@ gen_random_string() {
 # Установка зоны безопасности
 config_after_install() {
 
-#    local existing_username=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'username: .+' | awk '{print $2}')
-#    local existing_password=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'password: .+' | awk '{print $2}')
-#    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
-#
-#    if [[ -n "$existing_username" && -n "$existing_password" ]]; then
-#        if [[ ${#existing_webBasePath} -lt 4 ]]; then
-#            local config_webBasePath=$(gen_random_string 15)
-#            echo -e "${yellow}Путь диспетчерской отсутствует или слишком короткий. Генерация новго...${plain}"
-#            /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}"
-#            echo -e "${green}Новый путь диспетчерской: ${config_webBasePath}${plain}"
-#        else
-#            echo -e "${green}Имя пользователя, пароль и путь диспетчерской уже заданы. Завершение...${plain}"
-#            return 0
-#        fi
-#    fi
+    # local existing_username=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'username: .+' | awk '{print $2}')
+    # local existing_password=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'password: .+' | awk '{print $2}')
+    # local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+
+    # if [[ -n "$existing_username" && -n "$existing_password" ]]; then
+    #     if [[ ${#existing_webBasePath} -lt 4 ]]; then
+    #         local config_webBasePath=$(gen_random_string 15)
+    #         echo -e "${yellow}Путь диспетчерской отсутствует или слишком короткий. Генерация новго...${plain}"
+    #         /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}"
+    #         echo -e "${green}Новый путь диспетчерской: ${config_webBasePath}${plain}"
+    #     else
+    #         echo -e "${green}Имя пользователя, пароль и путь диспетчерской уже заданы. Завершение...${plain}"
+    #         return 0
+    #     fi
+    # fi
 
     echo -e "${yellow}Установка/обновление завершено! В целях безопасности рекомендую изменить настройки панели ${plain}"
     read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [y/N]: " config_confirm
