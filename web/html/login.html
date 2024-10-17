@@ -406,8 +406,8 @@
               <a-col style="width: 100%;">
                 <h1 class="title headline zoom">
                   <span class="words-wrapper">
-                    <b class="is-visible">{{ i18n "pages.login.hello" }}</b>
-                    <b>{{ i18n "pages.login.title" }}</b>
+                    <b class="is-visible">Добро пожаловать</b>
+                    <b>Войдите в систему</b>
                   </span>
                 </h1>
               </a-col>
@@ -416,20 +416,20 @@
               <a-col span="24">
                 <a-form>
                   <a-form-item>
-                    <a-input autocomplete="username" name="username" v-model.trim="user.username" placeholder='{{ i18n "username" }}'
+                    <a-input autocomplete="username" name="username" v-model.trim="user.username" placeholder='Имя пользователя'
                              @keydown.enter.native="login" autofocus>
                       <a-icon slot="prefix" type="user" style="font-size: 16px;"></a-icon>
                     </a-input>
                   </a-form-item>
                   <a-form-item>
                     <password-input autocomplete="password" name="password" icon="lock" v-model.trim="user.password"
-                                    placeholder='{{ i18n "password" }}'
+                                    placeholder='Пароль'
                                     @keydown.enter.native="login">
                     </password-input>
                   </a-form-item>
                   <a-form-item v-if="secretEnable">
                     <password-input autocomplete="secret" name="secret" icon="key" v-model.trim="user.loginSecret"
-                                    placeholder='{{ i18n "secretToken" }}'
+                                    placeholder='Токен'
                                     @keydown.enter.native="login">
                     </password-input>
                   </a-form-item>
@@ -440,23 +440,9 @@
                         <a-button class="ant-btn-primary-login" type="primary"
                                   :loading="loading" @click="login"
                                   :icon="loading ? 'poweroff' : undefined">
-                                  [[ loading ? '' : '{{ i18n "login" }}' ]]
+                                  [[ loading ? '' : 'Войти' ]]
                         </a-button>
                       </div>
-                    </a-row>
-                  </a-form-item>
-                  <a-form-item>
-                    <a-row justify="center" class="centered">
-                      <a-col :span="24">
-                        <a-select ref="selectLang" v-model="lang"
-                                  @change="setLang(lang)" style="width: 200px;"
-                                  :dropdown-class-name="themeSwitcher.currentTheme">
-                          <a-select-option :value="l.value" label="English" v-for="l in supportLangs">
-                            <span role="img" aria-label="l.name" v-text="l.icon"></span>
-                            &nbsp;&nbsp;<span v-text="l.name"></span>
-                          </a-select-option>
-                        </a-select>
-                      </a-col>
                     </a-row>
                   </a-form-item>
                   <a-form-item>
