@@ -1,19 +1,25 @@
 const ONE_KB = 1024;
-const UNITS = ["B", "KB", "MB", "GB", "TB", "PB"];
+const ONE_MB = ONE_KB * 1024;
+const ONE_GB = ONE_MB * 1024;
+const ONE_TB = ONE_GB * 1024;
+const ONE_PB = ONE_TB * 1024;
 
 function sizeFormat(size) {
     if (size < 0) {
         return "0 B";
+    } else if (size < ONE_KB) {
+        return size.toFixed(0) + " B";
+    } else if (size < ONE_MB) {
+        return (size / ONE_KB).toFixed(2) + " KB";
+    } else if (size < ONE_GB) {
+        return (size / ONE_MB).toFixed(2) + " MB";
+    } else if (size < ONE_TB) {
+        return (size / ONE_GB).toFixed(2) + " GB";
+    } else if (size < ONE_PB) {
+        return (size / ONE_TB).toFixed(2) + " TB";
+    } else {
+        return (size / ONE_PB).toFixed(2) + " PB";
     }
-
-    let index = 0;
-
-    while (size >= ONE_KB && index < UNITS.length - 1) {
-        size /= ONE_KB;
-        index++;
-    }
-
-    return `${size.toFixed(index === 0 ? 0 : 2)} ${UNITS[index]}`;
 }
 
 function cpuSpeedFormat(speed) {
@@ -26,14 +32,10 @@ function cpuSpeedFormat(speed) {
 }
 
 function cpuCoreFormat(cores) {
-    let remainder = cores % 10;
-
-    if (remainder === 1) {
-        return cores + " ядро";
-    } else if (remainder >= 2 && remainder <= 4) {
-        return cores + " ядра";
+    if (cores === 1) {
+        return "1 Core";
     } else {
-        return cores + " ядер";
+        return cores + " Cores";
     }
 }
 
@@ -132,7 +134,7 @@ function usageColor(data, threshold, total) {
 function clientUsageColor(clientStats, trafficDiff) {
     switch (true) {
         case !clientStats || clientStats.total == 0:
-            return "#7a316f"; // Purple
+            return "#7a316f"; // purple
         case clientStats.up + clientStats.down < clientStats.total - trafficDiff:
             return "#008771"; // Green
         case clientStats.up + clientStats.down < clientStats.total:
@@ -150,11 +152,11 @@ function userExpiryColor(threshold, client, isDark = false) {
         expiry = client.expiryTime;
     switch (true) {
         case expiry === null:
-            return "#7a316f"; // Purple
+            return "#7a316f"; // purple
         case expiry < 0:
             return "#008771"; // Green
         case expiry == 0:
-            return "#7a316f"; // Purple
+            return "#7a316f"; // purple
         case now < expiry - threshold:
             return "#008771"; // Green
         case now < expiry:
