@@ -32,10 +32,14 @@ function cpuSpeedFormat(speed) {
 }
 
 function cpuCoreFormat(cores) {
-    if (cores === 1) {
-        return "1 Core";
+    let remainder = cores % 10;
+
+    if (remainder === 1) {
+        return cores + " ядро";
+    } else if (remainder >= 2 && remainder <= 4) {
+        return cores + " ядра";
     } else {
-        return cores + " Cores";
+        return cores + " ядер";
     }
 }
 
