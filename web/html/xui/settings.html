@@ -246,6 +246,7 @@
                   <setting-list-item type="switch" title='{{ i18n "pages.settings.tgNotifyLogin" }}' desc='{{ i18n "pages.settings.tgNotifyLoginDesc" }}' v-model="allSetting.tgBotLoginNotify"></setting-list-item>
                   <setting-list-item type="number" title='{{ i18n "pages.settings.tgNotifyCpu" }}' desc='{{ i18n "pages.settings.tgNotifyCpuDesc" }}' v-model="allSetting.tgCpu" :min="0" :max="100"></setting-list-item>
                   <setting-list-item type="text" title='{{ i18n "pages.settings.telegramProxy"}}' desc='{{ i18n "pages.settings.telegramProxyDesc"}}' v-model="allSetting.tgBotProxy" placeholder="socks5://user:pass@host:port"></setting-list-item>
+                  <setting-list-item type="text" title='{{ i18n "pages.settings.telegramAPIServer"}}' desc='{{ i18n "pages.settings.telegramAPIServerDesc"}}' v-model="allSetting.tgBotAPIServer" placeholder="https://api.example.com"></setting-list-item>
                   <a-list-item>
                     <a-row style="padding: 20px">
                       <a-col :lg="24" :xl="12">
@@ -382,12 +383,12 @@
                     <a-collapse v-if="enableDirect" style="margin-top: 14px;">
                       <a-collapse-panel header='{{ i18n "pages.xray.directips"}}'>
                         <a-list-item style="padding: 10px 20px">
-                          <a-checkbox-group v-model="geoIP" :options="geoIPOptions"></a-checkbox-group>
+                          <a-checkbox-group v-model="directIPs" :options="IPsOptions"></a-checkbox-group>
                         </a-list-item>
                       </a-collapse-panel>
                       <a-collapse-panel header='{{ i18n "pages.xray.directdomains"}}'>
                         <a-list-item style="padding: 10px 20px">
-                          <a-checkbox-group v-model="geoSite" :options="geoSiteOptions"></a-checkbox-group>
+                          <a-checkbox-group v-model="directDomains" :options="DomainsOptions"></a-checkbox-group>
                         </a-list-item>
                       </a-collapse-panel>
                     </a-collapse>
@@ -463,34 +464,23 @@
           type: "field",
           outboundTag: "direct",
           domain: [
-            "geosite:category-ir"
           ]
         },
         {
           type: "field",
           outboundTag: "direct",
           ip: [
-            "geoip:private",
-            "geoip:ir"
+            "geoip:private"
           ]
         },
       ],
-      geoIPOptions: [
-        { label: 'Private IP', value: 'private' },
-        { label: '🇮🇷 Iran', value: 'ir' },
-        { label: '🇨🇳 China', value: 'cn' },
-        { label: '🇷🇺 Russia', value: 'ru' },
-        { label: '🇻🇳 Vietnam', value: 'vn' },
-        { label: '🇪🇸 Spain', value: 'es' },
-        { label: '🇮🇩 Indonesia', value: 'id' },
-        { label: '🇺🇦 Ukraine', value: 'ua' },
-        { label: '🇹🇷 Türkiye', value: 'tr' },
-        { label: '🇧🇷 Brazil', value: 'br' },
+      IPsOptions: [
+        { label: 'geoip:private', value: 'private' },
+        { label: 'geoip:ru', value: 'ru' },
       ],
-      geoSiteOptions: [
-        { label: '🇮🇷 Iran', value: 'ir' },
-        { label: '🇨🇳 China', value: 'cn' },
-        { label: '🇷🇺 Russia', value: 'ru' },
+      DomainsOptions: [
+        { label: 'geosite:category-ru', value: 'ru' },
+        { label: 'geosite:category-gov-ru', value: 'gov-ru' },
         { label: 'Apple', value: 'apple' },
         { label: 'Meta', value: 'meta' },
         { label: 'Google', value: 'google' },
@@ -745,7 +735,7 @@
           this.allSetting.subJsonRules = v ? JSON.stringify(this.defaultRules) : "";
         }
       },
-      geoIP: {
+      directIPs: {
         get: function () {
           if (!this.enableDirect) return [];
           const rules = JSON.parse(this.allSetting.subJsonRules);
@@ -771,7 +761,7 @@
           this.allSetting.subJsonRules = JSON.stringify(rules);
         }
       },
-      geoSite: {
+      directDomains: {
         get: function () {
           if (!this.enableDirect) return [];
           const rules = JSON.parse(this.allSetting.subJsonRules);
@@ -798,9 +788,7 @@
             rules[ruleIndex].domain = [];
             v.forEach(d => {
               let category = '';
-              if (["cn", "apple", "meta", "google"].includes(d)) {
-                category = "";
-              } else if (["ru", "ir"].includes(d)) {
+              if (["ru", "gov-ru"].includes(d)) {
                 category = "category-";
               }
               rules[ruleIndex].domain.push("geosite:" + category + d);

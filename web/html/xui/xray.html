@@ -243,7 +243,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta 
+                                <a-list-item-meta
                                     title='{{ i18n "pages.xray.blockips" }}'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
@@ -261,7 +261,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta 
+                                <a-list-item-meta
                                     title='{{ i18n "pages.xray.blockdomains" }}'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
@@ -270,7 +270,7 @@
                                     v-model="blockedDomains"
                                     :dropdown-class-name="themeSwitcher.currentTheme">
                                         <a-select-option :value="p.value" :label="p.label"
-                                            v-for="p in settingsData.DomainsOptions"> [[ p.label ]]
+                                             v-for="p in settingsData.BlockDomainsOptions"> [[ p.label ]]
                                         </a-select-option>
                                     </a-select>
                                 </template>
@@ -288,7 +288,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta 
+                                <a-list-item-meta
                                     title='{{ i18n "pages.xray.directips" }}'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
@@ -307,7 +307,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta 
+                                <a-list-item-meta
                                     title='{{ i18n "pages.xray.directdomains" }}'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
@@ -316,7 +316,7 @@
                                     v-model="directDomains"
                                     :dropdown-class-name="themeSwitcher.currentTheme">
                                         <a-select-option :value="p.value" :label="p.label"
-                                            v-for="p in settingsData.DirectDomainsOptions"> [[ p.label ]]
+                                             v-for="p in settingsData.DomainsOptions"> [[ p.label ]]
                                         </a-select-option>
                                     </a-select>
                                 </template>
@@ -334,7 +334,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta 
+                                <a-list-item-meta
                                     title='{{ i18n "pages.xray.ipv4Routing" }}'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
@@ -363,7 +363,7 @@
                         <a-list-item>
                             <a-row style="padding: 0 20px">
                                 <a-col :lg="24" :xl="12">
-                                    <a-list-item-meta 
+                                    <a-list-item-meta
                                         title='{{ i18n "pages.xray.warpRouting" }}'/>
                                 </a-col>
                                 <a-col :lg="24" :xl="12">
@@ -397,7 +397,7 @@
                     :data-source="routingRuleData"
                     :scroll="isMobile ? {} : { x: 1000 }"
                     :pagination="false"
-                    :indent-size="0" 
+                    :indent-size="0"
                     :style="isMobile ? 'padding: 5px 0' : 'margin-top: 10px;'"
                     v-on:onSort="replaceRule">
                   <template slot="action" slot-scope="text, rule, index">
@@ -779,7 +779,7 @@
         { title: '{{ i18n "pages.inbounds.network"}}', children: [
             { title: 'L4', dataIndex: 'network', align: 'center', width: 10 },
             { title: 'Protocol', dataIndex: 'protocol', align: 'center', width: 10, ellipsis: true },
-            { title: 'Attrs', dataIndex: 'attrs', align: 'center', width: 20, ellipsis: true } ]}, 
+            { title: 'Attrs', dataIndex: 'attrs', align: 'center', width: 20, ellipsis: true } ]},
         { title: '{{ i18n "pages.xray.rules.dest"}}', children: [
             { title: 'IP', dataIndex: 'ip', align: 'center', width: 20, ellipsis: true },
             { title: 'Domain', dataIndex: 'domain', align: 'center', width: 20, ellipsis: true },
@@ -898,44 +898,21 @@
                     bittorrent: ["bittorrent"],
                 },
                 IPsOptions: [
-                    { label: 'Private IP', value: 'geoip:private' },
-                    { label: '🇮🇷 Iran', value: 'ext:geoip_IR.dat:ir' },
-                    { label: '🇨🇳 China', value: 'geoip:cn' },
-                    { label: '🇷🇺 Russia', value: 'geoip:ru' },
-                    { label: '🇻🇳 Vietnam', value: 'ext:geoip_VN.dat:vn' },
-                    { label: '🇪🇸 Spain', value: 'geoip:es' },
-                    { label: '🇮🇩 Indonesia', value: 'geoip:id' },
-                    { label: '🇺🇦 Ukraine', value: 'geoip:ua' },
-                    { label: '🇹🇷 Türkiye', value: 'geoip:tr' },
-                    { label: '🇧🇷 Brazil', value: 'geoip:br' },
+                    { label: 'geoip:private', value: 'geoip:private' },
+                    { label: 'geoip:ru', value: 'geoip:ru' },
                 ],
                 DomainsOptions: [
-                    { label: 'Ads All', value: 'geosite:category-ads-all' },
-                    { label: 'Ads IR 🇮🇷', value: 'ext:geosite_IR.dat:category-ads-all' },
-                    { label: 'Ads VN 🇻🇳', value: 'ext:geosite_VN.dat:ads' },
-                    { label: 'Sec-IR malware', value: 'geosite_IR.dat:malware' },
-                    { label: 'Sec-IR phishing', value: 'geosite_IR.dat:phishing' },
-                    { label: 'Sec-IR cryptominers', value: 'geosite_IR.dat:cryptominers' },
-                    { label: '🇮🇷 Iran', value: 'ext:geosite_IR.dat:ir' },
-                    { label: '🇮🇷 .ir', value: 'regexp:.*\\.ir$' },
-                    { label: '🇮🇷 .ایران', value: 'regexp:.*\\.xn--mgba3a4f16a$' },
-                    { label: '🇨🇳 China', value: 'geosite:cn' },
-                    { label: '🇨🇳 .cn', value: 'regexp:.*\\.cn$' },
-                    { label: '🇷🇺 Russia', value: 'geosite:category-ru' },
-                    { label: '🇷🇺 .ru', value: 'regexp:.*\\.ru' },
-                    { label: '🇻🇳 Vietnam', value: 'ext:geosite_VN.dat:vn' },
-                    { label: '🇻🇳 .vn', value: 'regexp:.*\\.vn$' },
+                    { label: 'geosite:category-ads-all', value: 'geosite:category-ads-all' },
+                    { label: 'geosite:category-ru', value: 'geosite:category-ru' },
+                    { label: 'geosite:category-gov-ru', value: 'geosite:category-gov-ru' },
+                    { label: '.ru', value: 'regexp:.*\\.ru' },
+                    { label: '.su', value: 'regexp:.*\\.su' },
                 ],
-                DirectDomainsOptions: [
-                    { label: '🇮🇷 Iran', value: 'ext:geosite_IR.dat:ir' },
-                    { label: '🇮🇷 .ir', value: 'regexp:.*\\.ir$' },
-                    { label: '🇮🇷 .ایران', value: 'regexp:.*\\.xn--mgba3a4f16a$' },
-                    { label: '🇨🇳 China', value: 'geosite:cn' },
-                    { label: '🇨🇳 .cn', value: 'regexp:.*\\.cn$' },
-                    { label: '🇷🇺 Russia', value: 'geosite:category-ru' },
-                    { label: '🇷🇺 .ru', value: 'regexp:.*\\.ru' },
-                    { label: '🇻🇳 Vietnam', value: 'ext:geosite_VN.dat:vn' },
-                    { label: '🇻🇳 .vn', value: 'regexp:.*\\.vn$' },
+                BlockDomainsOptions: [
+                    { label: 'geosite:category-ru', value: 'geosite:category-ru' },
+                    { label: 'geosite:category-gov-ru', value: 'geosite:category-gov-ru' },
+                    { label: '.ru', value: 'regexp:.*\\.ru' },
+                    { label: '.su', value: 'regexp:.*\\.su' },
                 ],
                 ServicesOptions: [
                     { label: 'Apple', value: 'geosite:apple' },
@@ -1493,7 +1470,7 @@
                 // Remove from settings
                 let realIndex = newTemplateSettings.routing.balancers.findIndex((b) => b.tag === removedBalancer.tag);
                 newTemplateSettings.routing.balancers.splice(realIndex, 1);
-                
+
                 // Update balancers property to an empty array if there are no more balancers
                 if (newTemplateSettings.routing.balancers.length === 0) {
                     delete newTemplateSettings.routing.balancers;
@@ -1724,7 +1701,7 @@
                 }
             },
             observatory: {
-                get: function () { 
+                get: function () {
                     return this.templateSettings?.observatory ? JSON.stringify(this.templateSettings.observatory, null, 2) : null;
                 },
                 set: function (newValue) {
@@ -1734,8 +1711,8 @@
                 },
             },
             burstObservatory: {
-                get: function () { 
-                    return this.templateSettings?.burstObservatory ? JSON.stringify(this.templateSettings.burstObservatory, null, 2) : null; 
+                get: function () {
+                    return this.templateSettings?.burstObservatory ? JSON.stringify(this.templateSettings.burstObservatory, null, 2) : null;
                 },
                 set: function (newValue) {
                     newTemplateSettings = this.templateSettings;
@@ -1931,7 +1908,7 @@
                     newTemplateSettings = this.templateSettings;
                     if (newValue) {
                         newTemplateSettings.dns = { servers: [], queryStrategy: "UseIP", tag: "dns_inbound" };
-                        newTemplateSettings.fakedns = null; 
+                        newTemplateSettings.fakedns = null;
                     } else {
                         delete newTemplateSettings.dns;
                         delete newTemplateSettings.fakedns;

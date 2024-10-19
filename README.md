@@ -18,14 +18,6 @@
 bash <(curl -Ls https://raw.githubusercontent.com/localzet/x-ui/master/install.sh)
 ```
 
-## Установка определённой версии
-
-Чтобы установить нужную вам версию, добавьте номер версии в конец команды установки. Например, `v2.4.1`:
-
-```
-bash <(curl -Ls https://raw.githubusercontent.com/localzet/x-ui/master/install.sh) v2.4.1
-```
-
 ## SSL Сертификат
 
 <details>
@@ -42,6 +34,9 @@ bash <(curl -Ls https://raw.githubusercontent.com/localzet/x-ui/master/install.s
     - **Get SSL:** Получить SSL сертификаты.
     - **Revoke:** Отозвать существующие SSL сертификаты.
     - **Force Renew:** Принудительно перевыпустить SSL сертификаты.
+    - **Show Existing Domains:** Отобразить все сертификаты доменов, доступные на сервере.
+    - **Set Certificate Paths for the Panel:** Укажите сертификат для вашего домена, который будет использоваться панелью.
+
 
 ### Certbot
 

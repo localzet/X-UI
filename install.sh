@@ -151,24 +151,17 @@ gen_random_string() {
 
 # Установка зоны безопасности
 config_after_install() {
+     local existing_username=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'username: .+' | awk '{print $2}')
+     local existing_password=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'password: .+' | awk '{print $2}')
+     local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
 
-    # local existing_username=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'username: .+' | awk '{print $2}')
-    # local existing_password=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'password: .+' | awk '{print $2}')
-    # local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+     if [[ -n "$existing_username" && -n "$existing_password" ]]; then
+         echo -e "${green}Имя пользователя, пароль и путь диспетчерской уже заданы. Завершение обновления...${plain}"
+         /usr/local/x-ui/x-ui migrate
+         return 0
+     fi
 
-    # if [[ -n "$existing_username" && -n "$existing_password" ]]; then
-    #     if [[ ${#existing_webBasePath} -lt 4 ]]; then
-    #         local config_webBasePath=$(gen_random_string 15)
-    #         echo -e "${yellow}Путь диспетчерской отсутствует или слишком короткий. Генерация новго...${plain}"
-    #         /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}"
-    #         echo -e "${green}Новый путь диспетчерской: ${config_webBasePath}${plain}"
-    #     else
-    #         echo -e "${green}Имя пользователя, пароль и путь диспетчерской уже заданы. Завершение...${plain}"
-    #         return 0
-    #     fi
-    # fi
-
-    echo -e "${yellow}Установка/обновление завершено! В целях безопасности рекомендую изменить настройки панели ${plain}"
+    echo -e "${yellow}Установка завершена! В целях безопасности рекомендую изменить настройки панели ${plain}"
     read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [y/N]: " config_confirm
 
     if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" || "${config_confirm}" == "д" || "${config_confirm}" == "Д" ]]; then
@@ -184,24 +177,20 @@ config_after_install() {
         /usr/local/x-ui/x-ui setting -username "${config_account}" -password "${config_password}" -port "${config_port}" -webBasePath "${config_webBasePath}"
         echo -e "${yellow}Данные сохранены!${plain}"
     else
-        if [[ ! -f "/etc/x-ui/x-ui.db" ]]; then
-            local usernameTemp=$(gen_random_string 10)
-            local passwordTemp=$(gen_random_string 10)
-            local portTemp=$(shuf -i 1024-62000 -n 1)
-            local webBasePathTemp=$(gen_random_string 15)
+        local usernameTemp=$(gen_random_string 10)
+        local passwordTemp=$(gen_random_string 10)
+        local portTemp=$(shuf -i 1024-62000 -n 1)
+        local webBasePathTemp=$(gen_random_string 15)
 
-            /usr/local/x-ui/x-ui setting -username "${usernameTemp}" -password "${passwordTemp}" -port "${portTemp}" -webBasePath "${webBasePathTemp}"
+        /usr/local/x-ui/x-ui setting -username "${usernameTemp}" -password "${passwordTemp}" -port "${portTemp}" -webBasePath "${webBasePathTemp}"
 
-            echo -e "Это свежая установка, генерируем случайные данные в целях безопасности:"
-            echo -e "###############################################"
-            echo -e "${green}Имя пользователя: ${usernameTemp}${plain}"
-            echo -e "${green}Пароль: ${passwordTemp}${plain}"
-            echo -e "${green}Путь диспетчерской: ${webBasePathTemp}${plain}"
-            echo -e "###############################################"
-            echo -e "${yellow}Если вы забыли данные для входа, выполните "x-ui settings" для проверки после установки${plain}"
-        else
-            echo -e "${yellow}Это обновление, оставляем старые данные. Если вы забыли данные для входа, выполните "x-ui settings" для проверки${plain}"
-        fi
+        echo -e "Это свежая установка, генерируем случайные данные в целях безопасности:"
+        echo -e "###############################################"
+        echo -e "${green}Имя пользователя: ${usernameTemp}${plain}"
+        echo -e "${green}Пароль: ${passwordTemp}${plain}"
+        echo -e "${green}Путь диспетчерской: ${webBasePathTemp}${plain}"
+        echo -e "###############################################"
+        echo -e "${yellow}Если вы забыли данные для входа, выполните "x-ui settings" для проверки после установки${plain}"
     fi
     /usr/local/x-ui/x-ui migrate
 }
