@@ -46,7 +46,7 @@
                           :stroke-color="status.cpu.color"
                           :percent="status.cpu.percent"></a-progress>
                         <div><b>CPU:</b> [[ cpuCoreFormat(status.cpuCores) ]] <a-tooltip>
-                          <a-icon type="area-chart"></a-icon> 
+                          <a-icon type="area-chart"></a-icon>
                           <template slot="title">
                             <div><b>Logical Processors:</b> [[ (status.logicalPro) ]]</div>
                             <div><b>Speed:</b> [[ cpuSpeedFormat(status.cpuSpeedMhz) ]]</div>
@@ -58,7 +58,7 @@
                           :stroke-color="status.mem.color"
                           :percent="status.mem.percent"></a-progress>
                         <div>
-                          <b>{{ i18n "pages.index.memory"}}:</b> [[ sizeFormat(status.mem.current) ]] / [[ sizeFormat(status.mem.total) ]]
+                          <b>RAM:</b> [[ sizeFormat(status.mem.current) ]] / [[ sizeFormat(status.mem.total) ]]
                         </div>
                       </a-col>
                     </a-row>
@@ -70,7 +70,7 @@
                           :stroke-color="status.swap.color"
                           :percent="status.swap.percent"></a-progress>
                         <div>
-                          <b>Swap:</b> [[ sizeFormat(status.swap.current) ]] / [[ sizeFormat(status.swap.total) ]]
+                          <b>SWAP:</b> [[ sizeFormat(status.swap.current) ]] / [[ sizeFormat(status.swap.total) ]]
                         </div>
                       </a-col>
                       <a-col :span="12" style="text-align: center">
@@ -78,7 +78,7 @@
                           :stroke-color="status.disk.color"
                           :percent="status.disk.percent"></a-progress>
                         <div>
-                          <b>{{ i18n "pages.index.hard"}}:</b> [[ sizeFormat(status.disk.current) ]] / [[ sizeFormat(status.disk.total) ]]
+                          <b>SSD:</b> [[ sizeFormat(status.disk.current) ]] / [[ sizeFormat(status.disk.total) ]]
                         </div>
                       </a-col>
                     </a-row>
@@ -92,50 +92,50 @@
               <a-col :sm="24" :lg="12">
                 <a-card hoverable>
                   <b>X-UI:</b>
-                  <a rel="noopener" href="https://github.com/localzet/x-ui/releases" target="_blank"><a-tag color="green">v{{ .cur_ver }}</a-tag></a>
+                  <a rel="noopener" href="https://github.com/localzet/X-UI/releases/tag/v{{ .cur_ver }}" target="_blank"><a-tag color="green">v{{ .cur_ver }}</a-tag></a>
                 </a-card>
               </a-col>
               <a-col :sm="24" :lg="12">
                 <a-card hoverable>
-                  <b>{{ i18n "pages.index.operationHours" }}:</b>
-                  <a-tag :color="status.xray.color">Xray: [[ formatSecond(status.appStats.uptime) ]]</a-tag>
+                  <b>Время работы:</b>
+                  <a-tag :color="status.xray.color">XRay: [[ formatSecond(status.appStats.uptime) ]]</a-tag>
                   <a-tag color="green">OS: [[ formatSecond(status.uptime) ]]</a-tag>
                 </a-card>
               </a-col>
               <a-col :sm="24" :lg="12">
                 <a-card hoverable>
-                  <b>{{ i18n "pages.index.xrayStatus" }}:</b>
+                  <b>XRay:</b>
                   <a-tag style="text-transform: capitalize;" :color="status.xray.color">[[ status.xray.state ]] </a-tag>
                   <a-popover v-if="status.xray.state === State.Error" :overlay-class-name="themeSwitcher.currentTheme">
-                    <span slot="title" style="font-size: 12pt">An error occurred while running Xray
-                      <a-tag color="purple" style="cursor: pointer; float: right;" @click="openLogs()">{{ i18n "pages.index.logs" }}</a-tag>
+                    <span slot="title" style="font-size: 12pt">Произошла ошибка при запуске XRay
+                      <a-tag color="purple" style="cursor: pointer; float: right;" @click="openLogs()">Журнал</a-tag>
                     </span>
                     <template slot="content">
                       <p style="max-width: 400px" v-for="line in status.xray.errorMsg.split('\n')">[[ line ]]</p>
                     </template>
                     <a-icon type="question-circle"></a-icon>
                   </a-popover>
-                  <a-tag color="purple" style="cursor: pointer;" @click="stopXrayService">{{ i18n "pages.index.stopXray" }}</a-tag>
-                  <a-tag color="purple" style="cursor: pointer;" @click="restartXrayService">{{ i18n "pages.index.restartXray" }}</a-tag>
+                  <a-tag color="purple" style="cursor: pointer;" @click="stopXrayService">Остановить</a-tag>
+                  <a-tag color="purple" style="cursor: pointer;" @click="restartXrayService">Перезапустить</a-tag>
                   <a-tag color="purple" style="cursor: pointer;" @click="openSelectV2rayVersion">v[[ status.xray.version ]]</a-tag>
                 </a-card>
               </a-col>
               <a-col :sm="24" :lg="12">
                 <a-card hoverable>
-                  <b>{{ i18n "menu.link" }}:</b>
-                  <a-tag color="purple" style="cursor: pointer;" @click="openLogs()">{{ i18n "pages.index.logs" }}</a-tag>
-                  <a-tag color="purple" style="cursor: pointer;" @click="openConfig">{{ i18n "pages.index.config" }}</a-tag>
-                  <a-tag color="purple" style="cursor: pointer;" @click="openBackup">{{ i18n "pages.index.backup" }}</a-tag>
+                  <b>Файлы:</b>
+                  <a-tag color="purple" style="cursor: pointer;" @click="openLogs()">Журналы</a-tag>
+                  <a-tag color="purple" style="cursor: pointer;" @click="openConfig">Конфигурация</a-tag>
+                  <a-tag color="purple" style="cursor: pointer;" @click="openBackup">Резервная копия</a-tag>
                 </a-card>
               </a-col>
               <a-col :sm="24" :lg="12">
                 <a-card hoverable>
-                  <b>{{ i18n "pages.index.systemLoad" }}:</b>
+                  <b>Нагрузка:</b>
                   <a-tag color="green">
                     <a-tooltip>
                           [[ status.loads[0] ]] | [[ status.loads[1] ]] | [[ status.loads[2] ]]
                       <template slot="title">
-                        {{ i18n "pages.index.systemLoadDesc" }}
+                        Средняя загрузка системы за последние 1, 5 и 15 минут
                       </template>
                     </a-tooltip>
                   </a-tag>
@@ -143,9 +143,9 @@
               </a-col>
               <a-col :sm="24" :lg="12">
                 <a-card hoverable>
-                  <b>{{ i18n "usage"}}:</b>
+                  <b>Использование:</b>
                   <a-tag color="green"> RAM: [[ sizeFormat(status.appStats.mem) ]] </a-tag>
-                  <a-tag color="green"> Threads: [[ status.appStats.threads ]] </a-tag>
+                  <a-tag color="green"> Потоки: [[ status.appStats.threads ]] </a-tag>
                 </a-card>
               </a-col>
               <a-col :sm="24" :lg="12">
@@ -154,20 +154,14 @@
                     <a-col :span="12">
                       <a-tag>
                         <a-tooltip>
-                          <a-icon type="global"></a-icon> IPv4
-                          <template slot="title">
-                            [[ status.publicIP.ipv4 ]]
-                          </template>
+                          <a-icon type="global"></a-icon> IPv4: [[ status.publicIP.ipv4 ]]
                         </a-tooltip>
                       </a-tag>
                     </a-col>
                     <a-col :span="12">
                       <a-tag>
                         <a-tooltip>
-                          <a-icon type="global"></a-icon> IPv6
-                          <template slot="title">
-                            [[ status.publicIP.ipv6 ]]
-                          </template>
+                          <a-icon type="global"></a-icon> IPv6: [[ status.publicIP.ipv6 ]]
                         </a-tooltip>
                       </a-tag>
                     </a-col>
@@ -182,7 +176,7 @@
                         <a-tooltip>
                           <a-icon type="swap"></a-icon> TCP: [[ status.tcpCount ]]
                           <template slot="title">
-                            {{ i18n "pages.index.connectionTcpCountDesc" }}
+                            Общее количество TCP-подключений сервера
                           </template>
                         </a-tooltip>
                       </a-tag>
@@ -192,7 +186,7 @@
                         <a-tooltip>
                           <a-icon type="swap"></a-icon> UDP: [[ status.udpCount ]]
                           <template slot="title">
-                            {{ i18n "pages.index.connectionUdpCountDesc" }}
+                            Общее количество UDP-подключений сервера
                           </template>
                         </a-tooltip>
                       </a-tag>
@@ -206,9 +200,9 @@
                     <a-col :span="12">
                       <a-tag>
                         <a-tooltip>
-                          <a-icon type="arrow-up"></a-icon> Up: [[ sizeFormat(status.netIO.up) ]]/s
+                          <a-icon type="arrow-up"></a-icon> [[ sizeFormat(status.netIO.up) ]]/s
                           <template slot="title">
-                            {{ i18n "pages.index.upSpeed" }}
+                            Общая скорость скачивания
                           </template>
                         </a-tooltip>
                       </a-tag>
@@ -216,9 +210,9 @@
                     <a-col :span="12">
                       <a-tag>
                         <a-tooltip>
-                          <a-icon type="arrow-down"></a-icon> Down: [[ sizeFormat(status.netIO.down) ]]/s
+                          <a-icon type="arrow-down"></a-icon> [[ sizeFormat(status.netIO.down) ]]/s
                           <template slot="title">
-                            {{ i18n "pages.index.downSpeed" }}
+                            Общая скорость загрузки
                           </template>
                         </a-tooltip>
                       </a-tag>
@@ -232,20 +226,20 @@
                     <a-col :span="12">
                       <a-tag>
                         <a-tooltip>
-                          <a-icon type="cloud-upload"></a-icon>
+                          <a-icon type="cloud-upload"></a-icon> Передано: [[ sizeFormat(status.netTraffic.sent) ]]
                           <template slot="title">
-                            {{ i18n "pages.index.totalSent" }}
-                          </template> Out: [[ sizeFormat(status.netTraffic.sent) ]]
+                            Общий объем отправленных данных для всех сетей с момента запуска системы
+                          </template>
                         </a-tooltip>
                       </a-tag>
                     </a-col>
                     <a-col :span="12">
                       <a-tag>
                         <a-tooltip>
-                          <a-icon type="cloud-download"></a-icon>
+                          <a-icon type="cloud-download"></a-icon> Получено: [[ sizeFormat(status.netTraffic.recv) ]]
                           <template slot="title">
-                            {{ i18n "pages.index.totalReceive" }}
-                          </template> In: [[ sizeFormat(status.netTraffic.recv) ]]
+                            Общий объем полученных данных для всех сетей с момента запуска системы
+                          </template>
                         </a-tooltip>
                       </a-tag>
                     </a-col>
@@ -257,10 +251,12 @@
         </a-spin>
       </a-layout-content>
     </a-layout>
-    <a-modal id="version-modal" v-model="versionModal.visible" title='{{ i18n "pages.index.xraySwitch" }}' :closable="true"
+
+    <!-- Выбор версии XRay -->
+    <a-modal id="version-modal" v-model="versionModal.visible" title='Выбор версии XRay' :closable="true"
         @ok="() => versionModal.visible = false" :class="themeSwitcher.currentTheme" footer="">
       <a-alert type="warning" style="margin-bottom: 12px; width: fit-content"
-        message='{{ i18n "pages.index.xraySwitchClickDesk" }}' show-icon></a-alert>
+        message='Выбирайте внимательно, т.к. старые версии могут не поддерживать текущие конфигурации' show-icon></a-alert>
       <template v-for="version, index in versionModal.versions">
         <a-tag :color="index % 2 == 0 ? 'purple' : 'green'" style="margin-right: 12px; margin-bottom: 12px"
           @click="switchV2rayVersion(version)">
@@ -268,12 +264,14 @@
         </a-tag>
       </template>
     </a-modal>
+
+    <!-- Журналы -->
     <a-modal id="log-modal" v-model="logModal.visible"
         :closable="true" @cancel="() => logModal.visible = false"
         :class="themeSwitcher.currentTheme"
         width="800px" footer="">
       <template slot="title">
-        {{ i18n "pages.index.logs" }}
+        Журналы
         <a-icon :spin="logModal.loading"
           type="sync"
           style="vertical-align: middle; margin-left: 10px;"
@@ -294,16 +292,16 @@
             </a-select>
             <a-select size="small" v-model="logModal.level" style="width:95px;"
                 @change="openLogs()" :dropdown-class-name="themeSwitcher.currentTheme">
-              <a-select-option value="debug">Debug</a-select-option>
-              <a-select-option value="info">Info</a-select-option>
-              <a-select-option value="notice">Notice</a-select-option>
-              <a-select-option value="warning">Warning</a-select-option>
-              <a-select-option value="err">Error</a-select-option>
+              <a-select-option value="debug">Отладка</a-select-option>
+              <a-select-option value="info">Информация</a-select-option>
+              <a-select-option value="notice">Уведоммления</a-select-option>
+              <a-select-option value="warning">Предупреждения</a-select-option>
+              <a-select-option value="err">Ошибки</a-select-option>
             </a-select>
           </a-input-group>
         </a-form-item>
         <a-form-item>
-          <a-checkbox v-model="logModal.syslog" @change="openLogs()">SysLog</a-checkbox>
+          <a-checkbox v-model="logModal.syslog" @change="openLogs()">Системный журнал</a-checkbox>
         </a-form-item>
         <a-form-item style="float: right;">
           <a-button type="primary" icon="download"
@@ -336,9 +334,9 @@
 {{template "textModal"}}
 <script>
     const State = {
-        Running: "running",
-        Stop: "stop",
-        Error: "error",
+        Running: "Запущен",
+        Stop: "Остановлен",
+        Error: "Ошибка",
     }
     Object.freeze(State);
 
@@ -445,8 +443,8 @@
         loading: false,
         show(logs) {
             this.visible = true;
-            this.logs = logs; 
-            this.formattedLogs = this.logs?.length > 0 ? this.formatLogs(this.logs) : "No Record...";
+            this.logs = logs;
+            this.formattedLogs = this.logs?.length > 0 ? this.formatLogs(this.logs) : "Нет записей...";
         },
         formatLogs(logs) {
             let formattedLogs = '';
@@ -496,10 +494,10 @@
         exportText: '',
         importText: '',
         show({
-            title = '{{ i18n "pages.index.backupTitle" }}',
-            description = '{{ i18n "pages.index.backupDescription" }}',
-            exportText = '{{ i18n "pages.index.exportDatabase" }}',
-            importText = '{{ i18n "pages.index.importDatabase" }}',
+            title = 'Резервная копия',
+            description = 'Не забудьте создать резервную копию перед восстановлением новой',
+            exportText = 'Создать бэкап',
+            importText = 'Восстановить',
         }) {
             this.title = title;
             this.description = description;
@@ -523,11 +521,11 @@
             logModal,
             backupModal,
             spinning: false,
-            loadingTip: '{{ i18n "loading"}}',
+            loadingTip: 'Загрузка',
             showAlert: false,
         },
         methods: {
-            loading(spinning, tip = '{{ i18n "loading"}}') {
+            loading(spinning, tip = 'Загрузка') {
                 this.spinning = spinning;
                 this.loadingTip = tip;
             },
@@ -538,7 +536,7 @@
                         this.setStatus(msg.obj);
                     }
                 } catch (e) {
-                    console.error("Failed to get status:", e);
+                    console.error("Ошибка получения статуса:", e);
                 }
             },
             setStatus(data) {
@@ -555,14 +553,14 @@
             },
             switchV2rayVersion(version) {
                 this.$confirm({
-                    title: '{{ i18n "pages.index.xraySwitchVersionDialog"}}',
-                    content: '{{ i18n "pages.index.xraySwitchVersionDialogDesc"}}' + ` ${version}?`,
-                    okText: '{{ i18n "confirm"}}',
+                    title: 'Переключение версии',
+                    content: 'Вы точно хотите сменить версию XRay на ' + ` ${version}?`,
+                    okText: 'Сменить',
                     class: themeSwitcher.currentTheme,
-                    cancelText: '{{ i18n "cancel"}}',
+                    cancelText: 'Отмена',
                     onOk: async () => {
                         versionModal.hide();
-                        this.loading(true, '{{ i18n "pages.index.dontRefresh"}}');
+                        this.loading(true, 'Идёт установка. Пожалуйста, не обновляйте страницу');
                         await HttpUtil.post(`/server/installXray/${version}`);
                         this.loading(false);
                     },
@@ -605,10 +603,10 @@
             },
             openBackup() {
                 backupModal.show({
-                    title: '{{ i18n "pages.index.backupTitle" }}',
-                    description: '{{ i18n "pages.index.backupDescription" }}',
-                    exportText: '{{ i18n "pages.index.exportDatabase" }}',
-                    importText: '{{ i18n "pages.index.importDatabase" }}',
+                    title: 'Резервная копия',
+                    description: 'Не забудьте создать резервную копию перед восстановлением новой',
+                    exportText: 'Создать бэкап',
+                    importText: 'Восстановить',
                 });
             },
             exportDatabase() {
