@@ -1,47 +1,47 @@
 {{define "clientsBulkModal"}}
 <a-modal id="client-bulk-modal" v-model="clientsBulkModal.visible" :title="clientsBulkModal.title"
     @ok="clientsBulkModal.ok" :confirm-loading="clientsBulkModal.confirmLoading" :closable="true" :mask-closable="false"
-    :ok-text="clientsBulkModal.okText" cancel-text='{{ i18n "close" }}' :class="themeSwitcher.currentTheme">
+    :ok-text="clientsBulkModal.okText" cancel-text='Закрыть' :class="themeSwitcher.currentTheme">
     <a-form :colon="false" :label-col="{ md: {span:8} }" :wrapper-col="{ md: {span:14} }">
-        <a-form-item label='{{ i18n "pages.client.method" }}'>
+        <a-form-item label='Метод'>
             <a-select v-model="clientsBulkModal.emailMethod" buttonStyle="solid"
                 :dropdown-class-name="themeSwitcher.currentTheme">
-                <a-select-option :value="0">Random</a-select-option>
-                <a-select-option :value="1">Random+Prefix</a-select-option>
-                <a-select-option :value="2">Random+Prefix+Num</a-select-option>
-                <a-select-option :value="3">Random+Prefix+Num+Postfix</a-select-option>
-                <a-select-option :value="4">Prefix+Num+Postfix</a-select-option>
+                <a-select-option :value="0">Случайно</a-select-option>
+                <a-select-option :value="1">Случайно + Префикс</a-select-option>
+                <a-select-option :value="2">Случайно + Префикс + Номер</a-select-option>
+                <a-select-option :value="3">Случайно + Префикс + Номер + Постфикс</a-select-option>
+                <a-select-option :value="4">Префикс + Номер + Постфикс</a-select-option>
             </a-select>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.client.first" }}' v-if="clientsBulkModal.emailMethod>1">
+        <a-form-item label='Первый' v-if="clientsBulkModal.emailMethod>1">
             <a-input-number v-model="clientsBulkModal.firstNum" :min="1"></a-input-number>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.client.last" }}' v-if="clientsBulkModal.emailMethod>1">
+        <a-form-item label='Последний' v-if="clientsBulkModal.emailMethod>1">
             <a-input-number v-model="clientsBulkModal.lastNum" :min="clientsBulkModal.firstNum"></a-input-number>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.client.prefix" }}' v-if="clientsBulkModal.emailMethod>0">
+        <a-form-item label='Префикс' v-if="clientsBulkModal.emailMethod>0">
             <a-input v-model.trim="clientsBulkModal.emailPrefix"></a-input>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.client.postfix" }}' v-if="clientsBulkModal.emailMethod>2">
+        <a-form-item label='Постфикс' v-if="clientsBulkModal.emailMethod>2">
             <a-input v-model.trim="clientsBulkModal.emailPostfix"></a-input>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.client.clientCount" }}' v-if="clientsBulkModal.emailMethod < 2">
+        <a-form-item label='Количество' v-if="clientsBulkModal.emailMethod < 2">
             <a-input-number v-model="clientsBulkModal.quantity" :min="1" :max="100"></a-input-number>
         </a-form-item>
-        <a-form-item label='{{ i18n "security" }}' v-if="inbound.protocol === Protocols.VMESS">
+        <a-form-item label='Безопасность' v-if="inbound.protocol === Protocols.VMESS">
             <a-select v-model="clientsBulkModal.security" :dropdown-class-name="themeSwitcher.currentTheme">
                 <a-select-option v-for="key in USERS_SECURITY" :value="key">[[ key ]]</a-select-option>
             </a-select>
         </a-form-item>
-        <a-form-item label='Flow' v-if="clientsBulkModal.inbound.canEnableTlsFlow()">
+        <a-form-item label='Трафик' v-if="clientsBulkModal.inbound.canEnableTlsFlow()">
             <a-select v-model="clientsBulkModal.flow" :dropdown-class-name="themeSwitcher.currentTheme">
-                <a-select-option value="" selected>{{ i18n "none" }}</a-select-option>
+                <a-select-option value="" selected>tls</a-select-option>
                 <a-select-option v-for="key in TLS_FLOW_CONTROL" :value="key">[[ key ]]</a-select-option>
             </a-select>
         </a-form-item>
-        <a-form-item label='Flow' v-if="clientsBulkModal.inbound.xtls">
+        <a-form-item label='Трафик' v-if="clientsBulkModal.inbound.xtls">
             <a-select v-model="clientsBulkModal.flow" :dropdown-class-name="themeSwitcher.currentTheme">
-                <a-select-option value="" selected>{{ i18n "none" }}</a-select-option>
+                <a-select-option value="" selected>tls</a-select-option>
                 <a-select-option v-for="key in XTLS_FLOW_CONTROL" :value="key">[[ key ]]</a-select-option>
             </a-select>
         </a-form-item>
@@ -49,9 +49,9 @@
             <template slot="label">
                 <a-tooltip>
                     <template slot="title">
-                        <span>{{ i18n "pages.inbounds.subscriptionDesc" }}</span>
+                        <span>Одна подписка может включать несколько конфигураций, поэтому допустим неуникальный ID</span>
                     </template>
-                    Subscription
+                    ID Подписки
                     <a-icon @click="clientsBulkModal.subId = RandomUtil.randomLowerAndNum(16)" type="sync"></a-icon>
                 </a-tooltip>
             </template>
@@ -61,9 +61,9 @@
             <template slot="label">
                 <a-tooltip>
                     <template slot="title">
-                        <span>{{ i18n "pages.inbounds.telegramDesc" }}</span>
+                        <span>Впишите chat_id клиента для доступа к боту</span>
                     </template>
-                    Telegram ChatID
+                    Telegram ID
                     <a-icon type="question-circle"></a-icon>
                 </a-tooltip>
             </template>
@@ -73,9 +73,9 @@
             <template slot="label">
                 <a-tooltip>
                     <template slot="title">
-                        <span>{{ i18n "pages.inbounds.IPLimitDesc" }}</span>
+                        <span>Ограничение кол-ва IP для одновременного использования. 0 - безлимит</span>
                     </template>
-                    <span>{{ i18n "pages.inbounds.IPLimit" }} </span>
+                    <span>Лимит IP</span>
                     <a-icon type="question-circle"></a-icon>
                 </a-tooltip>
             </template>
@@ -85,34 +85,34 @@
             <template slot="label">
                 <a-tooltip>
                     <template slot="title">
-                        0 <span>{{ i18n "pages.inbounds.meansNoLimit" }}</span>
+                        <span>Ограничение объёма трафика в ГБ</span>
                     </template>
-                    {{ i18n "pages.inbounds.totalFlow" }}
+                    Лимит трафика
                     <a-icon type="question-circle"></a-icon>
                 </a-tooltip>
             </template>
             <a-input-number v-model="clientsBulkModal.totalGB" :min="0"></a-input-number>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.client.delayedStart" }}'>
+        <a-form-item label='С момента использования'>
             <a-switch v-model="clientsBulkModal.delayedStart" @click="clientsBulkModal.expiryTime=0"></a-switch>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.client.expireDays" }}' v-if="clientsBulkModal.delayedStart">
+        <a-form-item label='Срок действия (дни)' v-if="clientsBulkModal.delayedStart">
             <a-input-number v-model.number="delayedExpireDays" :min="0"></a-input-number>
         </a-form-item>
         <a-form-item v-else>
             <template slot="label">
                 <a-tooltip>
                     <template slot="title">
-                        <span>{{ i18n "pages.inbounds.leaveBlankToNeverExpire" }}</span>
+                        <span>Оставьте пустым для снятия ограничений</span>
                     </template>
-                    {{ i18n "pages.inbounds.expireDate" }}
+                    Срок действия
                     <a-icon type="question-circle"></a-icon>
                 </a-tooltip>
             </template>
             <a-date-picker v-if="datepicker == 'gregorian'" :show-time="{ format: 'HH:mm:ss' }"
                 format="YYYY-MM-DD HH:mm:ss" :dropdown-class-name="themeSwitcher.currentTheme"
                 v-model="clientsBulkModal.expiryTime"></a-date-picker>
-            <persian-datepicker v-else placeholder='{{ i18n "pages.settings.datepickerPlaceholder" }}'
+            <persian-datepicker v-else placeholder='Выберите дату'
                 value="clientsBulkModal.expiryTime" v-model="clientsBulkModal.expiryTime">
             </persian-datepicker>
         </a-form-item>
@@ -120,9 +120,9 @@
             <template slot="label">
                 <a-tooltip>
                     <template slot="title">
-                        <span>{{ i18n "pages.client.renewDesc" }}</span>
+                        <span>Автодобавление дней после истечения срока. 0 - отключить автопродление</span>
                     </template>
-                    {{ i18n "pages.client.renew" }}
+                    Автопродление
                     <a-icon type="question-circle"></a-icon>
                 </a-tooltip>
             </template>
@@ -191,7 +191,7 @@
         },
         show({
             title = '',
-            okText = '{{ i18n "sure" }}',
+            okText = 'Подтвердить',
             dbInbound = null,
             confirm = (inbound, dbInbound) => { }
         }) {

@@ -1,7 +1,7 @@
 {{define "ruleModal"}}
 <a-modal id="rule-modal" v-model="ruleModal.visible" :title="ruleModal.title" @ok="ruleModal.ok" :confirm-loading="ruleModal.confirmLoading" :closable="true" :mask-closable="false" :ok-text="ruleModal.okText" cancel-text='{{ i18n "close" }}' :class="themeSwitcher.currentTheme">
   <a-form :colon="false" :label-col="{ md: {span:8} }" :wrapper-col="{ md: {span:14} }">
-    <a-form-item label='Domain Matcher'>
+    <a-form-item label='Сопоставление доменов'>
       <a-select v-model="ruleModal.rule.domainMatcher" :dropdown-class-name="themeSwitcher.currentTheme">
         <a-select-option v-for="dm in ['','hybrid','linear']" :value="dm">[[ dm ]]</a-select-option>
       </a-select>
@@ -10,8 +10,8 @@
       <template slot="label">
         <a-tooltip>
           <template slot="title">
-            <span>{{ i18n "pages.xray.rules.useComma" }}</span>
-          </template> Source IPs <a-icon type="question-circle"></a-icon>
+            <span>Разделите запятыми</span>
+          </template> IP источника <a-icon type="question-circle"></a-icon>
         </a-tooltip>
       </template>
       <a-input v-model.trim="ruleModal.rule.source"></a-input>
@@ -20,31 +20,31 @@
       <template slot="label">
         <a-tooltip>
           <template slot="title">
-            <span>{{ i18n "pages.xray.rules.useComma" }}</span>
-          </template> Source Port <a-icon type="question-circle"></a-icon>
+            <span>Разделите запятыми</span>
+          </template> Порт источника <a-icon type="question-circle"></a-icon>
         </a-tooltip>
       </template>
       <a-input v-model.trim="ruleModal.rule.sourcePort"></a-input>
     </a-form-item>
-    <a-form-item label='Network'>
+    <a-form-item label='Сеть'>
       <a-select v-model="ruleModal.rule.network" :dropdown-class-name="themeSwitcher.currentTheme">
         <a-select-option v-for="x in ['','TCP','UDP','TCP,UDP']" :value="x">[[ x ]]</a-select-option>
       </a-select>
     </a-form-item>
-    <a-form-item label='Protocol'>
+    <a-form-item label='Протокол'>
       <a-select v-model="ruleModal.rule.protocol" mode="multiple" :dropdown-class-name="themeSwitcher.currentTheme">
         <a-select-option v-for="x in ['http','tls','bittorrent']" :value="x">[[ x ]]</a-select-option>
       </a-select>
     </a-form-item>
-    <a-form-item label='Attributes'>
+    <a-form-item label='Атрибуты'>
       <a-button icon="plus" size="small" style="margin-left: 10px" @click="ruleModal.rule.attrs.push(['', ''])"></a-button>
     </a-form-item>
     <a-form-item :wrapper-col="{span: 24}">
       <a-input-group compact v-for="(attr,index) in ruleModal.rule.attrs">
-        <a-input style="width: 50%" v-model="attr[0]" placeholder='{{ i18n "pages.inbounds.stream.general.name" }}'>
+        <a-input style="width: 50%" v-model="attr[0]" placeholder='Имя'>
           <template slot="addonBefore" style="margin: 0;">[[ index+1 ]]</template>
         </a-input>
-        <a-input style="width: 50%" v-model="attr[1]" placeholder='{{ i18n "pages.inbounds.stream.general.value" }}'>
+        <a-input style="width: 50%" v-model="attr[1]" placeholder='Значение'>
           <a-button icon="minus" slot="addonAfter" size="small" @click="ruleModal.rule.attrs.splice(index,1)"></a-button>
         </a-input>
       </a-input-group>
@@ -53,7 +53,7 @@
       <template slot="label">
         <a-tooltip>
           <template slot="title">
-            <span>{{ i18n "pages.xray.rules.useComma" }}</span>
+            <span>Разделите запятыми</span>
           </template> IP <a-icon type="question-circle"></a-icon>
         </a-tooltip>
       </template>
@@ -63,8 +63,8 @@
       <template slot="label">
         <a-tooltip>
           <template slot="title">
-            <span>{{ i18n "pages.xray.rules.useComma" }}</span>
-          </template> Domain <a-icon type="question-circle"></a-icon>
+            <span>Разделите запятыми</span>
+          </template> Домен <a-icon type="question-circle"></a-icon>
         </a-tooltip>
       </template>
       <a-input v-model.trim="ruleModal.rule.domain"></a-input>
@@ -73,8 +73,8 @@
       <template slot="label">
         <a-tooltip>
           <template slot="title">
-            <span>{{ i18n "pages.xray.rules.useComma" }}</span>
-          </template> User <a-icon type="question-circle"></a-icon>
+            <span>Разделите запятыми</span>
+          </template> Клиент <a-icon type="question-circle"></a-icon>
         </a-tooltip>
       </template>
       <a-input v-model.trim="ruleModal.rule.user"></a-input>
@@ -83,18 +83,18 @@
       <template slot="label">
         <a-tooltip>
           <template slot="title">
-            <span>{{ i18n "pages.xray.rules.useComma" }}</span>
-          </template> Port <a-icon type="question-circle"></a-icon>
+            <span>Разделите запятыми</span>
+          </template> Порт <a-icon type="question-circle"></a-icon>
         </a-tooltip>
       </template>
       <a-input v-model.trim="ruleModal.rule.port"></a-input>
     </a-form-item>
-    <a-form-item label='Inbound Tags'>
+    <a-form-item label='Входящие'>
       <a-select v-model="ruleModal.rule.inboundTag" mode="multiple" :dropdown-class-name="themeSwitcher.currentTheme">
         <a-select-option v-for="tag in ruleModal.inboundTags" :value="tag">[[ tag ]]</a-select-option>
       </a-select>
     </a-form-item>
-    <a-form-item label='Outbound Tag'>
+    <a-form-item label='Исходящие'>
       <a-select v-model="ruleModal.rule.outboundTag" :dropdown-class-name="themeSwitcher.currentTheme">
         <a-select-option v-for="tag in ruleModal.outboundTags" :value="tag">[[ tag ]]</a-select-option>
       </a-select>
@@ -103,8 +103,8 @@
       <template slot="label">
         <a-tooltip>
           <template slot="title">
-            <span>{{ i18n "pages.xray.balancer.balancerDesc" }}</span>
-          </template> Balancer Tag <a-icon type="question-circle"></a-icon>
+            <span>Балансировщик нельзя использовать одновременно в исходящими. В случае чего - у исходящих приоритет</span>
+          </template> Балансировщик <a-icon type="question-circle"></a-icon>
         </a-tooltip>
       </template>
       <a-select v-model="ruleModal.rule.balancerTag" :dropdown-class-name="themeSwitcher.currentTheme">
@@ -118,7 +118,7 @@
     title: '',
     visible: false,
     confirmLoading: false,
-    okText: '{{ i18n "sure" }}',
+    okText: 'Подтвердить',
     isEdit: false,
     confirm: null,
     rule: {
@@ -147,7 +147,7 @@
     },
     show({
       title = '',
-      okText = '{{ i18n "sure" }}',
+      okText = 'Подтвердить',
       rule,
       confirm = (rule) => {},
       isEdit = false

@@ -9,30 +9,30 @@
     :closable="true"
     :mask-closable="false"
     :ok-text="balancerModal.okText"
-    cancel-text='{{ i18n "close" }}'
+    cancel-text='Закрыть'
     :class="themeSwitcher.currentTheme">
     <a-form :colon="false" :label-col="{ md: {span:8} }" :wrapper-col="{ md: {span:14} }">
-        <a-form-item label='{{ i18n "pages.xray.balancer.tag" }}' has-feedback
+        <a-form-item label='Тег' has-feedback
             :validate-status="balancerModal.duplicateTag? 'warning' : 'success'">
             <a-input v-model.trim="balancerModal.balancer.tag" @change="balancerModal.check()"
-                placeholder='{{ i18n "pages.xray.balancer.tagDesc" }}'></a-input>
+                placeholder='Уникальный тег'></a-input>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.xray.balancer.balancerStrategy" }}'>
+        <a-form-item label='Стратегия'>
             <a-select v-model="balancerModal.balancer.strategy" :dropdown-class-name="themeSwitcher.currentTheme">
-                <a-select-option value="random">Random</a-select-option>
-                <a-select-option value="roundRobin">Round Robin</a-select-option>
-                <a-select-option value="leastLoad">Least Load</a-select-option>
-                <a-select-option value="leastPing">Least Ping</a-select-option>
+                <a-select-option value="random">Случайно</a-select-option>
+                <a-select-option value="roundRobin">Round-robin</a-select-option>
+                <a-select-option value="leastLoad">Наименьшая нагрузка</a-select-option>
+                <a-select-option value="leastPing">Наименьший пинг</a-select-option>
             </a-select>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.xray.balancer.balancerSelectors" }}' has-feedback
+        <a-form-item label='Селекторы' has-feedback
             :validate-status="balancerModal.emptySelector? 'warning' : 'success'">
             <a-select v-model="balancerModal.balancer.selector" mode="tags" @change="balancerModal.checkSelector()"
                 :dropdown-class-name="themeSwitcher.currentTheme">
                 <a-select-option v-for="tag in balancerModal.outboundTags" :value="tag">[[ tag ]]</a-select-option>
             </a-select>
         </a-form-item>
-        <a-form-item label="Fallback">
+        <a-form-item label="Резерв">
             <a-select v-model="balancerModal.balancer.fallbackTag" clearable
                 :dropdown-class-name="themeSwitcher.currentTheme">
                 <a-select-option v-for="tag in [ '', ...balancerModal.outboundTags]" :value="tag">[[ tag ]]</a-select-option>
@@ -46,7 +46,7 @@
         title: '',
         visible: false,
         confirmLoading: false,
-        okText: '{{ i18n "sure" }}',
+        okText: 'Подтвердить',
         isEdit: false,
         confirm: null,
         duplicateTag: false,
@@ -67,7 +67,7 @@
             balancerModal.emptySelector = false;
             ObjectUtil.execute(balancerModal.confirm, balancerModal.balancer);
         },
-        show({ title = '', okText = '{{ i18n "sure" }}', balancerTags = [], balancer, confirm = (balancer) => { }, isEdit = false }) {
+        show({ title = '', okText = 'Подтвердить', balancerTags = [], balancer, confirm = (balancer) => { }, isEdit = false }) {
             this.title = title;
             this.okText = okText;
             this.confirm = confirm;

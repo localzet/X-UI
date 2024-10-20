@@ -2,7 +2,7 @@
 <a-modal id="client-modal" v-model="clientModal.visible" :title="clientModal.title" @ok="clientModal.ok"
          :confirm-loading="clientModal.confirmLoading" :closable="true" :mask-closable="false"
          :class="themeSwitcher.currentTheme"
-         :ok-text="clientModal.okText" cancel-text='{{ i18n "close" }}'>
+         :ok-text="clientModal.okText" cancel-text='Закрыть'>
     <template v-if="isEdit">
         <a-tag v-if="isExpiry || isTrafficExhausted" color="red" style="margin-bottom: 10px;display: block;text-align: center;">Account is (Expired|Traffic Ended) And Disabled</a-tag>
     </template>
@@ -31,7 +31,7 @@
                 ObjectUtil.execute(clientModal.confirm, clientModalApp.client, clientModal.dbInbound.id);
             }
         },
-        show({ title = '', okText = '{{ i18n "sure" }}', index = null, dbInbound = null, confirm = () => { }, isEdit = false }) {
+        show({ title = '', okText = 'Подтвердить', index = null, dbInbound = null, confirm = () => { }, isEdit = false }) {
             this.visible = true;
             this.title = title;
             this.okText = okText;
@@ -149,11 +149,11 @@
             },
             resetClientTraffic(email, dbInboundId, iconElement) {
                 this.$confirm({
-                    title: '{{ i18n "pages.inbounds.resetTraffic"}}',
-                    content: '{{ i18n "pages.inbounds.resetTrafficContent"}}',
+                    title: 'Сбросить трафик',
+                    content: 'Вы уверены, что хотите сбросить трафик?',
                     class: themeSwitcher.currentTheme,
-                    okText: '{{ i18n "reset"}}',
-                    cancelText: '{{ i18n "cancel"}}',
+                    okText: 'Сбросить',
+                    cancelText: 'Отмена',
                     onOk: async () => {
                         iconElement.disabled = true;
                         const msg = await HttpUtil.postWithModal('/panel/inbound/' + dbInboundId + '/resetClientTraffic/' + email);
