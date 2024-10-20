@@ -105,8 +105,8 @@
               <a-col :sm="24" :lg="12">
                 <a-card hoverable>
                   <b>XRay:</b>
-                  <a-tag style="text-transform: capitalize;" :color="status.xray.color">[[ status.xray.state ]] </a-tag>
-                  <a-popover v-if="status.xray.state === State.Error" :overlay-class-name="themeSwitcher.currentTheme">
+                  <a-tag style="text-transform: capitalize;" :color="status.xray.color">[[ status.xray.text ]] </a-tag>
+                  <a-popover v-if="status.xray.state === 'error'" :overlay-class-name="themeSwitcher.currentTheme">
                     <span slot="title" style="font-size: 12pt">Произошла ошибка при запуске XRay
                       <a-tag color="purple" style="cursor: pointer; float: right;" @click="openLogs()">Журнал</a-tag>
                     </span>
@@ -384,7 +384,7 @@
             this.uptime = 0;
             this.appUptime = 0;
             this.appStats = {threads: 0, mem: 0, uptime: 0};
-            this.xray = { state: State.Stop, errorMsg: "", version: "", color: "" };
+            this.xray = { state: "stop", errorMsg: "", version: "", color: "", text: "" };
 
             if (data == null) {
                 return;
@@ -407,14 +407,17 @@
             this.appStats = data.appStats;
             this.xray = data.xray;
             switch (this.xray.state) {
-                case State.Running:
+                case "running":
                     this.xray.color = "green";
+                    this.xray.text = "Запущен"
                     break;
-                case State.Stop:
+                case "stop":
                     this.xray.color = "orange";
+                    this.xray.text = "Остановлен"
                     break;
-                case State.Error:
+                case "error":
                     this.xray.color = "red";
+                    this.xray.text = "Ошибка"
                     break;
                 default:
                     this.xray.color = "gray";
