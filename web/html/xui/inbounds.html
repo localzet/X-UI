@@ -127,7 +127,7 @@
   {{ template "commonSider" . }}
   <a-layout id="content-layout">
     <a-layout-content>
-      <a-spin :spinning="spinning" :delay="500" tip='{{ i18n "loading"}}'>
+      <a-spin :spinning="spinning" :delay="500" tip='Загрузка'>
         <transition name="list" appear>
           <a-alert type="error" v-if="showAlert" style="margin-bottom: 10px"
             message='{{ i18n "secAlertTitle" }}'
@@ -140,46 +140,44 @@
           <a-card hoverable>
             <a-row>
               <a-col :xs="24" :sm="24" :lg="12">
-                {{ i18n "pages.inbounds.totalDownUp" }}:
-                <a-tag color="green">[[ sizeFormat(total.up) ]] / [[ sizeFormat(total.down) ]]</a-tag>
+                Трафик:
+                <a-tag color="green">Передано: [[ sizeFormat(total.up) ]]</a-tag>
+                <a-tag color="green">Получено: [[ sizeFormat(total.down) ]]</a-tag>
+                <a-tag color="blue">Всего: [[ sizeFormat(total.up + total.down) ]]</a-tag>
               </a-col>
               <a-col :xs="24" :sm="24" :lg="12">
-                {{ i18n "pages.inbounds.totalUsage" }}:
-                <a-tag color="green">[[ sizeFormat(total.up + total.down) ]]</a-tag>
-              </a-col>
-              <a-col :xs="24" :sm="24" :lg="12">
-                {{ i18n "pages.inbounds.inboundCount" }}:
+                Подключения:
                 <a-tag color="green">[[ dbInbounds.length ]]</a-tag>
               </a-col>
               <a-col :xs="24" :sm="24" :lg="12">
                 <template>
                   <div>
                     <a-back-top :target="() => document.getElementById('content-layout')" visibility-height="200"></a-back-top>
-                    {{ i18n "clients" }}:
-                    <a-tag color="green">[[ total.clients ]]</a-tag>
-                    <a-popover title='{{ i18n "disabled" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                    Клиенты:
+                    <a-tag color="green">Всего: [[ total.clients ]]</a-tag>
+                    <a-popover title='Отключенные' :overlay-class-name="themeSwitcher.currentTheme">
                       <template slot="content">
                         <p v-for="clientEmail in total.deactive">[[ clientEmail ]]</p>
                       </template>
-                      <a-tag v-if="total.deactive.length">[[ total.deactive.length ]]</a-tag>
+                      <a-tag v-if="total.deactive.length">Отключено: [[ total.deactive.length ]]</a-tag>
                     </a-popover>
-                    <a-popover title='{{ i18n "depleted" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                    <a-popover title='Истекшие' :overlay-class-name="themeSwitcher.currentTheme">
                       <template slot="content">
                         <p v-for="clientEmail in total.depleted">[[ clientEmail ]]</p>
                       </template>
-                      <a-tag color="red" v-if="total.depleted.length">[[ total.depleted.length ]]</a-tag>
+                      <a-tag color="red" v-if="total.depleted.length">Истекло: [[ total.depleted.length ]]</a-tag>
                     </a-popover>
-                    <a-popover title='{{ i18n "depletingSoon" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                    <a-popover title='Истекающие' :overlay-class-name="themeSwitcher.currentTheme">
                       <template slot="content">
                         <p v-for="clientEmail in total.expiring">[[ clientEmail ]]</p>
                       </template>
-                      <a-tag color="orange" v-if="total.expiring.length">[[ total.expiring.length ]]</a-tag>
+                      <a-tag color="orange" v-if="total.expiring.length">Почти истекло: [[ total.expiring.length ]]</a-tag>
                     </a-popover>
-                    <a-popover title='{{ i18n "online" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                    <a-popover title='Онлайн' :overlay-class-name="themeSwitcher.currentTheme">
                       <template slot="content">
                         <p v-for="clientEmail in onlineClients">[[ clientEmail ]]</p>
                       </template>
-                      <a-tag color="blue" v-if="onlineClients.length">[[ onlineClients.length ]]</a-tag>
+                      <a-tag color="blue" v-if="onlineClients.length">Онлайн: [[ onlineClients.length ]]</a-tag>
                     </a-popover>
                   </div>
                 </template>
@@ -193,36 +191,36 @@
               <a-row>
                 <a-col :xs="12" :sm="12" :lg="12">
                   <a-button type="primary" icon="plus" @click="openAddInbound">
-                    <template v-if="!isMobile">{{ i18n "pages.inbounds.addInbound" }}</template>
+                    <template v-if="!isMobile">Добавить</template>
                   </a-button>
                   <a-dropdown :trigger="['click']">
                     <a-button type="primary" icon="menu">
-                      <template v-if="!isMobile">{{ i18n "pages.inbounds.generalActions" }}</template>
+                      <template v-if="!isMobile">Действия</template>
                     </a-button>
                     <a-menu slot="overlay" @click="a => generalActions(a)" :theme="themeSwitcher.currentTheme">
                       <a-menu-item key="import">
                         <a-icon type="import"></a-icon>
-                        {{ i18n "pages.inbounds.importInbound" }}
+                        Импорт подключения
                       </a-menu-item>
                       <a-menu-item key="export">
                         <a-icon type="export"></a-icon>
-                        {{ i18n "pages.inbounds.export" }}
+                        Экспорт клиентов
                       </a-menu-item>
                       <a-menu-item key="subs" v-if="subSettings.enable">
                         <a-icon type="export"></a-icon>
-                        {{ i18n "pages.inbounds.export" }} - {{ i18n "pages.settings.subSettings" }}
+                        Экспорт подписок
                       </a-menu-item>
                       <a-menu-item key="resetInbounds">
                         <a-icon type="reload"></a-icon>
-                        {{ i18n "pages.inbounds.resetAllTraffic" }}
+                        Сбросить трафик подключений
                       </a-menu-item>
                       <a-menu-item key="resetClients">
                         <a-icon type="file-done"></a-icon>
-                        {{ i18n "pages.inbounds.resetAllClientTraffics" }}
+                        Сбросить трафик клиентов
                       </a-menu-item>
                       <a-menu-item key="delDepletedClients" style="color: #FF4D4F;">
                         <a-icon type="rest"></a-icon>
-                        {{ i18n "pages.inbounds.delDepletedClients" }}
+                        Удалить истекших клиентов
                       </a-menu-item>
                     </a-menu>
                   </a-dropdown>
@@ -233,7 +231,7 @@
                       v-if="isRefreshEnabled"
                       @change="changeRefreshInterval"
                       :dropdown-class-name="themeSwitcher.currentTheme">
-                    <a-select-option v-for="key in [5,10,30,60]" :value="key*1000">[[ key ]]s</a-select-option>
+                    <a-select-option v-for="key in [3,5,10,30,60]" :value="key*1000">[[ key ]] сек</a-select-option>
                   </a-select>
                   <a-icon type="sync" :spin="refreshing" @click="manualRefresh" style="margin: 0 5px;"></a-icon>
                   <a-switch v-model="isRefreshEnabled" @change="toggleRefresh"></a-switch>
@@ -247,13 +245,13 @@
                 <a-icon slot="checkedChildren" type="search"></a-icon>
                 <a-icon slot="unCheckedChildren" type="filter"></a-icon>
               </a-switch>
-              <a-input v-if="!enableFilter" v-model.lazy="searchKey" placeholder='{{ i18n "search" }}' autofocus style="max-width: 300px" :size="isMobile ? 'small' : ''"></a-input>
+              <a-input v-if="!enableFilter" v-model.lazy="searchKey" placeholder='Поиск' autofocus style="max-width: 300px" :size="isMobile ? 'small' : ''"></a-input>
               <a-radio-group v-if="enableFilter" v-model="filterBy" @change="filterInbounds" button-style="solid" :size="isMobile ? 'small' : ''">
-                <a-radio-button value="">{{ i18n "none" }}</a-radio-button>
-                <a-radio-button value="deactive">{{ i18n "disabled" }}</a-radio-button>
-                <a-radio-button value="depleted">{{ i18n "depleted" }}</a-radio-button>
-                <a-radio-button value="expiring">{{ i18n "depletingSoon" }}</a-radio-button>
-                <a-radio-button value="online">{{ i18n "online" }}</a-radio-button>
+                <a-radio-button value="">Все</a-radio-button>
+                <a-radio-button value="deactive">Отключенные</a-radio-button>
+                <a-radio-button value="depleted">Истекшие</a-radio-button>
+                <a-radio-button value="expiring">Почти истекшие</a-radio-button>
+                <a-radio-button value="online">Онлайн</a-radio-button>
               </a-radio-group>
             </div>
             <a-back-top></a-back-top>
@@ -273,62 +271,62 @@
                   <a-menu slot="overlay" @click="a => clickAction(a, dbInbound)" :theme="themeSwitcher.currentTheme">
                     <a-menu-item key="edit">
                       <a-icon type="edit"></a-icon>
-                      {{ i18n "edit" }}
+                      Изменить
                     </a-menu-item>
                     <a-menu-item key="qrcode" v-if="(dbInbound.isSS && !dbInbound.toInbound().isSSMultiUser) || dbInbound.isWireguard">
                       <a-icon type="qrcode"></a-icon>
-                      {{ i18n "qrCode" }}
+                      QR-код
                     </a-menu-item>
                     <template v-if="dbInbound.isMultiUser()">
                       <a-menu-item key="addClient">
                         <a-icon type="user-add"></a-icon>
-                        {{ i18n "pages.client.add"}}
+                        Добавить клиента
                       </a-menu-item>
                       <a-menu-item key="addBulkClient">
                         <a-icon type="usergroup-add"></a-icon>
-                        {{ i18n "pages.client.bulk"}}
+                        Добавить несколько клиентов
                       </a-menu-item>
                       <a-menu-item key="resetClients">
                         <a-icon type="file-done"></a-icon>
-                        {{ i18n "pages.inbounds.resetInboundClientTraffics"}}
+                        Сбросить трафик клиентов
                       </a-menu-item>
                       <a-menu-item key="export">
                         <a-icon type="export"></a-icon>
-                        {{ i18n "pages.inbounds.export"}}
+                        Экспорт клиентов
                       </a-menu-item>
                       <a-menu-item key="subs" v-if="subSettings.enable">
                         <a-icon type="export"></a-icon>
-                        {{ i18n "pages.inbounds.export"}} - {{ i18n "pages.settings.subSettings" }}
+                        Экспорт подписок
                       </a-menu-item>
                       <a-menu-item key="delDepletedClients" style="color: #FF4D4F;">
                         <a-icon type="rest"></a-icon>
-                        {{ i18n "pages.inbounds.delDepletedClients" }}
+                        Удалить истекших клиентов
                       </a-menu-item>
                     </template>
                     <template v-else>
                       <a-menu-item key="showInfo">
                         <a-icon type="info-circle"></a-icon>
-                        {{ i18n "info"}}
+                        Информация
                       </a-menu-item>
                     </template>
                     <a-menu-item key="clipboard">
                       <a-icon type="copy"></a-icon>
-                      {{ i18n "pages.inbounds.exportInbound" }}
+                      Экспорт подключения
                     </a-menu-item>
                     <a-menu-item key="resetTraffic">
-                      <a-icon type="retweet"></a-icon> {{ i18n "pages.inbounds.resetTraffic" }}
+                      <a-icon type="retweet"></a-icon> Сбросить трафик
                     </a-menu-item>
                     <a-menu-item key="clone">
-                      <a-icon type="block"></a-icon> {{ i18n "pages.inbounds.clone"}}
+                      <a-icon type="block"></a-icon> Клонировать
                     </a-menu-item>
                     <a-menu-item key="delete">
                       <span style="color: #FF4D4F">
-                        <a-icon type="delete"></a-icon> {{ i18n "delete"}}
+                        <a-icon type="delete"></a-icon> Удалить
                       </span>
                     </a-menu-item>
                     <a-menu-item v-if="isMobile">
                       <a-switch size="small" v-model="dbInbound.enable" @change="switchEnable(dbInbound.id,dbInbound.enable)"></a-switch>
-                      {{ i18n "pages.inbounds.enable" }}
+                      Включить
                     </a-menu-item>
                   </a-menu>
                 </a-dropdown>
@@ -345,25 +343,25 @@
               <template slot="clients" slot-scope="text, dbInbound">
                 <template v-if="clientCount[dbInbound.id]">
                   <a-tag style="margin:0;" color="green">[[ clientCount[dbInbound.id].clients ]]</a-tag>
-                  <a-popover title='{{ i18n "disabled" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                  <a-popover title='Отключен' :overlay-class-name="themeSwitcher.currentTheme">
                     <template slot="content">
                       <p v-for="clientEmail in clientCount[dbInbound.id].deactive">[[ clientEmail ]]</p>
                     </template>
                     <a-tag style="margin:0; padding: 0 2px;" v-if="clientCount[dbInbound.id].deactive.length">[[ clientCount[dbInbound.id].deactive.length ]]</a-tag>
                   </a-popover>
-                  <a-popover title='{{ i18n "depleted" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                  <a-popover title='Истек' :overlay-class-name="themeSwitcher.currentTheme">
                     <template slot="content">
                       <p v-for="clientEmail in clientCount[dbInbound.id].depleted">[[ clientEmail ]]</p>
                     </template>
                     <a-tag style="margin:0; padding: 0 2px;" color="red" v-if="clientCount[dbInbound.id].depleted.length">[[ clientCount[dbInbound.id].depleted.length ]]</a-tag>
                   </a-popover>
-                  <a-popover title='{{ i18n "depletingSoon" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                  <a-popover title='Истекает' :overlay-class-name="themeSwitcher.currentTheme">
                     <template slot="content">
                       <p v-for="clientEmail in clientCount[dbInbound.id].expiring">[[ clientEmail ]]</p>
                     </template>
                     <a-tag style="margin:0; padding: 0 2px;" color="orange" v-if="clientCount[dbInbound.id].expiring.length">[[ clientCount[dbInbound.id].expiring.length ]]</a-tag>
                   </a-popover>
-                  <a-popover title='{{ i18n "online" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                  <a-popover title='Онлайн' :overlay-class-name="themeSwitcher.currentTheme">
                     <template slot="content">
                       <p v-for="clientEmail in clientCount[dbInbound.id].online">[[ clientEmail ]]</p>
                     </template>
@@ -380,7 +378,7 @@
                         <td>↓[[ sizeFormat(dbInbound.down) ]]</td>
                       </tr>
                       <tr v-if="dbInbound.total > 0 &&  dbInbound.up + dbInbound.down < dbInbound.total">
-                        <td>{{ i18n "remained" }}</td>
+                        <td>Осталось</td>
                         <td>[[ sizeFormat(dbInbound.total - dbInbound.up - dbInbound.down) ]]</td>
                       </tr>
                     </table>
@@ -424,7 +422,7 @@
                   <template slot="content">
                     <table cellpadding="2">
                       <tr>
-                        <td>{{ i18n "pages.inbounds.protocol" }}</td>
+                        <td>Протокол</td>
                         <td>
                           <a-tag style="margin:0;" color="purple">[[ dbInbound.protocol ]]</a-tag>
                           <template v-if="dbInbound.isVMess || dbInbound.isVLess || dbInbound.isTrojan || dbInbound.isSS">
@@ -435,41 +433,41 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>{{ i18n "pages.inbounds.port" }}</td>
+                        <td>Порт</td>
                         <td><a-tag>[[ dbInbound.port ]]</a-tag></td>
                       </tr>
                       <tr v-if="clientCount[dbInbound.id]">
-                        <td>{{ i18n "clients" }}</td>
+                        <td>Клиенты</td>
                         <td>
                           <a-tag style="margin:0;" color="blue">[[ clientCount[dbInbound.id].clients ]]</a-tag>
-                          <a-popover title='{{ i18n "disabled" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                          <a-popover title='Отключенные' :overlay-class-name="themeSwitcher.currentTheme">
                             <template slot="content">
                               <p v-for="clientEmail in clientCount[dbInbound.id].deactive">[[ clientEmail ]]</p>
                             </template>
-                            <a-tag style="margin:0; padding: 0 2px;" v-if="clientCount[dbInbound.id].deactive.length">[[ clientCount[dbInbound.id].deactive.length ]]</a-tag>
+                            <a-tag style="margin:0; padding: 0 2px;" v-if="clientCount[dbInbound.id].deactive.length">Отключено: [[ clientCount[dbInbound.id].deactive.length ]]</a-tag>
                           </a-popover>
-                          <a-popover title='{{ i18n "depleted" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                          <a-popover title='Истекшие' :overlay-class-name="themeSwitcher.currentTheme">
                             <template slot="content">
                               <p v-for="clientEmail in clientCount[dbInbound.id].depleted">[[ clientEmail ]]</p>
                             </template>
-                            <a-tag style="margin:0; padding: 0 2px;" color="red" v-if="clientCount[dbInbound.id].depleted.length">[[ clientCount[dbInbound.id].depleted.length ]]</a-tag>
+                            <a-tag style="margin:0; padding: 0 2px;" color="red" v-if="clientCount[dbInbound.id].depleted.length">Истекло: [[ clientCount[dbInbound.id].depleted.length ]]</a-tag>
                           </a-popover>
-                          <a-popover title='{{ i18n "depletingSoon" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                          <a-popover title='Истекающие' :overlay-class-name="themeSwitcher.currentTheme">
                             <template slot="content">
                               <p v-for="clientEmail in clientCount[dbInbound.id].expiring">[[ clientEmail ]]</p>
                             </template>
-                            <a-tag style="margin:0; padding: 0 2px;" color="orange" v-if="clientCount[dbInbound.id].expiring.length">[[ clientCount[dbInbound.id].expiring.length ]]</a-tag>
+                            <a-tag style="margin:0; padding: 0 2px;" color="orange" v-if="clientCount[dbInbound.id].expiring.length">Почти истекло: [[ clientCount[dbInbound.id].expiring.length ]]</a-tag>
                           </a-popover>
-                          <a-popover title='{{ i18n "online" }}' :overlay-class-name="themeSwitcher.currentTheme">
+                          <a-popover title='Онлайн' :overlay-class-name="themeSwitcher.currentTheme">
                             <template slot="content">
                               <p v-for="clientEmail in clientCount[dbInbound.id].online">[[ clientEmail ]]</p>
                             </template>
-                            <a-tag style="margin:0; padding: 0 2px;" color="green" v-if="clientCount[dbInbound.id].online.length">[[ clientCount[dbInbound.id].online.length ]]</a-tag>
+                            <a-tag style="margin:0; padding: 0 2px;" color="green" v-if="clientCount[dbInbound.id].online.length">Онлайн: [[ clientCount[dbInbound.id].online.length ]]</a-tag>
                           </a-popover>
                         </td>
                       </tr>
                       <tr>
-                        <td>{{ i18n "pages.inbounds.traffic" }}</td>
+                        <td>Трафик</td>
                         <td>
                           <a-popover :overlay-class-name="themeSwitcher.currentTheme">
                             <template slot="content">
@@ -479,7 +477,7 @@
                                   <td>↓[[ sizeFormat(dbInbound.down) ]]</td>
                                 </tr>
                                 <tr v-if="dbInbound.total > 0 &&  dbInbound.up + dbInbound.down < dbInbound.total">
-                                  <td>{{ i18n "remained" }}</td>
+                                  <td>Осталось</td>
                                   <td>[[ sizeFormat(dbInbound.total - dbInbound.up - dbInbound.down) ]]</td>
                                 </tr>
                               </table>
@@ -499,7 +497,7 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>{{ i18n "pages.inbounds.expireDate" }}</td>
+                        <td>Срок действия</td>
                         <td>
                           <a-tag style="min-width: 50px; text-align: center;" v-if="dbInbound.expiryTime > 0"
                             :color="dbInbound.isExpiry? 'red': 'blue'">
@@ -561,42 +559,42 @@
         width: 30,
         responsive: ["xs"],
     }, {
-        title: '{{ i18n "pages.inbounds.operate" }}',
+        title: 'Меню',
         align: 'center',
         width: 30,
         scopedSlots: { customRender: 'action' },
     }, {
-        title: '{{ i18n "pages.inbounds.enable" }}',
+        title: 'Статус',
         align: 'center',
         width: 30,
         scopedSlots: { customRender: 'enable' },
     }, {
-        title: '{{ i18n "pages.inbounds.remark" }}',
+        title: 'Название',
         align: 'center',
         width: 60,
         dataIndex: "remark",
     }, {
-        title: '{{ i18n "pages.inbounds.port" }}',
+        title: 'Порт',
         align: 'center',
         dataIndex: "port",
         width: 40,
     }, {
-        title: '{{ i18n "pages.inbounds.protocol" }}',
+        title: 'Протокол',
         align: 'left',
         width: 70,
         scopedSlots: { customRender: 'protocol' },
     }, {
-        title: '{{ i18n "clients" }}',
+        title: 'Клиенты',
         align: 'left',
         width: 50,
         scopedSlots: { customRender: 'clients' },
     }, {
-        title: '{{ i18n "pages.inbounds.traffic" }}',
+        title: 'Трафик',
         align: 'center',
         width: 60,
         scopedSlots: { customRender: 'traffic' },
     }, {
-        title: '{{ i18n "pages.inbounds.expireDate" }}',
+        title: 'Срок действия',
         align: 'center',
         width: 40,
         scopedSlots: { customRender: 'expiryTime' },
@@ -609,35 +607,35 @@
         width: 10,
         responsive: ["s"],
     }, {
-        title: '{{ i18n "pages.inbounds.operate" }}',
+        title: 'Меню',
         align: 'center',
         width: 25,
         scopedSlots: { customRender: 'action' },
     }, {
-        title: '{{ i18n "pages.inbounds.remark" }}',
+        title: 'Название',
         align: 'left',
         width: 70,
         dataIndex: "remark",
     }, {
-        title: '{{ i18n "pages.inbounds.info" }}',
+        title: 'Инфо',
         align: 'center',
         width: 10,
         scopedSlots: { customRender: 'info' },
     }];
 
     const innerColumns = [
-        { title: '{{ i18n "pages.inbounds.operate" }}', width: 65, scopedSlots: { customRender: 'actions' } },
-        { title: '{{ i18n "pages.inbounds.enable" }}', width: 30, scopedSlots: { customRender: 'enable' } },
-        { title: '{{ i18n "online" }}', width: 30, scopedSlots: { customRender: 'online' } },
-        { title: '{{ i18n "pages.inbounds.client" }}', width: 80, scopedSlots: { customRender: 'client' } },
-        { title: '{{ i18n "pages.inbounds.traffic" }}', width: 80, align: 'center', scopedSlots: { customRender: 'traffic' } },
-        { title: '{{ i18n "pages.inbounds.expireDate" }}', width: 80, align: 'center', scopedSlots: { customRender: 'expiryTime' } },
+        { title: 'Меню', width: 65, scopedSlots: { customRender: 'actions' } },
+        { title: 'Статус', width: 30, scopedSlots: { customRender: 'enable' } },
+        { title: 'Онлайн', width: 30, scopedSlots: { customRender: 'online' } },
+        { title: 'Никнейм', width: 80, scopedSlots: { customRender: 'client' } },
+        { title: 'Трафик', width: 80, align: 'center', scopedSlots: { customRender: 'traffic' } },
+        { title: 'Срок действия', width: 80, align: 'center', scopedSlots: { customRender: 'expiryTime' } },
     ];
 
     const innerMobileColumns = [
-        { title: '{{ i18n "pages.inbounds.operate" }}', width: 10, align: 'center', scopedSlots: { customRender: 'actionMenu' } },
-        { title: '{{ i18n "pages.inbounds.client" }}', width: 90, align: 'left', scopedSlots: { customRender: 'client' } },
-        { title: '{{ i18n "pages.inbounds.info" }}', width: 10, align: 'center', scopedSlots: { customRender: 'info' } },
+        { title: 'Меню', width: 10, align: 'center', scopedSlots: { customRender: 'actionMenu' } },
+        { title: 'Никнейм', width: 90, align: 'left', scopedSlots: { customRender: 'client' } },
+        { title: 'Инфо', width: 10, align: 'center', scopedSlots: { customRender: 'info' } },
     ];
 
     const app = new Vue({
@@ -907,11 +905,11 @@
             },
             openCloneInbound(dbInbound) {
                 this.$confirm({
-                    title: '{{ i18n "pages.inbounds.cloneInbound"}} \"' + dbInbound.remark + '\"',
-                    content: '{{ i18n "pages.inbounds.cloneInboundContent"}}',
-                    okText: '{{ i18n "pages.inbounds.cloneInboundOk"}}',
+                    title: 'Клонировать \"' + dbInbound.remark + '\"',
+                    content: 'Все параметры подключения, кроме порта, IP-адреса и клиентов, будут клонированы',
+                    okText: 'Клонировать',
                     class: themeSwitcher.currentTheme,
-                    cancelText: '{{ i18n "cancel" }}',
+                    cancelText: 'Отмена',
                     onOk: () => {
                         const baseInbound = dbInbound.toInbound();
                         dbInbound.up = 0;
@@ -925,7 +923,7 @@
                     up: dbInbound.up,
                     down: dbInbound.down,
                     total: dbInbound.total,
-                    remark: dbInbound.remark + " - Cloned",
+                    remark: dbInbound.remark + " - Клон",
                     enable: dbInbound.enable,
                     expiryTime: dbInbound.expiryTime,
 
@@ -941,9 +939,9 @@
             },
             openAddInbound() {
                 inModal.show({
-                    title: '{{ i18n "pages.inbounds.addInbound"}}',
-                    okText: '{{ i18n "pages.inbounds.create"}}',
-                    cancelText: '{{ i18n "close" }}',
+                    title: 'Добавить подключение',
+                    okText: 'Создать',
+                    cancelText: 'Отмена',
                     confirm: async (inbound, dbInbound) => {
                         await this.addInbound(inbound, dbInbound, inModal);
                     },
@@ -954,9 +952,9 @@
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 const inbound = dbInbound.toInbound();
                 inModal.show({
-                    title: '{{ i18n "pages.inbounds.modifyInbound"}}',
-                    okText: '{{ i18n "pages.inbounds.update"}}',
-                    cancelText: '{{ i18n "close" }}',
+                    title: 'Изменить подключение',
+                    okText: 'Обновить',
+                    cancelText: 'Отмена',
                     inbound: inbound,
                     dbInbound: dbInbound,
                     confirm: async (inbound, dbInbound) => {
@@ -1008,8 +1006,9 @@
             openAddClient(dbInboundId) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 clientModal.show({
-                    title: '{{ i18n "pages.client.add"}}',
-                    okText: '{{ i18n "pages.client.submitAdd"}}',
+                    title: 'Добавить пользователя',
+                    okText: 'Добавить',
+                    cancelText: 'Отмена',
                     dbInbound: dbInbound,
                     confirm: async (clients, dbInboundId) => {
                         await this.addClient(clients, dbInboundId, clientModal);
@@ -1020,8 +1019,9 @@
             openAddBulkClient(dbInboundId) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 clientsBulkModal.show({
-                    title: '{{ i18n "pages.client.bulk"}} ' + dbInbound.remark,
-                    okText: '{{ i18n "pages.client.bulk"}}',
+                    title: 'Добавить несколько ' + dbInbound.remark,
+                    okText: 'Добавить',
+                    cancelText: 'Отмена',
                     dbInbound: dbInbound,
                     confirm: async (clients, dbInboundId) => {
                         await this.addClient(clients, dbInboundId, clientsBulkModal);
@@ -1033,8 +1033,8 @@
                 clients = this.getInboundClients(dbInbound);
                 index = this.findIndexOfClient(dbInbound.protocol, clients, client);
                 clientModal.show({
-                    title: '{{ i18n "pages.client.edit"}}',
-                    okText: '{{ i18n "pages.client.submitEdit"}}',
+                    title: 'Редактировать пользователя',
+                    okText: 'Сохранить',
                     dbInbound: dbInbound,
                     index: index,
                     confirm: async (client, dbInboundId, clientId) => {
@@ -1070,11 +1070,11 @@
             resetTraffic(dbInboundId) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 this.$confirm({
-                    title: '{{ i18n "pages.inbounds.resetTraffic"}}' + ' #' + dbInboundId,
-                    content: '{{ i18n "pages.inbounds.resetTrafficContent"}}',
+                    title: 'Сбросить трафик подключения #' + dbInboundId,
+                    content: 'Вы уверены, что хотите сбросить трафик?',
                     class: themeSwitcher.currentTheme,
-                    okText: '{{ i18n "reset"}}',
-                    cancelText: '{{ i18n "cancel"}}',
+                    okText: 'Сбросить',
+                    cancelText: 'Отмена',
                     onOk: () => {
                         const inbound = dbInbound.toInbound();
                         dbInbound.up = 0;
@@ -1085,11 +1085,11 @@
             },
             delInbound(dbInboundId) {
                 this.$confirm({
-                    title: '{{ i18n "pages.inbounds.deleteInbound"}}' + ' #' + dbInboundId,
-                    content: '{{ i18n "pages.inbounds.deleteInboundContent"}}',
+                    title: 'Удалить подключение #' + dbInboundId,
+                    content: 'Вы уверены, что хотите удалить подключение?',
                     class: themeSwitcher.currentTheme,
-                    okText: '{{ i18n "delete"}}',
-                    cancelText: '{{ i18n "cancel"}}',
+                    okText: 'Удалить',
+                    cancelText: 'Отмена',
                     onOk: () => this.submit('/panel/inbound/del/' + dbInboundId),
                 });
             },
@@ -1098,11 +1098,11 @@
                 clientId = this.getClientId(dbInbound.protocol, client);
                 if (confirmation){
                     this.$confirm({
-                        title: '{{ i18n "pages.inbounds.deleteClient"}}' + ' ' + client.email,
-                        content: '{{ i18n "pages.inbounds.deleteClientContent"}}',
+                        title: 'Удалить клиента ' + client.email,
+                        content: 'Вы уверены, что хотите удалить клиента?',
                         class: themeSwitcher.currentTheme,
-                        okText: '{{ i18n "delete"}}',
-                        cancelText: '{{ i18n "cancel"}}',
+                        okText: 'Удалить',
+                        cancelText: 'Отмена',
                         onOk: () => this.submit(`/panel/inbound/${dbInboundId}/delClient/${clientId}`),
                     });
                 } else {
@@ -1139,7 +1139,7 @@
             showQrcode(dbInboundId, client) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 newDbInbound = this.checkFallback(dbInbound);
-                qrModal.show('{{ i18n "qrCode"}}', newDbInbound, client);
+                qrModal.show('QR-код', newDbInbound, client);
             },
             showInfo(dbInboundId, client) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
@@ -1180,11 +1180,11 @@
             resetClientTraffic(client, dbInboundId, confirmation = true) {
                 if (confirmation){
                     this.$confirm({
-                        title: '{{ i18n "pages.inbounds.resetTraffic"}}' + ' ' + client.email,
-                        content: '{{ i18n "pages.inbounds.resetTrafficContent"}}',
+                        title: 'Сбросить трафик ' + client.email,
+                        content: 'Вы уверены, что хотите сбросить трафик?',
                         class: themeSwitcher.currentTheme,
-                        okText: '{{ i18n "reset"}}',
-                        cancelText: '{{ i18n "cancel"}}',
+                        okText: 'Сбросить',
+                        cancelText: 'Отмена',
                         onOk: () => this.submit('/panel/inbound/' + dbInboundId + '/resetClientTraffic/' + client.email),
                     })
                 } else {
@@ -1193,31 +1193,31 @@
             },
             resetAllTraffic() {
                 this.$confirm({
-                    title: '{{ i18n "pages.inbounds.resetAllTrafficTitle"}}',
-                    content: '{{ i18n "pages.inbounds.resetAllTrafficContent"}}',
+                    title: 'Сброс трафика всех подключений',
+                    content: 'Вы уверены, что хотите сбросить трафик всех подключений?',
                     class: themeSwitcher.currentTheme,
-                    okText: '{{ i18n "reset"}}',
-                    cancelText: '{{ i18n "cancel"}}',
+                    okText: 'Сбросить',
+                    cancelText: 'Отмена',
                     onOk: () => this.submit('/panel/inbound/resetAllTraffics'),
                 });
             },
             resetAllClientTraffics(dbInboundId) {
                 this.$confirm({
-                    title: dbInboundId > 0 ? '{{ i18n "pages.inbounds.resetInboundClientTrafficTitle"}}' : '{{ i18n "pages.inbounds.resetAllClientTrafficTitle"}}',
-                    content: dbInboundId > 0 ? '{{ i18n "pages.inbounds.resetInboundClientTrafficContent"}}' : '{{ i18n "pages.inbounds.resetAllClientTrafficContent"}}',
+                    title: dbInboundId > 0 ? 'Сброс трафика пользователей' : 'Сброс трафика всех пользователей',
+                    content: dbInboundId > 0 ? 'Вы уверены, что хотите сбросить весь трафик для этих пользователей?' : 'Вы уверены, что хотите сбросить трафик всех пользователей?',
                     class: themeSwitcher.currentTheme,
-                    okText: '{{ i18n "reset"}}',
-                    cancelText: '{{ i18n "cancel"}}',
+                    okText: 'Сбросить',
+                    cancelText: 'Отмена',
                     onOk: () => this.submit('/panel/inbound/resetAllClientTraffics/' + dbInboundId),
                 })
             },
             delDepletedClients(dbInboundId) {
                 this.$confirm({
-                    title: '{{ i18n "pages.inbounds.delDepletedClientsTitle"}}',
-                    content: '{{ i18n "pages.inbounds.delDepletedClientsContent"}}',
+                    title: 'Удаление истекших пользователей',
+                    content: 'Вы уверены, что хотите удалить всех истекших пользователей?',
                     class: themeSwitcher.currentTheme,
-                    okText: '{{ i18n "delete"}}',
-                    cancelText: '{{ i18n "cancel"}}',
+                    okText: 'Удалить',
+                    cancelText: 'Отмена',
                     onOk: () => this.submit('/panel/inbound/delDepletedClients/' + dbInboundId),
                 })
             },
@@ -1269,7 +1269,7 @@
                 if (expTime == 0) return null;
                 if (expTime < 0) return formatSecond(expTime/-1000);
                 now = new Date().getTime();
-                if (expTime < now) return '{{ i18n "depleted" }}';
+                if (expTime < now) return 'Истек';
                 return formatSecond((expTime-now)/1000);
             },
             statsExpColor(dbInbound, email){
@@ -1302,7 +1302,7 @@
             inboundLinks(dbInboundId) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 newDbInbound = this.checkFallback(dbInbound);
-                txtModal.show('{{ i18n "pages.inbounds.export"}}', newDbInbound.genInboundLinks(this.remarkModel), newDbInbound.remark);
+                txtModal.show('Экспорт', newDbInbound.genInboundLinks(this.remarkModel), newDbInbound.remark);
             },
             exportSubs(dbInboundId) {
                 const dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
@@ -1316,16 +1316,16 @@
                     })
                 }
                 txtModal.show(
-                    '{{ i18n "pages.inbounds.export"}} - {{ i18n "pages.settings.subSettings" }}',
+                    'Экспорт подписок',
                     [...new Set(subLinks)].join('\n'),
                     dbInbound.remark + "-Subs");
             },
             importInbound() {
                 promptModal.open({
-                    title: '{{ i18n "pages.inbounds.importInbound" }}',
+                    title: 'Импорт',
                     type: 'textarea',
                     value: '',
-                    okText: '{{ i18n "pages.inbounds.import" }}',
+                    okText: 'Импорт',
                     confirm: async (dbInboundText) => {
                         await this.submit('/panel/inbound/import', {data: dbInboundText}, promptModal);
                     },
@@ -1344,7 +1344,7 @@
                     }
                 }
                 txtModal.show(
-                    '{{ i18n "pages.inbounds.export"}} - {{ i18n "pages.settings.subSettings" }}',
+                    'Экспорт подписок',
                     [...new Set(subLinks)].join('\r\n'),
                     'All-Inbounds-Subs');
             },
@@ -1353,11 +1353,11 @@
                 for (const dbInbound of this.dbInbounds) {
                     copyText.push(dbInbound.genInboundLinks(this.remarkModel));
                 }
-                txtModal.show('{{ i18n "pages.inbounds.export"}}', copyText.join('\r\n'), 'All-Inbounds');
+                txtModal.show('Экспорт', copyText.join('\r\n'), 'All-Inbounds');
             },
             copyToClipboard(dbInboundId) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
-                txtModal.show('{{ i18n "pages.inbounds.inboundData" }}', JSON.stringify(dbInbound, null, 2));
+                txtModal.show('Подключение', JSON.stringify(dbInbound, null, 2));
             },
             async startDataRefreshLoop() {
                 while (this.isRefreshEnabled) {
