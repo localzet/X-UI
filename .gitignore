@@ -11,6 +11,8 @@ main
 backup/
 bin/
 dist/
+build/
 release/
 /release.sh
 /x-ui
+/xui-release

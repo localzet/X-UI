@@ -63,7 +63,7 @@
     {{ template "commonSider" . }}
     <a-layout id="content-layout">
       <a-layout-content>
-        <a-spin :spinning="spinning" :delay="500" tip='{{ i18n "loading"}}'>
+        <a-spin :spinning="spinning" :delay="500" tip='Загрузка'>
           <transition name="list" appear>
             <a-alert type="error" v-if="showAlert" style="margin-bottom: 10px"
               message='{{ i18n "secAlertTitle" }}'
@@ -77,11 +77,11 @@
               <a-row style="display: flex; flex-wrap: wrap; align-items: center;">
                 <a-col :xs="24" :sm="10" style="padding: 4px;">
                   <a-space direction="horizontal">
-                    <a-button type="primary" :disabled="saveBtnDisable" @click="updateXraySetting">{{ i18n "pages.xray.save" }}</a-button>
-                    <a-button type="danger" :disabled="!saveBtnDisable" @click="restartXray">{{ i18n "pages.xray.restart" }}</a-button>
+                    <a-button type="primary" :disabled="saveBtnDisable" @click="updateXraySetting">Сохранить</a-button>
+                    <a-button type="danger" :disabled="!saveBtnDisable" @click="restartXray">Перезапустить</a-button>
                     <a-popover v-if="restartResult"
                         :overlay-class-name="themeSwitcher.currentTheme">
-                      <span slot="title" style="font-size: 12pt">Error in running xray-core</span>
+                      <span slot="title" style="font-size: 12pt">Ошибка запуска XRay</span>
                       <template slot="content">
                         <p style="max-width: 400px" v-for="line in restartResult.split('\n')">[[ line ]]</p>
                       </template>
@@ -93,7 +93,7 @@
                   <template>
                     <div>
                       <a-back-top :target="() => document.getElementById('content-layout')" visibility-height="200"></a-back-top>
-                      <a-alert type="warning" style="float: right; width: fit-content" message='{{ i18n "pages.settings.infoDesc" }}' show-icon>
+                      <a-alert type="warning" style="float: right; width: fit-content" message='Для применения изменений перезапустите XRay после сохранения' show-icon>
                       </a-alert>
                     </div>
                   </template>
@@ -103,22 +103,22 @@
             <a-tabs class="ant-card-dark-box-nohover" default-active-key="1"
                 @change="(activeKey) => { this.changePage(activeKey); }"
                 :class="themeSwitcher.currentTheme">
-              <a-tab-pane key="tpl-basic" tab='{{ i18n "pages.xray.basicTemplate"}}' style="padding-top: 20px;">
+              <a-tab-pane key="tpl-basic" tab='Настройки' style="padding-top: 20px;">
                 <a-collapse>
-                  <a-collapse-panel header='{{ i18n "pages.xray.generalConfigs"}}'>
+                  <a-collapse-panel header='Стратегии адресации'>
                     <a-row :xs="24" :sm="24" :lg="12">
                       <a-alert type="warning" style="text-align: center;">
                         <template slot="message">
                           <a-icon type="exclamation-circle" theme="filled" style="color: #FFA031"></a-icon>
-                          {{ i18n "pages.xray.generalConfigsDesc" }}
+                          Параметры для определения стратегий маршрутизатора
                         </template>
                       </a-alert>
                     </a-row>
                     <a-list-item>
                       <a-row style="padding: 10px 20px">
                         <a-col :lg="24" :xl="12">
-                          <a-list-item-meta title='{{ i18n "pages.xray.FreedomStrategy" }}'
-                            description='{{ i18n "pages.xray.FreedomStrategyDesc" }}'>
+                          <a-list-item-meta title='Стратегия выхода в сеть'
+                            description='Выберите стратегию для протокола freedom'>
                           </a-list-item-meta>
                         </a-col>
                         <a-col :lg="24" :xl="12">
@@ -132,8 +132,8 @@
                       </a-row>
                       <a-row style="padding: 10px 20px">
                         <a-col :lg="24" :xl="12">
-                          <a-list-item-meta title='{{ i18n "pages.xray.RoutingStrategy" }}'
-                            description='{{ i18n "pages.xray.RoutingStrategyDesc" }}'>
+                          <a-list-item-meta title='Стратегия DNS'
+                            description='Выберите стратегию проверки соответствия правилам'>
                           </a-list-item-meta>
                         </a-col>
                         <a-col :lg="24" :xl="12">
@@ -145,106 +145,113 @@
                       </a-row>
                     </a-list-item>
                   </a-collapse-panel>
-                  <a-collapse-panel header='{{ i18n "pages.xray.logConfigs" }}'>
+                  <a-collapse-panel header='Журналы'>
                     <a-row :xs="24" :sm="24" :lg="12">
                       <a-alert type="warning" style="text-align: center;">
                         <template slot="message">
                           <a-icon type="exclamation-circle" theme="filled" style="color: #FFA031"></a-icon>
-                          {{ i18n "pages.xray.logConfigsDesc" }}
+                          Журналы могут влиять на производительность сервера. Активируйте только необходимое!
                         </template>
                       </a-alert>
                     </a-row>
                     <a-list-item>
                       <a-row style="padding: 10px 20px">
                         <a-col :lg="24" :xl="12">
-                          <a-list-item-meta title='{{ i18n "pages.xray.logLevel" }}'
-                            description='{{ i18n "pages.xray.logLevelDesc" }}'>
+                          <a-list-item-meta title='Уровень журналирования'
+                            description='Уровень, сообщения выше которого будут записываться в журнал'>
                           </a-list-item-meta>
                         </a-col>
                         <a-col :lg="24" :xl="12">
                           <template>
                             <a-select v-model="logLevel" :dropdown-class-name="themeSwitcher.currentTheme" style="width: 100%">
-                                <a-select-option v-for="s in log.loglevel" :value="s">[[ s ]]</a-select-option>
+                                <a-select-option value="none">Отключить журналы</a-select-option>
+                                <a-select-option value="debug">Отладка</a-select-option>
+                                <a-select-option value="info">Информация</a-select-option>
+                                <a-select-option value="warning">Предупреждения</a-select-option>
+                                <a-select-option value="error">Ошибки</a-select-option>
                             </a-select>
                           </template>
                         </a-col>
                       </a-row>
                       <a-row style="padding: 10px 20px">
                         <a-col :lg="24" :xl="12">
-                          <a-list-item-meta title='{{ i18n "pages.xray.accessLog" }}'
-                            description='{{ i18n "pages.xray.accessLogDesc" }}'>
+                          <a-list-item-meta title='Журнал доступа'
+                            description='Путь к файлу журнала доступа. Если отключен - невозможно фиксировать IP клиентов'>
                           </a-list-item-meta>
                         </a-col>
                         <a-col :lg="24" :xl="12">
                           <template>
                             <a-select v-model="accessLog" :dropdown-class-name="themeSwitcher.currentTheme" style="width: 100%">
-                                <a-select-option value=''>Empty</a-select-option>
-                                <a-select-option v-for="s in log.access" :value="s">[[ s ]]</a-select-option>
+                                <a-select-option value='none'>Отключить</a-select-option>
+                                <a-select-option value='./access.log'>./access.log</a-select-option>
+                                <a-select-option value=''>stdout</a-select-option>
                             </a-select>
                           </template>
                         </a-col>
                       </a-row>
                       <a-row style="padding: 10px 20px">
                         <a-col :lg="24" :xl="12">
-                          <a-list-item-meta title='{{ i18n "pages.xray.errorLog" }}'
-                            description='{{ i18n "pages.xray.errorLogDesc" }}'>
+                          <a-list-item-meta title='Журнал ошибок'
+                            description='Путь к файлу журнала ошибок'>
                           </a-list-item-meta>
                         </a-col>
                         <a-col :lg="24" :xl="12">
                           <template>
                             <a-select v-model="errorLog" :dropdown-class-name="themeSwitcher.currentTheme" style="width: 100%">
-                                <a-select-option value=''>Empty</a-select-option>
-                                <a-select-option v-for="s in log.error" :value="s">[[ s ]]</a-select-option>
+                                <a-select-option value='none'>Отключить</a-select-option>
+                                <a-select-option value='./error.log'>./error.log</a-select-option>
+                                <a-select-option value=''>stdout</a-select-option>
                             </a-select>
                           </template>
                         </a-col>
                       </a-row>
                       <a-row style="padding: 10px 20px">
                         <a-col :lg="24" :xl="12">
-                          <a-list-item-meta title='{{ i18n "pages.xray.maskAddress" }}'
-                            description='{{ i18n "pages.xray.maskAddressDesc" }}'>
+                          <a-list-item-meta title='Маскировка IP'
+                            description='Автоматически заменяет IP-адрес, отображаемый в журнале, для защиты конфиденциальности'>
                           </a-list-item-meta>
                         </a-col>
                         <a-col :lg="24" :xl="12">
                           <template>
                             <a-select v-model="maskAddressLog" :dropdown-class-name="themeSwitcher.currentTheme" style="width: 100%">
-                                <a-select-option value=''>Empty</a-select-option>
-                                <a-select-option v-for="s in log.maskAddress" :value="s">[[ s ]]</a-select-option>
+                                <a-select-option value=''>Отключить</a-select-option>
+                                <a-select-option value='quarter'>1.2.*.* | 1234:5678::/32</a-select-option>
+                                <a-select-option value='half'>1.*.*.* | 1234::/16</a-select-option>
+                                <a-select-option value='full'>[Masked IPv4] | [Masked IPv6]</a-select-option>
                             </a-select>
                           </template>
                         </a-col>
                       </a-row>
-                      <setting-list-item type="switch" title='{{ i18n "pages.xray.dnsLog"}}' desc='{{ i18n "pages.xray.dnsLogDesc"}}' v-model="dnslog"></setting-list-item>
+                      <setting-list-item type="switch" title='Журнал DNS' desc='Следует ли включать журналы DNS-запросов, например: "domain.com -> [ip1, ip2] 2.333ms"' v-model="dnslog"></setting-list-item>
                     </a-list-item>
                   </a-collapse-panel>
-                  <a-collapse-panel header='{{ i18n "pages.xray.blockConfigs"}}'>
+                  <a-collapse-panel header='Блокировки'>
                     <a-row :xs="24" :sm="24" :lg="12">
                       <a-alert type="warning" style="text-align: center;">
                         <template slot="message">
                           <a-icon type="exclamation-circle" theme="filled" style="color: #FFA031"></a-icon>
-                          {{ i18n "pages.xray.blockConfigsDesc" }}
+                          Правила блокировки определённого трафика
                         </template>
                       </a-alert>
                     </a-row>
                     <a-list-item>
-                      <setting-list-item type="switch" title='{{ i18n "pages.xray.Torrent"}}' desc='{{ i18n "pages.xray.TorrentDesc"}}' v-model="torrentSettings"></setting-list-item>
-                      <setting-list-item type="switch" title='{{ i18n "pages.xray.Family"}}' desc='{{ i18n "pages.xray.FamilyDesc"}}' v-model="familyProtectSettings"></setting-list-item>
+                      <setting-list-item type="switch" title='Блокировка Torrent' desc='Сервер не допустит передачу torrent-трафика' v-model="torrentSettings"></setting-list-item>
+                      <setting-list-item type="switch" title='Семейный режим' desc='DNS-преобразователи будут блокировать контент для взрослых и вредоносное ПО' v-model="familyProtectSettings"></setting-list-item>
                     </a-list-item>
                   </a-collapse-panel>
-                  <a-collapse-panel header='{{ i18n "pages.xray.basicRouting"}}'>
+                  <a-collapse-panel header='Правила маршрутизации'>
                     <a-row :xs="24" :sm="24" :lg="12">
                       <a-alert type="warning" style="text-align: center;">
                         <template slot="message">
                           <a-icon type="exclamation-circle" theme="filled" style="color: #FFA031"></a-icon>
-                          {{ i18n "pages.xray.blockConnectionsConfigsDesc" }}
+                          IP и домены, трафик которых будет блокироваться сервером. Поддерживаются geoip, geosite и regexp
                         </template>
                       </a-alert>
                     </a-row>
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta
-                                    title='{{ i18n "pages.xray.blockips" }}'/>
+                                <a-list-item-meta title='Заблокированные IP'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <template>
@@ -261,8 +268,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta
-                                    title='{{ i18n "pages.xray.blockdomains" }}'/>
+                                <a-list-item-meta title='Заблокированные домены'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <template>
@@ -281,15 +287,14 @@
                       <a-alert type="warning" style="text-align: center; margin-top: 20px;">
                         <template slot="message">
                           <a-icon type="exclamation-circle" theme="filled" style="color: #FFA031"></a-icon>
-                          {{ i18n "pages.xray.directConnectionsConfigsDesc" }}
+                            IP и домены, трафик которых не будет проксироваться через другие сервера. Поддерживаются geoip, geosite и regexp
                         </template>
                       </a-alert>
                     </a-row>
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta
-                                    title='{{ i18n "pages.xray.directips" }}'/>
+                                <a-list-item-meta title='Прямые IP'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <template>
@@ -307,8 +312,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta
-                                    title='{{ i18n "pages.xray.directdomains" }}'/>
+                                <a-list-item-meta title='Прямые домены'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <template>
@@ -327,7 +331,7 @@
                       <a-alert type="warning" style="text-align: center; margin-top: 20px;">
                         <template slot="message">
                           <a-icon type="exclamation-circle" theme="filled" style="color: #FFA031"></a-icon>
-                          {{ i18n "pages.xray.ipv4RoutingDesc" }}
+                            Домены, трафик которых будет идти только через IPv4. Поддерживаются geosite и regexp
                         </template>
                       </a-alert>
                     </a-row>
@@ -335,7 +339,7 @@
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
                                 <a-list-item-meta
-                                    title='{{ i18n "pages.xray.ipv4Routing" }}'/>
+                                    title='Домены IPv4'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <template>
@@ -354,7 +358,7 @@
                       <a-alert type="warning" style="text-align: center; margin-top: 20px;">
                         <template slot="message">
                           <a-icon type="exclamation-circle" theme="filled" style="color: #FFA031"></a-icon>
-                          {{ i18n "pages.xray.warpRoutingDesc" }}
+                            Домены, трафик которых будет идти через Cloudflare WARP. Поддерживаются geosite и regexp
                         </template>
                       </a-alert>
                     </a-row>
@@ -364,7 +368,7 @@
                             <a-row style="padding: 0 20px">
                                 <a-col :lg="24" :xl="12">
                                     <a-list-item-meta
-                                        title='{{ i18n "pages.xray.warpRouting" }}'/>
+                                        title='Домены WARP'/>
                                 </a-col>
                                 <a-col :lg="24" :xl="12">
                                     <template>
@@ -383,15 +387,27 @@
                       <a-button style="margin-left: 20px;" v-else type="primary" icon="cloud" @click="showWarp()">WARP</a-button>
                     </a-list-item>
                   </a-collapse-panel>
-                  <a-collapse-panel header='{{ i18n "pages.settings.resetDefaultConfig"}}'>
+                  <a-collapse-panel header='Сброс до заводских настроек'>
                     <a-space direction="horizontal" style="padding: 0 20px">
-                      <a-button type="danger" @click="resetXrayConfigToDefault">{{ i18n "pages.settings.resetDefaultConfig" }}</a-button>
+                      <a-button type="danger" @click="resetXrayConfigToDefault">Сброс конфигурации</a-button>
                     </a-space>
                   </a-collapse-panel>
                 </a-collapse>
               </a-tab-pane>
-              <a-tab-pane key="tpl-routing" tab='{{ i18n "pages.xray.Routings"}}' style="padding-top: 20px;">
-                <a-button type="primary" icon="plus" @click="addRule">{{ i18n "pages.xray.rules.add" }}</a-button>
+              <a-tab-pane key="tpl-routing" tab='Маршрутизация' style="padding-top: 20px;">
+                  <a-row style="display: flex; flex-wrap: wrap; align-items: center;">
+                      <a-col :xs="24" :sm="10" style="padding: 4px;">
+                        <a-button type="primary" icon="plus" @click="addRule">Добавить</a-button>
+                      </a-col>
+                      <a-col :xs="24" :sm="14">
+                          <a-alert type="warning" style="text-align: center;">
+                              <template slot="message">
+                                  <a-icon type="exclamation-circle" theme="filled" style="color: #FFA031"></a-icon>
+                                  Таблица составлена в порядке приоритезации, где 1 - высший приоритет
+                              </template>
+                          </a-alert>
+                      </a-col>
+                </a-row>
                 <a-table-sortable :columns="isMobile ? rulesMobileColumns : rulesColumns" bordered
                     :row-key="r => r.key"
                     :data-source="routingRuleData"
@@ -408,27 +424,27 @@
                       <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
                         <a-menu-item v-if="index>0" @click="replaceRule(index,0)">
                           <a-icon type="vertical-align-top"></a-icon>
-                          {{ i18n "pages.xray.rules.first"}}
+                          В начало
                         </a-menu-item>
                         <a-menu-item v-if="index>0" @click="replaceRule(index,index-1)">
                           <a-icon type="arrow-up"></a-icon>
-                          {{ i18n "pages.xray.rules.up"}}
+                          Выше
                         </a-menu-item>
                         <a-menu-item v-if="index<routingRuleData.length-1" @click="replaceRule(index,index+1)">
                           <a-icon type="arrow-down"></a-icon>
-                          {{ i18n "pages.xray.rules.down"}}
+                          Ниже
                         </a-menu-item>
                         <a-menu-item v-if="index<routingRuleData.length-1" @click="replaceRule(index,routingRuleData.length-1)">
                           <a-icon type="vertical-align-bottom"></a-icon>
-                          {{ i18n "pages.xray.rules.last"}}
+                          В конец
                         </a-menu-item>
                         <a-menu-item @click="editRule(index)">
                           <a-icon type="edit"></a-icon>
-                          {{ i18n "edit" }}
+                          Изменить
                         </a-menu-item>
                         <a-menu-item @click="deleteRule(index)">
                           <span style="color: #FF4D4F">
-                            <a-icon type="delete"></a-icon> {{ i18n "delete"}}
+                            <a-icon type="delete"></a-icon> Удалить
                           </span>
                         </a-menu-item>
                       </a-menu>
@@ -437,8 +453,8 @@
                   <template slot="inbound" slot-scope="text, rule, index">
                     <a-popover :overlay-class-name="themeSwitcher.currentTheme">
                       <template slot="content">
-                        <p v-if="rule.inboundTag">Inbound Tag: [[ rule.inboundTag ]]</p>
-                        <p v-if="rule.user">User email: [[ rule.user ]]</p>
+                        <p v-if="rule.inboundTag">Тег: [[ rule.inboundTag ]]</p>
+                        <p v-if="rule.user">Клиент: [[ rule.user ]]</p>
                       </template>
                       [[ [rule.inboundTag,rule.user].join('\n') ]]
                     </a-popover>
@@ -446,7 +462,7 @@
                   <template slot="outbound" slot-scope="text, rule, index">
                     <a-popover :overlay-class-name="themeSwitcher.currentTheme">
                       <template slot="content">
-                        <p v-if="rule.outboundTag">Outbound Tag: [[ rule.outboundTag ]]</p>
+                        <p v-if="rule.outboundTag">Тег: [[ rule.outboundTag ]]</p>
                       </template>
                       [[ rule.outboundTag ]]
                     </a-popover>
@@ -454,7 +470,7 @@
                   <template slot="balancer" slot-scope="text, rule, index">
                     <a-popover :overlay-class-name="themeSwitcher.currentTheme">
                       <template slot="content">
-                        <p v-if="rule.balancerTag">Balancer Tag: [[ rule.balancerTag ]]</p>
+                        <p v-if="rule.balancerTag">Тег: [[ rule.balancerTag ]]</p>
                       </template>
                       [[ rule.balancerTag ]]
                     </a-popover>
@@ -466,23 +482,23 @@
                       <template slot="content">
                         <table cellpadding="2" style="max-width: 300px;">
                           <tr v-if="rule.source">
-                            <td>Source</td>
+                            <td>Источник</td>
                             <td><a-tag color="blue" v-for="r in rule.source.split(',')">[[ r ]]</a-tag></td>
                           </tr>
                           <tr v-if="rule.sourcePort">
-                            <td>Source Port</td>
+                            <td>Порт источника</td>
                             <td><a-tag color="green" v-for="r in rule.sourcePort.split(',')">[[ r ]]</a-tag></td>
                           </tr>
                           <tr v-if="rule.network">
-                            <td>Network</td>
+                            <td>Сеть</td>
                             <td><a-tag color="blue" v-for="r in rule.network.split(',')">[[ r ]]</a-tag></td>
                           </tr>
                           <tr v-if="rule.protocol">
-                            <td>Protocol</td>
+                            <td>Протокол</td>
                             <td><a-tag color="green" v-for="r in rule.protocol.split(',')">[[ r ]]</a-tag></td>
                           </tr>
                           <tr v-if="rule.attrs">
-                            <td>Attrs</td>
+                            <td>Атрибуты</td>
                             <td><a-tag color="blue" v-for="r in rule.attrs.split(',')">[[ r ]]</a-tag></td>
                           </tr>
                           <tr v-if="rule.ip">
@@ -490,15 +506,15 @@
                             <td><a-tag color="green" v-for="r in rule.ip.split(',')">[[ r ]]</a-tag></td>
                           </tr>
                           <tr v-if="rule.domain">
-                            <td>Domain</td>
+                            <td>Домен</td>
                             <td><a-tag color="blue" v-for="r in rule.domain.split(',')">[[ r ]]</a-tag></td>
                           </tr>
                           <tr v-if="rule.port">
-                            <td>Port</td>
+                            <td>Порт</td>
                             <td><a-tag color="green" v-for="r in rule.port.split(',')">[[ r ]]</a-tag></td>
                           </tr>
                           <tr v-if="rule.balancerTag">
-                            <td>Balancer Tag</td>
+                            <td>Балансировщик</td>
                             <td><a-tag color="blue">[[ rule.balancerTag ]]</a-tag></td>
                           </tr>
                         </table>
@@ -510,21 +526,21 @@
                   </template>
                 </a-table-sortable>
               </a-tab-pane>
-              <a-tab-pane key="tpl-outbound" tab='{{ i18n "pages.xray.Outbounds"}}' style="padding-top: 20px;" force-render="true">
+              <a-tab-pane key="tpl-outbound" tab='Исходящие' style="padding-top: 20px;" force-render="true">
                 <a-row>
                   <a-col :xs="12" :sm="12" :lg="12">
                     <a-button type="primary" icon="plus" @click="addOutbound()" style="margin-bottom: 10px;">
-                      {{ i18n "pages.xray.outbound.addOutbound" }}
+                      Добавить
                     </a-button>
                     <a-button type="primary" icon="cloud" @click="showWarp()" style="margin-bottom: 10px;">WARP</a-button>
                   </a-col>
                   <a-col :xs="12" :sm="12" :lg="12" style="text-align: right;">
                     <a-icon type="sync" :spin="refreshing" @click="refreshOutboundTraffic()" style="margin: 0 5px;"></a-icon>
                     <a-popconfirm placement="topRight" @confirm="resetOutboundTraffic(-1)"
-                        title='{{ i18n "pages.inbounds.resetTrafficContent"}}'
+                        title='Сбросить счетчики трафика?'
                         :overlay-class-name="themeSwitcher.currentTheme"
-                        ok-text='{{ i18n "reset"}}'
-                        cancel-text='{{ i18n "cancel"}}'>
+                        ok-text='Сбросить'
+                        cancel-text='Отмена'>
                       <a-icon slot="icon" type="question-circle-o" :style="themeSwitcher.isDarkTheme ? 'color: #008771' : 'color: #008771'"></a-icon>
                       <a-icon type="retweet" style="cursor: pointer;"></a-icon>
                     </a-popconfirm>
@@ -536,28 +552,42 @@
                     :scroll="isMobile ? {} : { x: 800 }"
                     :pagination="false"
                     :indent-size="0"
-                    :style="isMobile ? 'padding: 5px 5px' : 'margin-right: 1px;'">
+                    :style="isMobile ? 'padding: 5px 5px' : 'margin-right: 1px;'"
+                     v-on:onSort="replaceOutbound">
                   <template slot="action" slot-scope="text, outbound, index">
-                    [[ index+1 ]]
+                      <table-sort-trigger :item-index="index"></table-sort-trigger>
+                      <span class="ant-table-row-index"> [[ index+1 ]] </span>
                     <a-dropdown :trigger="['click']">
                       <a-icon @click="e => e.preventDefault()" type="more" style="font-size: 16px; text-decoration: bold;"></a-icon>
                       <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
-                        <a-menu-item v-if="index>0" @click="setFirstOutbound(index)">
+                        <a-menu-item v-if="index>0" @click="replaceOutbound(index,0)">
                           <a-icon type="vertical-align-top"></a-icon>
-                          {{ i18n "pages.xray.rules.first"}}
+                            В начало
                         </a-menu-item>
-                        <a-menu-item @click="editOutbound(index)">
+                          <a-menu-item v-if="index>0" @click="replaceOutbound(index,index-1)">
+                              <a-icon type="arrow-up"></a-icon>
+                              Выше
+                          </a-menu-item>
+                          <a-menu-item v-if="index<outboundData.length-1" @click="replaceOutbound(index,index+1)">
+                              <a-icon type="arrow-down"></a-icon>
+                              Ниже
+                          </a-menu-item>
+                          <a-menu-item v-if="index<outboundData.length-1" @click="replaceOutbound(index,outboundData.length-1)">
+                              <a-icon type="vertical-align-bottom"></a-icon>
+                              В конец
+                          </a-menu-item>
+                          <a-menu-item @click="editOutbound(index)">
                           <a-icon type="edit"></a-icon>
-                          {{ i18n "edit" }}
+                          Редактировать
                         </a-menu-item>
                         <a-menu-item @click="resetOutboundTraffic(index)">
                           <span>
-                            <a-icon type="retweet"></a-icon> {{ i18n "pages.inbounds.resetTraffic"}}
+                            <a-icon type="retweet"></a-icon> Сбросить трафик
                           </span>
                         </a-menu-item>
                         <a-menu-item @click="deleteOutbound(index)">
                           <span style="color: #FF4D4F">
-                            <a-icon type="delete"></a-icon> {{ i18n "delete"}}
+                            <a-icon type="delete"></a-icon> Удалить
                           </span>
                         </a-menu-item>
                       </a-menu>
@@ -579,9 +609,9 @@
                   </template>
                 </a-table>
               </a-tab-pane>
-              <a-tab-pane key="tpl-reverse" tab='{{ i18n "pages.xray.outbound.reverse"}}' style="padding-top: 20px;" force-render="true">
+              <a-tab-pane key="tpl-reverse" tab='Обратные прокси' style="padding-top: 20px;" force-render="true">
                 <a-button type="primary" icon="plus" @click="addReverse()" style="margin-bottom: 10px;">
-                  {{ i18n "pages.xray.outbound.addReverse" }}
+                  Добавить
                 </a-button>
                 <a-table :columns="reverseColumns" bordered v-if="reverseData.length>0"
                     :row-key="r => r.key"
@@ -597,11 +627,11 @@
                       <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
                         <a-menu-item @click="editReverse(index)">
                           <a-icon type="edit"></a-icon>
-                          {{ i18n "edit" }}
+                          Изменить
                         </a-menu-item>
                         <a-menu-item @click="deleteReverse(index)">
                           <span style="color: #FF4D4F">
-                            <a-icon type="delete"></a-icon> {{ i18n "delete"}}
+                            <a-icon type="delete"></a-icon> Удалить
                           </span>
                         </a-menu-item>
                       </a-menu>
@@ -609,9 +639,9 @@
                   </template>
                 </a-table>
               </a-tab-pane>
-              <a-tab-pane key="tpl-balancer" tab='{{ i18n "pages.xray.Balancers"}}' style="padding-top: 20px;" force-render="true">
+              <a-tab-pane key="tpl-balancer" tab='Балансировщики' style="padding-top: 20px;" force-render="true">
                 <a-button type="primary" icon="plus" @click="addBalancer()" style="margin-bottom: 10px;">
-                  {{ i18n "pages.xray.balancer.addBalancer"}}
+                  Добавить
                 </a-button>
                 <a-table :columns="balancerColumns" bordered v-if="balancersData.length>0"
                     :row-key="r => r.key"
@@ -627,21 +657,21 @@
                       <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
                         <a-menu-item @click="editBalancer(index)">
                           <a-icon type="edit"></a-icon>
-                          {{ i18n "edit" }}
+                          Изменить
                         </a-menu-item>
                         <a-menu-item @click="deleteBalancer(index)">
                           <span style="color: #FF4D4F">
-                            <a-icon type="delete"></a-icon> {{ i18n "delete"}}
+                            <a-icon type="delete"></a-icon> Удалить
                           </span>
                         </a-menu-item>
                       </a-menu>
                     </a-dropdown>
                   </template>
                   <template slot="strategy" slot-scope="text, balancer, index">
-                    <a-tag style="margin:0;" v-if="balancer.strategy=='random'" color="purple">Random</a-tag>
-                    <a-tag style="margin:0;" v-if="balancer.strategy=='roundRobin'" color="green">Round Robin</a-tag>
-                    <a-tag style="margin:0;" v-if="balancer.strategy=='leastLoad'" color="green">Least Load</a-tag>
-                    <a-tag style="margin:0;" v-if="balancer.strategy=='leastPing'" color="green">Least Ping</a-tag>
+                    <a-tag style="margin:0;" v-if="balancer.strategy=='random'" color="purple">Случайно</a-tag>
+                    <a-tag style="margin:0;" v-if="balancer.strategy=='roundRobin'" color="green">Round-robin</a-tag>
+                    <a-tag style="margin:0;" v-if="balancer.strategy=='leastLoad'" color="green">Наименьшая нагрузка</a-tag>
+                    <a-tag style="margin:0;" v-if="balancer.strategy=='leastPing'" color="green">Наименьший пинг</a-tag>
                   </template>
                   <template slot="selector" slot-scope="text, balancer, index">
                     <a-tag class="info-large-tag" style="margin:1;" v-for="sel in balancer.selector">[[ sel ]]</a-tag>
@@ -659,17 +689,17 @@
                 </a-radio-group>
                 <textarea style="position:absolute; left: -800px;" id="obsSetting"></textarea>
               </a-tab-pane>
-            <a-tab-pane key="tpl-dns" tab='DNS' style="padding-top: 20px;" force-render="true">
-                <setting-list-item type="switch" title='{{ i18n "pages.xray.dns.enable" }}'
-                    desc='{{ i18n "pages.xray.dns.enableDesc" }}' v-model="enableDNS"></setting-list-item>
+              <a-tab-pane key="tpl-dns" tab='DNS' style="padding-top: 20px;" force-render="true">
+                <setting-list-item type="switch" title='DNS-сервер'
+                    desc='Активация встроенного DNS-сервера' v-model="enableDNS"></setting-list-item>
                 <template v-if="enableDNS">
-                    <setting-list-item style="padding: 10px 20px" type="text" title='{{ i18n "pages.xray.dns.tag" }}'
-                        desc='{{ i18n "pages.xray.dns.tagDesc" }}' v-model="dnsTag"></setting-list-item>
+                    <setting-list-item style="padding: 10px 20px" type="text" title='Тег (для Входящих)'
+                        desc='Тег для обращения в маршрутизаторе' v-model="dnsTag"></setting-list-item>
                     <a-list-item style="padding: 10px 20px">
                         <a-row>
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta title='{{ i18n "pages.xray.dns.strategy" }}'
-                                    description='{{ i18n "pages.xray.dns.strategyDesc" }}' />
+                                <a-list-item-meta title='Стратегия доменов'
+                                    description='Общая стратегия DNS-сервера' />
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <a-select v-model="dnsStrategy" style="width: 100%"
@@ -682,8 +712,7 @@
                         </a-row>
                     </a-list-item>
                     <a-divider>DNS</a-divider>
-                    <a-button type="primary" icon="plus" @click="addDNSServer()" style="margin-bottom: 10px;">{{ i18n
-                        "pages.xray.dns.add" }}</a-button>
+                    <a-button type="primary" icon="plus" @click="addDNSServer()" style="margin-bottom: 10px;">Добавить DNS-сервер</a-button>
                     <a-table :columns="dnsColumns" bordered v-if="dnsServers.length>0" :row-key="r => r.key"
                         :data-source="dnsServers" :scroll="isMobile ? {} : { x: 200 }" :pagination="false" :indent-size="0"
                         :style="isMobile ? 'padding: 5px 0' : 'margin-left: 1px;'">
@@ -695,11 +724,11 @@
                                 <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
                                     <a-menu-item @click="editDNSServer(index)">
                                         <a-icon type="edit"></a-icon>
-                                        {{ i18n "edit" }}
+                                        Изменить
                                     </a-menu-item>
                                     <a-menu-item @click="deleteDNSServer(index)">
                                         <span style="color: #FF4D4F">
-                                            <a-icon type="delete"></a-icon> {{ i18n "delete"}}
+                                            <a-icon type="delete"></a-icon> Удалить
                                         </span>
                                     </a-menu-item>
                                 </a-menu>
@@ -717,8 +746,7 @@
                         </template>
                     </a-table>
                     <a-divider>Fake DNS</a-divider>
-                    <a-button type="primary" icon="plus" @click="addFakedns()" style="margin-bottom: 10px;">{{ i18n
-                        "pages.xray.fakedns.add" }}</a-button>
+                    <a-button type="primary" icon="plus" @click="addFakedns()" style="margin-bottom: 10px;">Добавить FakeDNS-сервера</a-button>
                     <a-table :columns="fakednsColumns" bordered v-if="fakeDns && fakeDns.length>0" :row-key="r => r.key"
                         :data-source="fakeDns" :scroll="isMobile ? {} : { x: 200 }" :pagination="false" :indent-size="0"
                         :style="isMobile ? 'padding: 5px 0' : 'margin-left: 1px;'">
@@ -730,11 +758,11 @@
                                 <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
                                     <a-menu-item @click="editFakedns(index)">
                                         <a-icon type="edit"></a-icon>
-                                        {{ i18n "edit" }}
+                                        Изменить
                                     </a-menu-item>
                                     <a-menu-item @click="deleteFakedns(index)">
                                         <span style="color: #FF4D4F">
-                                            <a-icon type="delete"></a-icon> {{ i18n "delete"}}
+                                            <a-icon type="delete"></a-icon> Удалить
                                         </span>
                                     </a-menu-item>
                                 </a-menu>
@@ -743,13 +771,13 @@
                     </a-table>
                 </template>
             </a-tab-pane>
-              <a-tab-pane key="tpl-advanced" tab='{{ i18n "pages.xray.advancedTemplate"}}' style="padding-top: 20px;" force-render="true">
-                <a-list-item-meta title='{{ i18n "pages.xray.Template"}}' description='{{ i18n "pages.xray.TemplateDesc"}}'></a-list-item-meta>
+              <a-tab-pane key="tpl-advanced" tab='Ручная конфигурация' style="padding-top: 20px;" force-render="true">
+                <a-list-item-meta title='Конфигурация XRay' description='Ядро XRay конфигурируется на основе этого JSON'></a-list-item-meta>
                 <a-radio-group v-model="advSettings" @change="changeCode" button-style="solid" style="margin: 10px 0;" :size="isMobile ? 'small' : ''">
-                  <a-radio-button value="xraySetting">{{ i18n "pages.xray.completeTemplate"}}</a-radio-button>
-                  <a-radio-button value="inboundSettings">{{ i18n "pages.xray.Inbounds" }}</a-radio-button>
-                  <a-radio-button value="outboundSettings">{{ i18n "pages.xray.Outbounds" }}</a-radio-button>
-                  <a-radio-button value="routingRuleSettings">{{ i18n "pages.xray.Routings" }}</a-radio-button>
+                  <a-radio-button value="xraySetting">Все</a-radio-button>
+                  <a-radio-button value="inboundSettings">Входящие</a-radio-button>
+                  <a-radio-button value="outboundSettings">Исходящие</a-radio-button>
+                  <a-radio-button value="routingRuleSettings">Маршрутизация</a-radio-button>
                 </a-radio-group>
                 <textarea style="position:absolute; left: -800px;" id="xraySetting"></textarea>
               </a-tab-pane>
@@ -773,64 +801,64 @@
 <script>
         const rulesColumns = [
         { title: "#", align: 'center', width: 15, scopedSlots: { customRender: 'action' } },
-        { title: '{{ i18n "pages.xray.rules.source"}}', children: [
+        { title: 'Источник', children: [
             { title: 'IP', dataIndex: "source", align: 'center', width: 20, ellipsis: true },
-            { title: 'Port', dataIndex: 'sourcePort', align: 'center', width: 10, ellipsis: true } ]},
-        { title: '{{ i18n "pages.inbounds.network"}}', children: [
+            { title: 'Порт', dataIndex: 'sourcePort', align: 'center', width: 10, ellipsis: true } ]},
+        { title: 'Сеть', children: [
             { title: 'L4', dataIndex: 'network', align: 'center', width: 10 },
-            { title: 'Protocol', dataIndex: 'protocol', align: 'center', width: 10, ellipsis: true },
-            { title: 'Attrs', dataIndex: 'attrs', align: 'center', width: 20, ellipsis: true } ]},
-        { title: '{{ i18n "pages.xray.rules.dest"}}', children: [
+            { title: 'Протокол', dataIndex: 'protocol', align: 'center', width: 10, ellipsis: true },
+            { title: 'Атрибуты', dataIndex: 'attrs', align: 'center', width: 20, ellipsis: true } ]},
+        { title: 'Правила', children: [
             { title: 'IP', dataIndex: 'ip', align: 'center', width: 20, ellipsis: true },
-            { title: 'Domain', dataIndex: 'domain', align: 'center', width: 20, ellipsis: true },
-            { title: 'Port', dataIndex: 'port', align: 'center', width: 10, ellipsis: true }]},
-        { title: '{{ i18n "pages.xray.rules.inbound"}}', children: [
-            { title: 'Inbound Tag', dataIndex: 'inboundTag', align: 'center', width: 15, ellipsis: true },
-            { title: 'Client Email', dataIndex: 'user', align: 'center', width: 20, ellipsis: true }]},
-        { title: '{{ i18n "pages.xray.rules.outbound"}}', dataIndex: 'outboundTag', align: 'center', width: 15 },
-        { title: '{{ i18n "pages.xray.rules.balancer"}}', dataIndex: 'balancerTag', align: 'center', width: 15 },
+            { title: 'Домен', dataIndex: 'domain', align: 'center', width: 20, ellipsis: true },
+            { title: 'Порт', dataIndex: 'port', align: 'center', width: 10, ellipsis: true }]},
+        { title: 'Входящее', children: [
+            { title: 'Тег', dataIndex: 'inboundTag', align: 'center', width: 15, ellipsis: true },
+            { title: 'Клиент', dataIndex: 'user', align: 'center', width: 20, ellipsis: true }]},
+        { title: 'Исходящее', dataIndex: 'outboundTag', align: 'center', width: 15 },
+        { title: 'Балансировщик', dataIndex: 'balancerTag', align: 'center', width: 15 },
     ];
 
     const rulesMobileColumns = [
         { title: "#", align: 'center', width: 20, scopedSlots: { customRender: 'action' } },
-        { title: '{{ i18n "pages.xray.rules.inbound"}}', align: 'center', width: 50, ellipsis: true, scopedSlots: { customRender: 'inbound' } },
-        { title: '{{ i18n "pages.xray.rules.outbound"}}', align: 'center', width: 50, ellipsis: true, scopedSlots: { customRender: 'outbound' } },
-        { title: '{{ i18n "pages.xray.rules.info"}}', align: 'center', width: 50, ellipsis: true, scopedSlots: { customRender: 'info' } },
+        { title: 'Входящее', align: 'center', width: 50, ellipsis: true, scopedSlots: { customRender: 'inbound' } },
+        { title: 'Исходящее', align: 'center', width: 50, ellipsis: true, scopedSlots: { customRender: 'outbound' } },
+        { title: 'Информация', align: 'center', width: 50, ellipsis: true, scopedSlots: { customRender: 'info' } },
     ];
 
     const outboundColumns = [
         { title: "#", align: 'center', width: 20, scopedSlots: { customRender: 'action' } },
-        { title: '{{ i18n "pages.xray.outbound.tag"}}', dataIndex: 'tag', align: 'center', width: 50 },
-        { title: '{{ i18n "protocol"}}', align: 'center', width: 50, scopedSlots: { customRender: 'protocol' }  },
-        { title: '{{ i18n "pages.xray.outbound.address"}}', align: 'center', width: 50, scopedSlots: { customRender: 'address' } },
-        { title: '{{ i18n "pages.inbounds.traffic" }}', align: 'center', width: 50, scopedSlots: { customRender: 'traffic' } },
+        { title: 'Тег', dataIndex: 'tag', align: 'center', width: 50 },
+        { title: 'Протокол', align: 'center', width: 50, scopedSlots: { customRender: 'protocol' }  },
+        { title: 'Адрес', align: 'center', width: 50, scopedSlots: { customRender: 'address' } },
+        { title: 'Трафик', align: 'center', width: 50, scopedSlots: { customRender: 'traffic' } },
     ];
 
     const reverseColumns = [
         { title: "#", align: 'center', width: 20, scopedSlots: { customRender: 'action' } },
-        { title: '{{ i18n "pages.xray.outbound.type"}}', dataIndex: 'type', align: 'center', width: 50 },
-        { title: '{{ i18n "pages.xray.outbound.tag"}}', dataIndex: 'tag', align: 'center', width: 50 },
-        { title: '{{ i18n "pages.xray.outbound.domain"}}', dataIndex: 'domain', align: 'center', width: 50 },
+        { title: 'Тип', dataIndex: 'type', align: 'center', width: 50 },
+        { title: 'Тег', dataIndex: 'tag', align: 'center', width: 50 },
+        { title: 'Домен', dataIndex: 'domain', align: 'center', width: 50 },
     ];
 
     const balancerColumns = [
         { title: "#", align: 'center', width: 20, scopedSlots: { customRender: 'action' } },
-        { title: '{{ i18n "pages.xray.balancer.tag"}}', dataIndex: 'tag', align: 'center', width: 50 },
-        { title: '{{ i18n "pages.xray.balancer.balancerStrategy"}}', align: 'center', width: 50, scopedSlots: { customRender: 'strategy' }},
-        { title: '{{ i18n "pages.xray.balancer.balancerSelectors"}}', align: 'center', width: 100, scopedSlots: { customRender: 'selector' }},
+        { title: 'Тег', dataIndex: 'tag', align: 'center', width: 50 },
+        { title: 'Стратегия', align: 'center', width: 50, scopedSlots: { customRender: 'strategy' } },
+        { title: 'Селекторы', align: 'center', width: 100, scopedSlots: { customRender: 'selector' } },
     ];
 
     const dnsColumns = [
         { title: "#", align: 'center', width: 20, scopedSlots: { customRender: 'action' } },
-        { title: '{{ i18n "pages.xray.outbound.address"}}', align: 'center', width: 50, scopedSlots: { customRender: 'address' } },
-        { title: '{{ i18n "pages.xray.dns.domains"}}', align: 'center', width: 50, scopedSlots: { customRender: 'domain' } },
-        { title: '{{ i18n "pages.xray.dns.expectIPs"}}', align: 'center', width: 50, scopedSlots: { customRender: 'expectIPs' } },
+        { title: 'Адрес', align: 'center', width: 50, scopedSlots: { customRender: 'address' } },
+        { title: 'Домен', align: 'center', width: 50, scopedSlots: { customRender: 'domain' } },
+        { title: 'IP-адреса', align: 'center', width: 50, scopedSlots: { customRender: 'expectIPs' } },
     ];
 
     const fakednsColumns = [
         { title: "#", align: 'center', width: 20, scopedSlots: { customRender: 'action' } },
-        { title: '{{ i18n "pages.xray.fakedns.ipPool"}}', dataIndex: 'ipPool', align: 'center', width: 50 },
-        { title: '{{ i18n "pages.xray.fakedns.poolSize"}}', dataIndex: 'poolSize', align: 'center', width: 50 },
+        { title: 'Подсеть', dataIndex: 'ipPool', align: 'center', width: 50 },
+        { title: 'Размер', dataIndex: 'poolSize', align: 'center', width: 50 },
     ];
 
     const app = new Vue({
@@ -1193,8 +1221,8 @@
             },
             addOutbound(){
                 outModal.show({
-                    title: '{{ i18n "pages.xray.outbound.addOutbound"}}',
-                    okText: '{{ i18n "pages.xray.outbound.addOutbound" }}',
+                    title: 'Добавить исходящее подключение',
+                    okText: 'Добавить',
                     confirm: (outbound) => {
                         outModal.loading();
                         if(outbound.tag.length > 0){
@@ -1209,7 +1237,7 @@
             },
             editOutbound(index){
                 outModal.show({
-                    title: '{{ i18n "pages.xray.outbound.editOutbound"}} ' + (index+1),
+                    title: 'Изменить исходящее подключение #' + (index+1),
                     outbound: app.templateSettings.outbounds[index],
                     confirm: (outbound) => {
                         outModal.loading();
@@ -1231,10 +1259,17 @@
                 outbounds.splice(0, 0, outbounds.splice(index, 1)[0]);
                 this.outboundSettings = JSON.stringify(outbounds);
             },
+            replaceOutbound(old_index,new_index){
+                outbounds = this.templateSettings.outbounds;
+                if (new_index >= outbounds.length) outbounds.push(undefined);
+                outbounds.splice(new_index, 0, outbounds.splice(old_index, 1)[0]);
+                this.outboundSettings = JSON.stringify(outbounds);
+            },
+
             addReverse(){
                 reverseModal.show({
-                    title: '{{ i18n "pages.xray.outbound.addReverse"}}',
-                    okText: '{{ i18n "pages.xray.outbound.addReverse" }}',
+                    title: 'Добавить обратный прокси',
+                    okText: 'Добавить',
                     confirm: (reverse, rules) => {
                         reverseModal.loading();
                         if(reverse.tag.length > 0){
@@ -1260,7 +1295,7 @@
                     oldRules = this.templateSettings.routing.rules.filter(r => r.outboundTag && r.outboundTag == this.reverseData[index].tag);
                 }
                 reverseModal.show({
-                    title: '{{ i18n "pages.xray.outbound.editReverse"}} ' + (index+1),
+                    title: 'Изменить обратный прокси #' + (index+1),
                     reverse: this.reverseData[index],
                     rules: oldRules,
                     confirm: (reverse, rules) => {
@@ -1344,8 +1379,8 @@
             },
             addBalancer() {
                 balancerModal.show({
-                    title: '{{ i18n "pages.xray.balancer.addBalancer"}}',
-                    okText: '{{ i18n "pages.xray.balancer.addBalancer"}}',
+                    title: 'Добавить балансировщик',
+                    okText: 'Добавить',
                     balancerTags: this.balancersData.filter((o) => !ObjectUtil.isEmpty(o.tag)).map(obj => obj.tag),
                     balancer: {
                         tag: '',
@@ -1382,8 +1417,8 @@
             editBalancer(index) {
                 const oldTag = this.balancersData[index].tag;
                 balancerModal.show({
-                    title: '{{ i18n "pages.xray.balancer.editBalancer"}}',
-                    okText: '{{ i18n "sure" }}',
+                    title: 'Изменить балансировщик',
+                    okText: 'Сохранить',
                     balancerTags: this.balancersData.filter((o) => !ObjectUtil.isEmpty(o.tag)).map(obj => obj.tag),
                     balancer: this.balancersData[index],
                     confirm: (balancer) => {
@@ -1482,7 +1517,7 @@
             },
             addDNSServer(){
                 dnsModal.show({
-                    title: '{{ i18n "pages.xray.dns.add" }}',
+                    title: 'Добавить DNS-сервер',
                     confirm: (dnsServer) => {
                         dnsServers = this.dnsServers;
                         dnsServers.push(dnsServer);
@@ -1494,7 +1529,7 @@
             },
             editDNSServer(index){
                 dnsModal.show({
-                    title: '{{ i18n "pages.xray.dns.edit" }} #' + (index+1),
+                    title: 'Изменить DNS-сервер #' + (index+1),
                     dnsServer: this.dnsServers[index],
                     confirm: (dnsServer) => {
                         dnsServers = this.dnsServers;
@@ -1512,7 +1547,7 @@
             },
             addFakedns() {
                 fakednsModal.show({
-                    title: '{{ i18n "pages.xray.fakedns.add" }}',
+                    title: 'Добавить FakeDNS-сервер',
                     confirm: (item) => {
                         fakeDns = this.fakeDns?? [];
                         fakeDns.push(item);
@@ -1524,7 +1559,7 @@
             },
             editFakedns(index){
                 fakednsModal.show({
-                    title: '{{ i18n "pages.xray.fakedns.edit" }} #' + (index+1),
+                    title: 'Изменить FakeDNS-сервер #' + (index+1),
                     fakeDns: this.fakeDns[index],
                     confirm: (item) => {
                         fakeDns = this.fakeDns;
@@ -1542,8 +1577,8 @@
             },
             addRule(){
                 ruleModal.show({
-                    title: '{{ i18n "pages.xray.rules.add"}}',
-                    okText: '{{ i18n "pages.xray.rules.add" }}',
+                    title: 'Добавить править',
+                    okText: 'Добавить',
                     confirm: (rule) => {
                         ruleModal.loading();
                         if(JSON.stringify(rule).length > 3){
@@ -1557,7 +1592,7 @@
             },
             editRule(index){
                 ruleModal.show({
-                    title: '{{ i18n "pages.xray.rules.edit"}} ' + (index+1),
+                    title: 'Изменить правило' + (index+1),
                     rule: app.templateSettings.routing.rules[index],
                     confirm: (rule) => {
                         ruleModal.loading();
