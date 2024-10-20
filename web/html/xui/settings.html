@@ -136,8 +136,8 @@
                   <setting-list-item type="text" title='Домен панели' desc='Домен для панели. Оставьте пустым, чтобы слушать любой домен' v-model="allSetting.webDomain"></setting-list-item>
                   <setting-list-item type="number" title='Порт панели' desc='Порт, на котором будет запущена панель. Можно поставить 80 (без SSL) или 443 (с SSL), так можно замаскироваться под обычный веб-сервер' v-model="allSetting.webPort" :min="1" :max="65531"></setting-list-item>
                   <setting-list-item type="text" title='Путь панели' desc='Путь нужен, чтобы скрыть URL панели в целях безопасности' v-model="allSetting.webBasePath"></setting-list-item>
-                  <setting-list-item type="text" title='SSL-сертификат' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН/fullchain.cer"' v-model="allSetting.webCertFile"></setting-list-item>
-                  <setting-list-item type="text" title='SSL-ключ' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН/ДОМЕН.key"' v-model="allSetting.webKeyFile"></setting-list-item>
+                  <setting-list-item type="text" title='SSL-сертификат' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН_ecc/fullchain.cer"' v-model="allSetting.webCertFile"></setting-list-item>
+                  <setting-list-item type="text" title='SSL-ключ' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН_ecc/ДОМЕН.key"' v-model="allSetting.webKeyFile"></setting-list-item>
                   <setting-list-item type="number" title='Срок жизни сессии' desc='Продолжительность сессии администратора в панели (минуты)' v-model="allSetting.sessionMaxAge" :min="60"></setting-list-item>
                   <setting-list-item type="number" title='Кол-во элементов на странице' desc='Кол-во элементов на одной странице в списках. (0 - отключает деление на страницы)' v-model="allSetting.pageSize" :min="0" :step="5"></setting-list-item>
                   <setting-list-item type="number" title='Порог уведомления о сроке' desc='За сколько дней до истечения срока пользователя показывать предупреждение? (Дни)' v-model="allSetting.expireDiff" :min="0"></setting-list-item>
@@ -220,8 +220,8 @@
                   <setting-list-item type="text" title='Домен подписок' desc='Домен для подписок. Оставьте пустым, чтобы слушать любой домен' v-model="allSetting.subDomain"></setting-list-item>
                   <setting-list-item type="number" title='Порт подписок' desc='Порт для сервера подписок. Не должен быть занят' v-model.number="allSetting.subPort" :min="1" :max="65531"></setting-list-item>
                   <setting-list-item type="text" title='Путь подписок' desc='Путь нужен, чтобы скрыть URL подписок в целях безопасности' v-model="allSetting.subPath"></setting-list-item>
-                  <setting-list-item type="text" title='SSL-сертификат' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН/fullchain.cer"' v-model="allSetting.subCertFile"></setting-list-item>
-                  <setting-list-item type="text" title='SSL-ключ' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН/ДОМЕН.key"' v-model="allSetting.subKeyFile"></setting-list-item>
+                  <setting-list-item type="text" title='SSL-сертификат' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН_ecc/fullchain.cer"' v-model="allSetting.subCertFile"></setting-list-item>
+                  <setting-list-item type="text" title='SSL-ключ' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН_ecc/ДОМЕН.key"' v-model="allSetting.subKeyFile"></setting-list-item>
                   <setting-list-item type="text" title='URI-схема' desc='Изменение схемы полезно при использовании сервера за прокси' v-model="allSetting.subURI" placeholder="(http|https)://domain[:port]/path/"></setting-list-item>
                   <setting-list-item type="number" title='Частота обновления' desc='Интервал в часах для обновления конфигурации по подписке' v-model="allSetting.subUpdates" :min="1"></setting-list-item>
                 </a-list>
