@@ -132,83 +132,45 @@
                       </a-col>
                     </a-row>
                   </a-list-item>
-                  <setting-list-item type="text" title='IP-адрес панели' desc='{{ i18n "pages.settings.panelListeningIPDesc"}}' v-model="allSetting.webListen"></setting-list-item>
-                  <setting-list-item type="text" title='Домен панель' desc='{{ i18n "pages.settings.panelListeningDomainDesc"}}' v-model="allSetting.webDomain"></setting-list-item>
-                  <setting-list-item type="number" title='Порт панели' desc='{{ i18n "pages.settings.panelPortDesc"}}' v-model="allSetting.webPort" :min="1" :max="65531"></setting-list-item>
-                  <setting-list-item type="text" title='Путь панели' desc='{{ i18n "pages.settings.panelUrlPathDesc"}}' v-model="allSetting.webBasePath"></setting-list-item>
-                  <setting-list-item type="text" title='SSL-сертификат' desc='{{ i18n "pages.settings.publicKeyPathDesc"}}' v-model="allSetting.webCertFile"></setting-list-item>
-                  <setting-list-item type="text" title='SSL-ключ' desc='{{ i18n "pages.settings.privateKeyPathDesc"}}' v-model="allSetting.webKeyFile"></setting-list-item>
-                  <setting-list-item type="number" title='Срок жизни сессии' desc='{{ i18n "pages.settings.sessionMaxAgeDesc" }}' v-model="allSetting.sessionMaxAge" :min="60"></setting-list-item>
-                  <setting-list-item type="number" title='Кол-во элементов на странице' desc='{{ i18n "pages.settings.pageSizeDesc" }}' v-model="allSetting.pageSize" :min="0" :step="5"></setting-list-item>
-                  <setting-list-item type="number" title='{{ i18n "pages.settings.expireTimeDiff" }}' desc='{{ i18n "pages.settings.expireTimeDiffDesc" }}' v-model="allSetting.expireDiff" :min="0"></setting-list-item>
-                  <setting-list-item type="number" title='{{ i18n "pages.settings.trafficDiff" }}' desc='{{ i18n "pages.settings.trafficDiffDesc" }}' v-model="allSetting.trafficDiff" :min="0"></setting-list-item>
-                  <setting-list-item type="text" title='Часовой пояс' desc='{{ i18n "pages.settings.timeZoneDesc"}}' v-model="allSetting.timeLocation"></setting-list-item>
-                  <a-list-item>
-                    <a-row style="padding: 20px">
-                      <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='{{ i18n "pages.settings.datepicker"}}'>
-                          <template slot="description">{{ i18n "pages.settings.datepickerDescription"}}</template>
-                        </a-list-item-meta>
-                      </a-col>
-                      <a-col :lg="24" :xl="12">
-                        <template>
-                          <a-select style="width: 100%" :dropdown-class-name="themeSwitcher.currentTheme" v-model="datepicker">
-                            <a-select-option v-for="item in datepickerList" :value="item.value">
-                              <span v-text="item.name"></span>
-                            </a-select-option>
-                          </a-select>
-                        </template>
-                      </a-col>
-                    </a-row>
-                  </a-list-item>
-                  <a-list-item>
-                    <a-row style="padding: 20px">
-                      <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title="Language"></a-list-item-meta>
-                      </a-col>
-                      <a-col :lg="24" :xl="12">
-                        <template>
-                          <a-select ref="selectLang"
-                              v-model="lang"
-                              @change="setLang(lang)"
-                              :dropdown-class-name="themeSwitcher.currentTheme"
-                              style="width: 100%">
-                            <a-select-option :value="l.value" :label="l.value" v-for="l in supportLangs">
-                              <span role="img" :aria-label="l.name" v-text="l.icon"></span> &nbsp;&nbsp; <span v-text="l.name"></span>
-                            </a-select-option>
-                          </a-select>
-                        </template>
-                      </a-col>
-                    </a-row>
-                  </a-list-item>
+                  <setting-list-item type="text" title='IP-адрес панели' desc='IP-адрес для панели. Оставьте пустым, чтобы слушать любой IP-адрес' v-model="allSetting.webListen"></setting-list-item>
+                  <setting-list-item type="text" title='Домен панели' desc='Домен для панели. Оставьте пустым, чтобы слушать любой домен' v-model="allSetting.webDomain"></setting-list-item>
+                  <setting-list-item type="number" title='Порт панели' desc='Порт, на котором будет запущена панель. Можно поставить 80 (без SSL) или 443 (с SSL), так можно замаскироваться под обычный веб-сервер' v-model="allSetting.webPort" :min="1" :max="65531"></setting-list-item>
+                  <setting-list-item type="text" title='Путь панели' desc='Путь нужен, чтобы скрыть URL панели в целях безопасности' v-model="allSetting.webBasePath"></setting-list-item>
+                  <setting-list-item type="text" title='SSL-сертификат' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН/fullchain.cer"' v-model="allSetting.webCertFile"></setting-list-item>
+                  <setting-list-item type="text" title='SSL-ключ' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН/ДОМЕН.key"' v-model="allSetting.webKeyFile"></setting-list-item>
+                  <setting-list-item type="number" title='Срок жизни сессии' desc='Продолжительность сессии администратора в панели (минуты)' v-model="allSetting.sessionMaxAge" :min="60"></setting-list-item>
+                  <setting-list-item type="number" title='Кол-во элементов на странице' desc='Кол-во элементов на одной странице в списках. (0 - отключает деление на страницы)' v-model="allSetting.pageSize" :min="0" :step="5"></setting-list-item>
+                  <setting-list-item type="number" title='Порог уведомления о сроке' desc='За сколько дней до истечения срока пользователя показывать предупреждение? (Дни)' v-model="allSetting.expireDiff" :min="0"></setting-list-item>
+                  <setting-list-item type="number" title='Порог уведомления о трафике' desc='При каком остатке трафика показывать предупреждение? (ГБ)' v-model="allSetting.trafficDiff" :min="0"></setting-list-item>
+                  <setting-list-item type="text" title='Часовой пояс' desc='Необходим для расписания задач' v-model="allSetting.timeLocation"></setting-list-item>
                 </a-list>
               </a-tab-pane>
-              <a-tab-pane key="2" tab='{{ i18n "pages.settings.securitySettings"}}' style="padding: 20px;">
-                <a-divider>{{ i18n "pages.settings.security.admin"}}</a-divider>
+              <a-tab-pane key="2" tab='Безопасность' style="padding: 20px;">
+                <a-divider>Администратор</a-divider>
                 <a-form layout="horizontal" :colon="false" style="float: left; margin-bottom: 2rem;" :label-col="{ md: {span:10} }" :wrapper-col="{ md: {span:14} }">
-                  <a-form-item label='{{ i18n "pages.settings.oldUsername"}}'>
+                  <a-form-item label='Текущий логин'>
                     <a-input autocomplete="username" v-model="user.oldUsername"></a-input>
                   </a-form-item>
-                  <a-form-item label='{{ i18n "pages.settings.currentPassword"}}'>
+                  <a-form-item label='Текущий пароль'>
                     <password-input autocomplete="current-password" v-model="user.oldPassword"></password-input>
                   </a-form-item>
-                  <a-form-item label='{{ i18n "pages.settings.newUsername"}}'>
+                  <a-form-item label='Новый логин'>
                     <a-input v-model="user.newUsername"></a-input>
                   </a-form-item>
-                  <a-form-item label='{{ i18n "pages.settings.newPassword"}}'>
+                  <a-form-item label='Новый пароль'>
                     <password-input autocomplete="new-password" v-model="user.newPassword"></password-input>
                   </a-form-item>
                   <a-form-item label=" ">
-                    <a-button type="primary" @click="updateUser">{{ i18n "confirm" }}</a-button>
+                    <a-button type="primary" @click="updateUser">Сохранить</a-button>
                   </a-form-item>
                 </a-form>
-                <a-divider>{{ i18n "pages.settings.security.secret"}}</a-divider>
+                <a-divider>Дополнительно</a-divider>
                 <a-form style="padding: 0 20px;">
                   <a-list-item>
                     <a-row>
                       <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='{{ i18n "pages.settings.security.loginSecurity" }}'
-                          description='{{ i18n "pages.settings.security.loginSecurityDesc" }}'>
+                        <a-list-item-meta title='Безопасность 2.0'
+                          description='Активация дополнительных мер безопасности'>
                         </a-list-item-meta>
                       </a-col>
                       <a-col :lg="24" :xl="12">
@@ -222,8 +184,8 @@
                   <a-list-item>
                     <a-row>
                       <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='{{ i18n "pages.settings.security.secretToken" }}'
-                          description='{{ i18n "pages.settings.security.secretTokenDesc" }}'>
+                        <a-list-item-meta title='Секретный токен'
+                          description='Пожалуйста, скопируйте и сохраните этот токен в безопасном месте. Он необходим для входа в систему и НЕ может быть восстановлен!'>
                         </a-list-item-meta>
                       </a-col>
                       <a-col :lg="24" :xl="12">
@@ -233,62 +195,46 @@
                       </a-col>
                     </a-row>
                   </a-list-item>
-                  <a-button type="primary" :loading="this.changeSecret" @click="updateSecret">{{ i18n "confirm" }}</a-button>
+                  <a-button type="primary" :loading="this.changeSecret" @click="updateSecret">Сохранить</a-button>
                 </a-form>
               </a-tab-pane>
-              <a-tab-pane key="3" tab='{{ i18n "pages.settings.TGBotSettings"}}'>
+              <a-tab-pane key="3" tab='Telegram бот'>
                 <a-list item-layout="horizontal">
-                  <setting-list-item type="switch" title='{{ i18n "pages.settings.telegramBotEnable" }}' desc='{{ i18n "pages.settings.telegramBotEnableDesc" }}' v-model="allSetting.tgBotEnable"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.telegramToken"}}' desc='{{ i18n "pages.settings.telegramTokenDesc"}}' v-model="allSetting.tgBotToken"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.telegramChatId"}}' desc='{{ i18n "pages.settings.telegramChatIdDesc"}}' v-model="allSetting.tgBotChatId"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.telegramNotifyTime"}}' desc='{{ i18n "pages.settings.telegramNotifyTimeDesc"}}' v-model="allSetting.tgRunTime"></setting-list-item>
-                  <setting-list-item type="switch" title='{{ i18n "pages.settings.tgNotifyBackup" }}' desc='{{ i18n "pages.settings.tgNotifyBackupDesc" }}' v-model="allSetting.tgBotBackup"></setting-list-item>
-                  <setting-list-item type="switch" title='{{ i18n "pages.settings.tgNotifyLogin" }}' desc='{{ i18n "pages.settings.tgNotifyLoginDesc" }}' v-model="allSetting.tgBotLoginNotify"></setting-list-item>
-                  <setting-list-item type="number" title='{{ i18n "pages.settings.tgNotifyCpu" }}' desc='{{ i18n "pages.settings.tgNotifyCpuDesc" }}' v-model="allSetting.tgCpu" :min="0" :max="100"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.telegramProxy"}}' desc='{{ i18n "pages.settings.telegramProxyDesc"}}' v-model="allSetting.tgBotProxy" placeholder="socks5://user:pass@host:port"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.telegramAPIServer"}}' desc='{{ i18n "pages.settings.telegramAPIServerDesc"}}' v-model="allSetting.tgBotAPIServer" placeholder="https://api.example.com"></setting-list-item>
-                  <a-list-item>
-                    <a-row style="padding: 20px">
-                      <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title="Telegram Bot Language" />
-                      </a-col>
-                      <a-col :lg="24" :xl="12">
-                        <template>
-                          <a-select ref="selectBotLang" v-model="allSetting.tgLang" :dropdown-class-name="themeSwitcher.currentTheme" style="width: 100%">
-                            <a-select-option :value="l.value" :label="l.value" v-for="l in supportLangs">
-                              <span role="img" :aria-label="l.name" v-text="l.icon"></span> &nbsp;&nbsp; <span v-text="l.name"></span>
-                            </a-select-option>
-                          </a-select>
-                        </template>
-                      </a-col>
-                    </a-row>
-                  </a-list-item>
+                  <setting-list-item type="switch" title='Включить бота' desc='Активация бота в Telegram' v-model="allSetting.tgBotEnable"></setting-list-item>
+                  <setting-list-item type="text" title='Токен бота' desc='Токен, полученный от @botfather' v-model="allSetting.tgBotToken"></setting-list-item>
+                  <setting-list-item type="text" title='ID администратора' desc='Один или несколько ID администратора бота (через ","). Получить можно в самом боте, командой /id' v-model="allSetting.tgBotChatId"></setting-list-item>
+                  <setting-list-item type="text" title='Частота уведомлений' desc='Задайте Cron для задачи по расписанию' v-model="allSetting.tgRunTime"></setting-list-item>
+                  <setting-list-item type="switch" title='Резервное копирование' desc='Включать ли файлы резервной копии в отчёт' v-model="allSetting.tgBotBackup"></setting-list-item>
+                  <setting-list-item type="switch" title='Уведомление о входе' desc='Уведомлять о входе и попытках входа в панель' v-model="allSetting.tgBotLoginNotify"></setting-list-item>
+                  <setting-list-item type="number" title='Порог нагрузки CPU' desc='При превышении порога вам придёт уведомление о нагрузке. (%)' v-model="allSetting.tgCpu" :min="0" :max="100"></setting-list-item>
+                  <setting-list-item type="text" title='SOCKS5-прокси' desc='Если напрямую Telegram недоступен - вы можете использовать прокси' v-model="allSetting.tgBotProxy" placeholder="socks5://user:pass@host:port"></setting-list-item>
+                  <setting-list-item type="text" title='Сервер API Telegram' desc='Telegram API сервер для запросов. Оставьте пустым, чтобы использовать сервер по умолчанию' v-model="allSetting.tgBotAPIServer" placeholder="https://api.example.com"></setting-list-item>
                 </a-list>
               </a-tab-pane>
-              <a-tab-pane key="4" tab='{{ i18n "pages.settings.subSettings" }}'>
+              <a-tab-pane key="4" tab='Подписки'>
                 <a-list item-layout="horizontal">
-                  <setting-list-item type="switch" title='{{ i18n "pages.settings.subEnable"}}' desc='{{ i18n "pages.settings.subEnableDesc"}}' v-model="allSetting.subEnable"></setting-list-item>
-                  <setting-list-item type="switch" title='{{ i18n "pages.settings.subEncrypt"}}' desc='{{ i18n "pages.settings.subEncryptDesc"}}' v-model="allSetting.subEncrypt"></setting-list-item>
-                  <setting-list-item type="switch" title='{{ i18n "pages.settings.subShowInfo"}}' desc='{{ i18n "pages.settings.subShowInfoDesc"}}' v-model="allSetting.subShowInfo"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.subListen"}}' desc='{{ i18n "pages.settings.subListenDesc"}}' v-model="allSetting.subListen"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.subDomain"}}' desc='{{ i18n "pages.settings.subDomainDesc"}}' v-model="allSetting.subDomain"></setting-list-item>
-                  <setting-list-item type="number" title='{{ i18n "pages.settings.subPort"}}' desc='{{ i18n "pages.settings.subPortDesc"}}' v-model.number="allSetting.subPort" :min="1" :max="65531"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.subPath"}}' desc='{{ i18n "pages.settings.subPathDesc"}}' v-model="allSetting.subPath"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.subCertPath"}}' desc='{{ i18n "pages.settings.subCertPathDesc"}}' v-model="allSetting.subCertFile"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.subKeyPath"}}' desc='{{ i18n "pages.settings.subKeyPathDesc"}}' v-model="allSetting.subKeyFile"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.subURI"}}' desc='{{ i18n "pages.settings.subURIDesc"}}' v-model="allSetting.subURI" placeholder="(http|https)://domain[:port]/path/"></setting-list-item>
-                  <setting-list-item type="number" title='{{ i18n "pages.settings.subUpdates"}}' desc='{{ i18n "pages.settings.subUpdatesDesc"}}' v-model="allSetting.subUpdates" :min="1"></setting-list-item>
+                  <setting-list-item type="switch" title='Включить подписки' desc='Активация подписок для клиентов' v-model="allSetting.subEnable"></setting-list-item>
+                  <setting-list-item type="switch" title='Шифровать конфигурацию' desc='Шифрование конфигурации в подписках в целях безопасности' v-model="allSetting.subEncrypt"></setting-list-item>
+                  <setting-list-item type="switch" title='Информация об использовании' desc='Дописывать в название подключения оставшийся объём трафика или срок действия' v-model="allSetting.subShowInfo"></setting-list-item>
+                  <setting-list-item type="text" title='IP-адрес подписок' desc='IP-адрес для подписок. Оставьте пустым, чтобы слушать любой IP-адрес' v-model="allSetting.subListen"></setting-list-item>
+                  <setting-list-item type="text" title='Домен подписок' desc='Домен для подписок. Оставьте пустым, чтобы слушать любой домен' v-model="allSetting.subDomain"></setting-list-item>
+                  <setting-list-item type="number" title='Порт подписок' desc='Порт для сервера подписок. Не должен быть занят' v-model.number="allSetting.subPort" :min="1" :max="65531"></setting-list-item>
+                  <setting-list-item type="text" title='Путь подписок' desc='Путь нужен, чтобы скрыть URL подписок в целях безопасности' v-model="allSetting.subPath"></setting-list-item>
+                  <setting-list-item type="text" title='SSL-сертификат' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН/fullchain.cer"' v-model="allSetting.subCertFile"></setting-list-item>
+                  <setting-list-item type="text" title='SSL-ключ' desc='Путь до файла. Обычно что-то вроде "/root/.acme.sh/ДОМЕН/ДОМЕН.key"' v-model="allSetting.subKeyFile"></setting-list-item>
+                  <setting-list-item type="text" title='URI-схема' desc='Изменение схемы полезно при использовании сервера за прокси' v-model="allSetting.subURI" placeholder="(http|https)://domain[:port]/path/"></setting-list-item>
+                  <setting-list-item type="number" title='Частота обновления' desc='Интервал в часах для обновления конфигурации по подписке' v-model="allSetting.subUpdates" :min="1"></setting-list-item>
                 </a-list>
               </a-tab-pane>
-              <a-tab-pane key="5" tab='{{ i18n "pages.settings.subSettings" }} Json' v-if="allSetting.subEnable">
+              <a-tab-pane key="5" tab='Подписки 2.0' v-if="allSetting.subEnable">
                 <a-list item-layout="horizontal">
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.subPath"}}' desc='{{ i18n "pages.settings.subPathDesc"}}' v-model="allSetting.subJsonPath"></setting-list-item>
-                  <setting-list-item type="text" title='{{ i18n "pages.settings.subURI"}}' desc='{{ i18n "pages.settings.subURIDesc"}}' v-model="allSetting.subJsonURI" placeholder="(http|https)://domain[:port]/path/"></setting-list-item>
+                  <setting-list-item type="text" title='Путь подписок' desc='Путь нужен, чтобы скрыть URL подписок в целях безопасности' v-model="allSetting.subJsonPath"></setting-list-item>
+                  <setting-list-item type="text" title='URI-схема' desc='Изменение схемы полезно при использовании сервера за прокси' v-model="allSetting.subJsonURI" placeholder="(http|https)://domain[:port]/path/"></setting-list-item>
                   <a-list-item style="padding: 20px">
                     <a-row>
                       <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='{{ i18n "pages.settings.fragment"}}'>
-                          <template slot="description">{{ i18n "pages.settings.fragmentDesc"}}</template>
+                        <a-list-item-meta title='Фрагментация TCP'>
+                          <template slot="description">В некоторых случаях может обойти черные списки SNI. Используйте, если знаете, что делаете!</template>
                         </a-list-item-meta>
                       </a-col>
                       <a-col :lg="24" :xl="12">
@@ -296,18 +242,18 @@
                       </a-col>
                     </a-row>
                     <a-collapse v-if="fragment" style="margin-top: 14px;">
-                      <a-collapse-panel header='{{ i18n "pages.settings.fragmentSett"}}' v-if="fragment">
-                        <setting-list-item style="padding: 10px 20px" type="text" title='Packets' v-model="fragmentPackets" placeholder="1-1 | 1-3 | tlshello | ..."></setting-list-item>
-                        <setting-list-item style="padding: 10px 20px" type="text" title='Length' v-model="fragmentLength" placeholder="100-200"></setting-list-item>
-                        <setting-list-item style="padding: 10px 20px" type="text" title='Interval' v-model="fragmentInterval" placeholder="10-20"></setting-list-item>
+                      <a-collapse-panel header='Настройки фрагментации' v-if="fragment">
+                        <setting-list-item style="padding: 10px 20px" type="text" title='Пакеты' v-model="fragmentPackets" placeholder="1-1 | 1-3 | tlshello | ..."></setting-list-item>
+                        <setting-list-item style="padding: 10px 20px" type="text" title='Длина пакета (байты)' v-model="fragmentLength" placeholder="100-200"></setting-list-item>
+                        <setting-list-item style="padding: 10px 20px" type="text" title='Интервал (мс)' v-model="fragmentInterval" placeholder="10-20"></setting-list-item>
                       </a-collapse-panel>
                     </a-collapse>
                   </a-list-item>
                   <a-list-item style="padding: 20px">
                     <a-row>
                       <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='Noises'>
-                          <template slot="description">{{ i18n "pages.settings.noisesDesc"}}</template>
+                        <a-list-item-meta title='UDP Шумы'>
+                          <template slot="description">Отправка случайных данных перед UDP-соединением. Может обмануть сниффер или нарушить нормальное соединение. Использовать с осторожностью!</template>
                         </a-list-item-meta>
                       </a-col>
                       <a-col :lg="24" :xl="12">
@@ -315,7 +261,7 @@
                       </a-col>
                     </a-row>
                     <a-collapse v-if="noises" style="margin-top: 14px;">
-                      <a-collapse-panel v-for="(noise, index) in noisesArray" :key="index" :header="`Noise ${index + 1}`">
+                      <a-collapse-panel v-for="(noise, index) in noisesArray" :key="index" :header="`Шум ${index + 1}`">
                         <a-list-item style="padding: 10px 20px">
                           <a-row>
                             <a-col :lg="24" :xl="12">
@@ -334,16 +280,16 @@
                           @input="(value) => updateNoisePacket(index, value)" placeholder="5-10"></setting-list-item>
                         <setting-list-item style="padding: 10px 20px" type="text" title='Delay (ms)' :value="noise.delay"
                           @input="(value) => updateNoiseDelay(index, value)" placeholder="10-20"></setting-list-item>
-                        <a-button v-if="noisesArray.length > 1" type="danger" @click="removeNoise(index)">Remove</a-button>
+                        <a-button v-if="noisesArray.length > 1" type="danger" @click="removeNoise(index)">Удалить</a-button>
                       </a-collapse-panel>
                     </a-collapse>
-                    <a-button v-if="noises" type="primary" @click="addNoise" style="margin-top: 10px">Add Noise</a-button>
+                    <a-button v-if="noises" type="primary" @click="addNoise" style="margin-top: 10px">Добавить шум</a-button>
                   </a-list-item>
                   <a-list-item style="padding: 20px">
                     <a-row>
                       <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='{{ i18n "pages.settings.mux"}}'>
-                          <template slot="description">{{ i18n "pages.settings.muxDesc"}}</template>
+                        <a-list-item-meta title='Мультиплексация'>
+                          <template slot="description">Передача данных нескольких TCP-соединений в одном для уменьшения задержки при TCP-рукопожатии. Может замедлить некоторые потоки данных (видео, загрузки, замеры скорости)</template>
                         </a-list-item-meta>
                       </a-col>
                       <a-col :lg="24" :xl="12">
@@ -351,13 +297,13 @@
                       </a-col>
                     </a-row>
                     <a-collapse v-if="enableMux" style="margin-top: 14px;">
-                      <a-collapse-panel header='{{ i18n "pages.settings.muxSett"}}'>
-                        <setting-list-item style="padding: 10px 20px" type="number" title='Concurrency' v-model="muxConcurrency" :min="-1" :max="1024"></setting-list-item>
-                        <setting-list-item style="padding: 10px 20px" type="number" title='xudp Concurrency' v-model="muxXudpConcurrency" :min="-1" :max="1024"></setting-list-item>
+                      <a-collapse-panel header='Настройки мультиплексатора'>
+                        <setting-list-item style="padding: 10px 20px" type="number" title='Параллелизм' v-model="muxConcurrency" :min="-1" :max="1024"></setting-list-item>
+                        <setting-list-item style="padding: 10px 20px" type="number" title='Параллелизм XUDP' v-model="muxXudpConcurrency" :min="-1" :max="1024"></setting-list-item>
                         <a-list-item style="padding: 10px 20px">
                           <a-row>
                             <a-col :lg="24" :xl="12">
-                              <a-list-item-meta title='xudp UDP 443'></a-list-item-meta>
+                              <a-list-item-meta title='Мультиплексация UDP 443'></a-list-item-meta>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                               <a-select v-model="muxXudpProxyUDP443" style="width: 100%" :dropdown-class-name="themeSwitcher.currentTheme">
@@ -372,8 +318,8 @@
                   <a-list-item style="padding: 20px">
                     <a-row>
                       <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='{{ i18n "pages.settings.direct"}}'>
-                          <template slot="description">{{ i18n "pages.settings.directDesc"}}</template>
+                        <a-list-item-meta title='Прямое подключение'>
+                          <template slot="description">Параметры соединений, которые не нужно проксировать через сервер</template>
                         </a-list-item-meta>
                       </a-col>
                       <a-col :lg="24" :xl="12">
@@ -381,12 +327,12 @@
                       </a-col>
                     </a-row>
                     <a-collapse v-if="enableDirect" style="margin-top: 14px;">
-                      <a-collapse-panel header='{{ i18n "pages.xray.directips"}}'>
+                      <a-collapse-panel header='Подключение к IP-зонами'>
                         <a-list-item style="padding: 10px 20px">
                           <a-checkbox-group v-model="directIPs" :options="IPsOptions"></a-checkbox-group>
                         </a-list-item>
                       </a-collapse-panel>
-                      <a-collapse-panel header='{{ i18n "pages.xray.directdomains"}}'>
+                      <a-collapse-panel header='Подключение к доменам'>
                         <a-list-item style="padding: 10px 20px">
                           <a-checkbox-group v-model="directDomains" :options="DomainsOptions"></a-checkbox-group>
                         </a-list-item>
@@ -420,7 +366,7 @@
       saveBtnDisable: true,
       user: {},
       lang: getLang(),
-      remarkModels: { i: 'Inbound', e: 'Email', o: 'Other' },
+      remarkModels: { i: 'Подключение', e: 'Никнейм', o: 'Доп. информация' },
       remarkSeparators: [' ', '-', '_', '@', ':', '~', '|', ',', '.', '/'],
       datepickerList: [{ name: 'Gregorian (Standard)', value: 'gregorian' }, { name: 'Jalalian (شمسی)', value: 'jalalian' }],
       remarkSample: '',
@@ -464,13 +410,16 @@
           type: "field",
           outboundTag: "direct",
           domain: [
+            "geosite:category-ru",
+            "geosite:category-gov-ru"
           ]
         },
         {
           type: "field",
           outboundTag: "direct",
           ip: [
-            "geoip:private"
+            "geoip:private",
+            "geoip:ru",
           ]
         },
       ],
@@ -549,11 +498,11 @@
       async restartPanel() {
         await new Promise(resolve => {
           this.$confirm({
-            title: '{{ i18n "pages.settings.restartPanel" }}',
-            content: '{{ i18n "pages.settings.restartPanelDesc" }}',
+            title: 'Перезапуск',
+            content: 'Вы точно хотите перезапустить панель? Это займёт пару секунд',
             class: themeSwitcher.currentTheme,
-            okText: '{{ i18n "sure" }}',
-            cancelText: '{{ i18n "cancel" }}',
+            okText: 'Перезапустить',
+            cancelText: 'Отмена',
             onOk: () => resolve(),
           });
         });
