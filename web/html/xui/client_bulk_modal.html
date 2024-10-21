@@ -75,7 +75,7 @@
                     <template slot="title">
                         <span>Ограничение кол-ва IP для одновременного использования. 0 - безлимит</span>
                     </template>
-                    <span>Лимит IP</span>
+                    <span>Лимит IP </span>
                     <a-icon type="question-circle"></a-icon>
                 </a-tooltip>
             </template>
@@ -93,7 +93,7 @@
             </template>
             <a-input-number v-model="clientsBulkModal.totalGB" :min="0"></a-input-number>
         </a-form-item>
-        <a-form-item label='С момента использования'>
+        <a-form-item label='Отложенный старт'>
             <a-switch v-model="clientsBulkModal.delayedStart" @click="clientsBulkModal.expiryTime=0"></a-switch>
         </a-form-item>
         <a-form-item label='Срок действия (дни)' v-if="clientsBulkModal.delayedStart">

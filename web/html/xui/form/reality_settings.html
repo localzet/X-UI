@@ -1,9 +1,9 @@
 {{define "form/realitySettings"}}
 <template>
-    <a-form-item label='Show'>
+    <a-form-item label='Отладка'>
         <a-switch v-model="inbound.stream.reality.show"></a-switch>
     </a-form-item>
-    <a-form-item label='Xver'>
+    <a-form-item label='xVer'>
         <a-input-number v-model.number="inbound.stream.reality.xver" :min="0"></a-input-number>
     </a-form-item>
     <a-form-item label='uTLS'>
@@ -12,13 +12,13 @@
             <a-select-option v-for="key in UTLS_FINGERPRINT" :value="key">[[ key ]]</a-select-option>
         </a-select>
     </a-form-item>
-    <a-form-item label='Dest (Target)'>
+    <a-form-item label='Цель'>
         <a-input v-model.trim="inbound.stream.reality.dest"></a-input>
     </a-form-item>
     <a-form-item label='SNI'>
         <a-input v-model.trim="inbound.stream.reality.serverNames"></a-input>
     </a-form-item>
-    <a-form-item label='Max Time Diff (ms)'>
+    <a-form-item label='Макс. разница во времени (ms)'>
         <a-input-number v-model.number="inbound.stream.reality.maxTimediff" :min="0"></a-input-number>
     </a-form-item>
     <!-- we also have this but i think it's not necessary
@@ -33,8 +33,8 @@
         <template slot="label">
             <a-tooltip>
                 <template slot="title">
-                    <span>{{ i18n "reset" }}</span>
-                </template> Short IDs <a-icon @click="inbound.stream.reality.shortIds = RandomUtil.randomShortIds()"
+                    <span>Генерировать</span>
+                </template> Короткие ID <a-icon @click="inbound.stream.reality.shortIds = RandomUtil.randomShortIds()"
                     type="sync"></a-icon>
             </a-tooltip>
         </template>
@@ -43,14 +43,14 @@
     <a-form-item label='SpiderX'>
         <a-input v-model.trim="inbound.stream.reality.settings.spiderX"></a-input>
     </a-form-item>
-    <a-form-item label='{{ i18n "pages.inbounds.privatekey" }}'>
+    <a-form-item label='Приватный ключ'>
         <a-input v-model.trim="inbound.stream.reality.privateKey"></a-input>
     </a-form-item>
-    <a-form-item label='{{ i18n "pages.inbounds.publicKey" }}'>
+    <a-form-item label='Публичный ключ'>
         <a-input v-model.trim="inbound.stream.reality.settings.publicKey"></a-input>
     </a-form-item>
     <a-form-item label=" ">
-        <a-button type="primary" icon="import" @click="getNewX25519Cert">Get New Cert</a-button>
+        <a-button type="primary" icon="import" @click="getNewX25519Cert">Генерировать ключи</a-button>
     </a-form-item>
 </template>
 {{end}}
