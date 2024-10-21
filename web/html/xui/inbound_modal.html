@@ -3,7 +3,7 @@
         :dialog-style="{ top: '20px' }" @ok="inModal.ok"
         :confirm-loading="inModal.confirmLoading" :closable="true" :mask-closable="false"
         :class="themeSwitcher.currentTheme"
-        :ok-text="inModal.okText" cancel-text='{{ i18n "close" }}'>
+        :ok-text="inModal.okText" cancel-text='Закрыть'>
     {{template "form/inbound"}}
 </a-modal>
 <script>
@@ -12,7 +12,7 @@
         title: '',
         visible: false,
         confirmLoading: false,
-        okText: '{{ i18n "sure" }}',
+        okText: 'Подтвердить',
         isEdit: false,
         confirm: null,
         inbound: new Inbound(),
@@ -20,7 +20,7 @@
         ok() {
             ObjectUtil.execute(inModal.confirm, inModal.inbound, inModal.dbInbound);
         },
-        show({ title = '', okText = '{{ i18n "sure" }}', inbound = null, dbInbound = null, confirm = (inbound, dbInbound) => {}, isEdit = false }) {
+        show({ title = '', okText = 'Подтвердить', inbound = null, dbInbound = null, confirm = (inbound, dbInbound) => {}, isEdit = false }) {
             this.title = title;
             this.okText = okText;
             if (inbound) {

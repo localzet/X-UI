@@ -476,10 +476,8 @@
       loading: false,
       user: new User(),
       secretEnable: false,
-      lang: ""
     },
     async created() {
-      this.lang = getLang();
       this.secretEnable = await this.getSecretStatus();
     },
     methods: {

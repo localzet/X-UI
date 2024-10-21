@@ -35,13 +35,13 @@
         </a-form-item>
         <a-form-item label='Трафик' v-if="clientsBulkModal.inbound.canEnableTlsFlow()">
             <a-select v-model="clientsBulkModal.flow" :dropdown-class-name="themeSwitcher.currentTheme">
-                <a-select-option value="" selected>tls</a-select-option>
+                <a-select-option value="" selected>tls (не рекомендуется)</a-select-option>
                 <a-select-option v-for="key in TLS_FLOW_CONTROL" :value="key">[[ key ]]</a-select-option>
             </a-select>
         </a-form-item>
         <a-form-item label='Трафик' v-if="clientsBulkModal.inbound.xtls">
             <a-select v-model="clientsBulkModal.flow" :dropdown-class-name="themeSwitcher.currentTheme">
-                <a-select-option value="" selected>tls</a-select-option>
+                <a-select-option value="" selected>tls (не рекомендуется)</a-select-option>
                 <a-select-option v-for="key in XTLS_FLOW_CONTROL" :value="key">[[ key ]]</a-select-option>
             </a-select>
         </a-form-item>
@@ -85,7 +85,7 @@
             <template slot="label">
                 <a-tooltip>
                     <template slot="title">
-                        <span>Ограничение объёма трафика в ГБ</span>
+                        <span>Ограничение объёма трафика в ГБ. 0 - безлимит</span>
                     </template>
                     Лимит трафика
                     <a-icon type="question-circle"></a-icon>
