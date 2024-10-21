@@ -66,9 +66,9 @@
         <a-spin :spinning="spinning" :delay="500" tip='Загрузка'>
           <transition name="list" appear>
             <a-alert type="error" v-if="showAlert" style="margin-bottom: 10px"
-              message='{{ i18n "secAlertTitle" }}'
+              message='Предупреждение системы безопасности'
               color="red"
-              description='{{ i18n "secAlertSsl" }}'
+              description='Соединение не защищено. Пожалуйста, используйте домен и установите SSL-сертификат для защиты данных!'
               show-icon closable>
             </a-alert>
           </transition>

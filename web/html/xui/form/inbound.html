@@ -1,14 +1,14 @@
 {{define "form/inbound"}}
 <!-- base -->
 <a-form :colon="false" :label-col="{ md: {span:8} }" :wrapper-col="{ md: {span:14} }">
-    <a-form-item label='{{ i18n "enable" }}'>
+    <a-form-item label='Статус'>
         <a-switch v-model="dbInbound.enable"></a-switch>
     </a-form-item>
-    <a-form-item label='{{ i18n "remark" }}'>
+    <a-form-item label='Название'>
         <a-input v-model.trim="dbInbound.remark"></a-input>
     </a-form-item>
 
-    <a-form-item label='{{ i18n "protocol" }}'>
+    <a-form-item label='Протокол'>
         <a-select v-model="inbound.protocol" :disabled="isEdit" :dropdown-class-name="themeSwitcher.currentTheme">
             <a-select-option v-for="p in Protocols" :key="p" :value="p">[[ p ]]</a-select-option>
         </a-select>
@@ -18,16 +18,16 @@
         <template slot="label">
             <a-tooltip>
                 <template slot="title">
-                    <span>{{ i18n "pages.inbounds.monitorDesc" }}</span>
+                    <span>Оставьте пустым для прослушивания всех IP-адресов</span>
                 </template>
-                {{ i18n "monitor" }}
+                IP-адрес
                 <a-icon type="question-circle"></a-icon>
             </a-tooltip>
         </template>
         <a-input v-model.trim="inbound.listen"></a-input>
     </a-form-item>
 
-    <a-form-item label='{{ i18n "pages.inbounds.port" }}'>
+    <a-form-item label='Порт'>
         <a-input-number v-model.number="inbound.port" :min="1" :max="65531"></a-input-number>
     </a-form-item>
 
@@ -35,9 +35,9 @@
         <template slot="label">
             <a-tooltip>
                 <template slot="title">
-                    0 <span>{{ i18n "pages.inbounds.meansNoLimit" }}</span>
+                    <span>Ограничение объёма трафика в ГБ. 0 - безлимит</span>
                 </template>
-                {{ i18n "pages.inbounds.totalFlow" }}
+                Лимит трафика
                 <a-icon type="question-circle"></a-icon>
             </a-tooltip>
         </template>
@@ -48,16 +48,16 @@
         <template slot="label">
             <a-tooltip>
                 <template slot="title">
-                    <span>{{ i18n "pages.inbounds.leaveBlankToNeverExpire" }}</span>
+                    <span>Оставьте пустым для снятия ограничений</span>
                 </template>
-                {{ i18n "pages.inbounds.expireDate" }}
+                Срок действия
                 <a-icon type="question-circle"></a-icon>
             </a-tooltip>
         </template>
         <a-date-picker style="width: 100%;" v-if="datepicker == 'gregorian'" :show-time="{ format: 'HH:mm:ss' }"
             format="YYYY-MM-DD HH:mm:ss" :dropdown-class-name="themeSwitcher.currentTheme"
             v-model="dbInbound._expiryTime"></a-date-picker>
-        <persian-datepicker v-else placeholder='{{ i18n "pages.settings.datepickerPlaceholder" }}'
+        <persian-datepicker v-else placeholder='Выберите дату'
             value="dbInbound._expiryTime" v-model="dbInbound._expiryTime">
         </persian-datepicker>
     </a-form-item>
@@ -122,7 +122,7 @@
 </a-collapse>
 
 <!-- allocate -->
-<!-- Temporarily disabled until we accepts range for port allocation
+<!-- Временно отключено, пока мы не примем диапазон для распределения портов
 <a-collapse>
     <a-collapse-panel header='Allocate'>
         {{template "form/allocate"}}

@@ -76,11 +76,11 @@
         <a-spin :spinning="spinning" :delay="500" tip='Загрузка'>
           <transition name="list" appear>
             <a-alert type="error" v-if="confAlerts.length>0" style="margin-bottom: 10px;"
-                message='{{ i18n "secAlertTitle" }}'
+                message='Предупреждение системы безопасности'
                 color="red"
                 show-icon closable>
               <template slot="description">
-                <b>{{ i18n "secAlertConf" }}</b>
+                <b>Некоторые параметры уязвимы для атак. Рекомендуется усилить протоколы безопасности, чтобы предотвратить потенциальные нарушения:</b>
                 <ul><li v-for="a in confAlerts">[[ a ]]</li></ul>
               </template>
             </a-alert>
@@ -749,15 +749,15 @@
         get: function () {
           if (!this.allSetting) return [];
           var alerts = []
-          if (window.location.protocol !== "https:") alerts.push('{{ i18n "secAlertSSL" }}');
-          if (this.allSetting.webPort == 54321) alerts.push('{{ i18n "secAlertPanelPort" }}');
+          if (window.location.protocol !== "https:") alerts.push('Соединение не защищено. Пожалуйста, установите SSL-сертификат для защиты данных!');
+          if (this.allSetting.webPort == 54321) alerts.push('Порт панели небезопасен. Пожалуйста, настройте случайный или определенный порт.');
           panelPath = window.location.pathname.split('/').length < 4
-          if (panelPath && this.allSetting.webBasePath == '/') alerts.push('{{ i18n "secAlertPanelURI" }}');
+          if (panelPath && this.allSetting.webBasePath == '/') alerts.push('Путь панели небезопасен. Пожалуйста, настройте более сложный URI-путь.');
           if (this.allSetting.subEnable) {
             subPath = this.allSetting.subURI.length > 0 ? new URL(this.allSetting.subURI).pathname : this.allSetting.subPath;
-            if (subPath == '/sub/') alerts.push('{{ i18n "secAlertSubURI" }}');
+            if (subPath == '/sub/') alerts.push('Путь подписок небезопасен. Пожалуйста, настройте более сложный URI-путь.');
             subJsonPath = this.allSetting.subJsonURI.length > 0 ? new URL(this.allSetting.subJsonURI).pathname : this.allSetting.subJsonPath;
-            if (subJsonPath == '/json/') alerts.push('{{ i18n "secAlertSubJsonURI" }}');
+            if (subJsonPath == '/json/') alerts.push('Путь подписок 2.0 небезопасен. Пожалуйста, настройте более сложный URI-путь.');
           }
           return alerts
         }
