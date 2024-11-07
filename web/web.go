@@ -233,6 +233,11 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	s.panel = controller.NewXUIController(g)
 	s.api = controller.NewAPIController(g)
 
+	// Handle 404 errors
+	engine.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "404.html", gin.H{"Path": c.Request.RequestURI})
+	})
+
 	return engine, nil
 }
 
