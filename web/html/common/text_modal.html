@@ -7,7 +7,7 @@
             :href="'data:application/text;charset=utf-8,' + encodeURIComponent(txtModal.content)"
             :download="txtModal.fileName">[[ txtModal.fileName ]]
         </a-button>
-            <a-button type="primary" id="copy-btn">{{ i18n "copy" }}</a-button>
+            <a-button type="primary" id="copy-btn">Копировать</a-button>
     </template>
     <a-input style="overflow-y: auto;" type="textarea" v-model="txtModal.content"
         :autosize="{ minRows: 10, maxRows: 20}"></a-input>
@@ -33,7 +33,7 @@
                         text: () => this.content,
                     });
                     this.clipboard.on('success', () => {
-                        app.$message.success('{{ i18n "copied" }}')
+                        app.$message.success('Скопировано')
                         this.close();
                     });
                 }

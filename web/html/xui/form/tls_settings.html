@@ -2,18 +2,18 @@
 <!-- tls enable -->
 <a-form v-if="inbound.canEnableTls()" :colon="false" :label-col="{ md: {span:8} }" :wrapper-col="{ md: {span:14} }">
   <a-divider style="margin:3px 0;"></a-divider>
-  <a-form-item label='{{ i18n "security" }}'>
+  <a-form-item label='Безопасность'>
     <a-radio-group v-model="inbound.stream.security" button-style="solid">
-      <a-radio-button value="none">{{ i18n "none" }}</a-radio-button>
+      <a-radio-button value="none">НЕТ</a-radio-button>
       <a-tooltip>
         <template slot="title">
-          <span>{{ i18n "pages.inbounds.xtlsDesc" }}</span>
+          <span>Требуется XRay >= v1.7.5</span>
         </template>
         <a-radio-button v-if="inbound.canEnableXtls()" value="xtls">XTLS</a-radio-button>
       </a-tooltip>
       <a-tooltip>
         <template slot="title">
-          <span>{{ i18n "pages.inbounds.realityDesc" }}</span>
+          <span>Требуется XRay >= v1.8.0</span>
         </template>
         <a-radio-button v-if="inbound.canEnableReality()" value="reality">REALITY</a-radio-button>
       </a-tooltip>
@@ -26,13 +26,13 @@
     <a-form-item label="SNI" placeholder="Server Name Indication">
       <a-input v-model.trim="inbound.stream.tls.sni"></a-input>
     </a-form-item>
-    <a-form-item label="Cipher Suites">
+    <a-form-item label="Набор шифров">
       <a-select v-model="inbound.stream.tls.cipherSuites" :dropdown-class-name="themeSwitcher.currentTheme">
-        <a-select-option value="">Auto</a-select-option>
+        <a-select-option value="">Авто</a-select-option>
         <a-select-option v-for="key,value in TLS_CIPHER_OPTION" :value="key">[[ value ]]</a-select-option>
       </a-select>
     </a-form-item>
-    <a-form-item label="Min/Max Version">
+    <a-form-item label="Мин/Макс версия">
       <a-input-group compact>
         <a-select v-model="inbound.stream.tls.minVersion" style="width: 50%"
           :dropdown-class-name="themeSwitcher.currentTheme">
@@ -47,7 +47,7 @@
     <a-form-item label="uTLS">
       <a-select v-model="inbound.stream.tls.settings.fingerprint" style="width: 50%"
         :dropdown-class-name="themeSwitcher.currentTheme">
-        <a-select-option value=''>None</a-select-option>
+        <a-select-option value=''>Ничего</a-select-option>
         <a-select-option v-for="key in UTLS_FINGERPRINT" :value="key">[[ key ]]</a-select-option>
       </a-select>
     </a-form-item>
@@ -65,14 +65,14 @@
     <a-form-item label="Disable System Root">
       <a-switch v-model="inbound.stream.tls.disableSystemRoot"></a-switch>
     </a-form-item>
-    <a-form-item label="Session Resumption">
+    <a-form-item label="Возобновление сеанса">
       <a-switch v-model="inbound.stream.tls.enableSessionResumption"></a-switch>
     </a-form-item>
     <template v-for="cert,index in inbound.stream.tls.certs">
-      <a-form-item label='{{ i18n "certificate" }}'>
+      <a-form-item label='Сертификат'>
         <a-radio-group v-model="cert.useFile" button-style="solid">
-          <a-radio-button :value="true">{{ i18n "pages.inbounds.certificatePath" }}</a-radio-button>
-          <a-radio-button :value="false">{{ i18n "pages.inbounds.certificateContent" }}</a-radio-button>
+          <a-radio-button :value="true">Путь</a-radio-button>
+          <a-radio-button :value="false">Текст</a-radio-button>
         </a-radio-group>
         <a-button icon="plus" v-if="index === 0" type="primary" size="small" @click="inbound.stream.tls.addCert()"
           style="margin-left: 10px"></a-button>
@@ -80,22 +80,22 @@
           @click="inbound.stream.tls.removeCert(index)" style="margin-left: 10px"></a-button>
       </a-form-item>
       <template v-if="cert.useFile">
-        <a-form-item label='{{ i18n "pages.inbounds.publicKey" }}'>
+        <a-form-item label='Публичный ключ'>
           <a-input v-model.trim="cert.certFile"></a-input>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.inbounds.privatekey" }}'>
+        <a-form-item label='Приватный ключ'>
           <a-input v-model.trim="cert.keyFile"></a-input>
         </a-form-item>
         <a-form-item label=" ">
           <a-button type="primary" icon="import" @click="setDefaultCertData(index)">
-            {{ i18n "pages.inbounds.setDefaultCert" }}</a-button>
+            Копировать с панели</a-button>
         </a-form-item>
       </template>
       <template v-else>
-        <a-form-item label='{{ i18n "pages.inbounds.publicKey" }}'>
+        <a-form-item label='Публичный ключ'>
           <a-input type="textarea" :rows="3" v-model="cert.cert"></a-input>
         </a-form-item>
-        <a-form-item label='{{ i18n "pages.inbounds.privatekey" }}'>
+        <a-form-item label='Приватный ключ'>
           <a-input type="textarea" :rows="3" v-model="cert.key"></a-input>
         </a-form-item>
       </template>
