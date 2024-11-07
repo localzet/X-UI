@@ -113,6 +113,14 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		g, LinksPath, JsonPath, Encrypt, ShowInfo, RemarkModel, SubUpdates,
 		SubJsonFragment, SubJsonNoises, SubJsonMux, SubJsonRules)
 
+	// Добавление обработки ошибок 404
+	engine.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path
+		c.HTML(http.StatusNotFound, "web/html/404.html", gin.H{
+			"Path": path,
+		})
+	})
+
 	return engine, nil
 }
 

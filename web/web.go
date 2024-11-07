@@ -235,7 +235,10 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 
 	// Handle 404 errors
 	engine.NoRoute(func(c *gin.Context) {
-		c.HTML(http.StatusNotFound, "404.html", gin.H{"Path": c.Request.RequestURI})
+		path := c.Request.URL.Path
+		c.HTML(http.StatusNotFound, "web/html/404.html", gin.H{
+			"Path": path,
+		})
 	})
 
 	return engine, nil
