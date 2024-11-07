@@ -223,6 +223,12 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		engine.StaticFS(basePath+"assets", http.FS(&wrapAssetsFS{FS: assetsFS}))
 	}
 
+	// Handle 404 errors
+	engine.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path
+		c.HTML(http.StatusNotFound, "404.html", gin.H{"Path": path})
+	})
+
 	// Apply the redirect middleware (`/xui` to `/panel`)
 	engine.Use(middleware.RedirectMiddleware(basePath))
 
@@ -232,14 +238,6 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	s.server = controller.NewServerController(g)
 	s.panel = controller.NewXUIController(g)
 	s.api = controller.NewAPIController(g)
-
-	// Handle 404 errors
-	engine.NoRoute(func(c *gin.Context) {
-		path := c.Request.URL.Path
-		c.HTML(http.StatusNotFound, "web/html/404.html", gin.H{
-			"Path": path,
-		})
-	})
 
 	return engine, nil
 }

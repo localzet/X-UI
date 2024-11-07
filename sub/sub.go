@@ -107,19 +107,26 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		SubJsonRules = ""
 	}
 
+	basePath, err := s.settingService.GetBasePath()
+	if err != nil {
+		return nil, err
+	}
+
+	engine.Use(func(c *gin.Context) {
+		c.Set("base_path", basePath)
+	})
+
+	// Handle 404 errors
+	engine.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path
+		c.HTML(http.StatusNotFound, "404.html", gin.H{"Path": path})
+	})
+
 	g := engine.Group("/")
 
 	s.sub = NewSUBController(
 		g, LinksPath, JsonPath, Encrypt, ShowInfo, RemarkModel, SubUpdates,
 		SubJsonFragment, SubJsonNoises, SubJsonMux, SubJsonRules)
-
-	// Добавление обработки ошибок 404
-	engine.NoRoute(func(c *gin.Context) {
-		path := c.Request.URL.Path
-		c.HTML(http.StatusNotFound, "web/html/404.html", gin.H{
-			"Path": path,
-		})
-	})
 
 	return engine, nil
 }
