@@ -4,9 +4,9 @@
 
 [![](https://img.shields.io/github/v/release/localzet/x-ui.svg)](https://github.com/localzet/x-ui/releases)
 [![](https://img.shields.io/github/actions/workflow/status/localzet/x-ui/release.yml.svg)](#)
-[![GO Version](https://img.shields.io/github/go-mod/go-version/localzet/x-ui.svg)](#)
-[![Downloads](https://img.shields.io/github/downloads/localzet/x-ui/total.svg)](#)
-[![License](https://img.shields.io/badge/license-GPL%20V3-blue.svg?longCache=true)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![](https://img.shields.io/github/go-mod/go-version/localzet/x-ui.svg)](#)
+[![](https://img.shields.io/github/downloads/localzet/x-ui/total.svg)](#)
+[![](https://img.shields.io/badge/license-GPL%20V3-blue.svg?longCache=true)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 > **Отказ от ответственности:** Этот проект предназначен только для личных исследований. Пожалуйста, не используйте его в незаконных целях и не применяйте в производственной среде.
 
