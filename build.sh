@@ -64,7 +64,7 @@ cp x-ui.sh build/
 mv build/xui-release build/x-ui
 cd build/bin
 
-wget "https://github.com/XTLS/Xray-core/releases/download/v24.10.16/Xray-linux-${ARCH}.zip"
+wget "https://github.com/XTLS/Xray-core/releases/download/v24.11.21/Xray-linux-${ARCH}.zip"
 unzip "Xray-linux-${ARCH}.zip"
 rm -f "Xray-linux-${ARCH}.zip" geoip.dat geosite.dat
 wget https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
