@@ -62,6 +62,8 @@ elif [[ "${release}" == "manjaro" ]]; then
     echo "Ваша OS - Manjaro"
 elif [[ "${release}" == "armbian" ]]; then
     echo "Ваша OS - Armbian"
+elif [[ "${release}" == "alpine" ]]; then
+    echo "Your OS - Alpine Linux"
 elif [[ "${release}" == "opensuse-tumbleweed" ]]; then
     echo "Ваша OS - OpenSUSE Tumbleweed"
 elif [[ "${release}" == "openEuler" ]]; then
@@ -151,47 +153,72 @@ gen_random_string() {
 
 # Установка зоны безопасности
 config_after_install() {
-     local existing_username=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'username: .+' | awk '{print $2}')
-     local existing_password=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'password: .+' | awk '{print $2}')
-     local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_username=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'username: .+' | awk '{print $2}')
+    local existing_password=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'password: .+' | awk '{print $2}')
+    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+    local server_ip=$(curl -s https://api.ipify.org)
 
-     if [[ -n "$existing_username" && -n "$existing_password" ]]; then
-         echo -e "${green}Имя пользователя, пароль и путь диспетчерской уже заданы. Завершение обновления...${plain}"
-         /usr/local/x-ui/x-ui migrate
-         return 0
-     fi
+    if [[ ${#existing_webBasePath} -lt 4 ]]; then
+        if [[ "$existing_username" == "admin" && "$existing_password" == "admin" ]]; then
+            echo -e "${yellow}Установка завершена! В целях безопасности рекомендую изменить настройки панели ${plain}"
+            read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [y/N]: " config_confirm
 
-    echo -e "${yellow}Установка завершена! В целях безопасности рекомендую изменить настройки панели ${plain}"
-    read -p "Хотите изменить настройки панели сейчас? (Если нет - данные сгенерируются автоматически) [y/N]: " config_confirm
+            if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" || "${config_confirm}" == "д" || "${config_confirm}" == "Д" ]]; then
+              read -p "Установите имя пользователя: " config_username
+              echo -e "${yellow}Имя пользователя: ${config_username}${plain}"
+              read -p "Установите пароль: " config_password
+              echo -e "${yellow}Пароль: ${config_password}${plain}"
+              read -p "Установите порт диспетчерской: " config_port
+              echo -e "${yellow}Порт диспетчерской: ${config_port}${plain}"
+              read -p "Установите путь диспетчерской ({ip}:{порт}/путь-диспетчерской/): " config_webBasePath
+              echo -e "${yellow}Путь диспетчерской: ${config_webBasePath}${plain}"
+            else
+              local config_username=$(gen_random_string 10)
+              echo -e "${yellow}Имя пользователя: ${config_username}${plain}"
+              local config_password=$(gen_random_string 10)
+              echo -e "${yellow}Пароль: ${config_password}${plain}"
+              local config_port=$(shuf -i 1024-62000 -n 1)
+              echo -e "${yellow}Порт диспетчерской: ${config_port}${plain}"
+              local config_webBasePath=$(gen_random_string 15)
+              echo -e "${yellow}Путь диспетчерской: ${config_webBasePath}${plain}"
+            fi
 
-    if [[ "${config_confirm}" == "y" || "${config_confirm}" == "Y" || "${config_confirm}" == "д" || "${config_confirm}" == "Д" ]]; then
-        read -p "Установите имя пользователя: " config_account
-        echo -e "${yellow}Имя пользователя: ${config_account}${plain}"
-        read -p "Установите пароль: " config_password
-        echo -e "${yellow}Пароль: ${config_password}${plain}"
-        read -p "Установите порт диспетчерской: " config_port
-        echo -e "${yellow}Порт диспетчерской: ${config_port}${plain}"
-        read -p "Установите путь диспетчерской ({ip}:{порт}/путь-диспетчерской/): " config_webBasePath
-        echo -e "${yellow}Путь диспетчерской: ${config_webBasePath}${plain}"
-
-        /usr/local/x-ui/x-ui setting -username "${config_account}" -password "${config_password}" -port "${config_port}" -webBasePath "${config_webBasePath}"
-        echo -e "${yellow}Данные сохранены!${plain}"
+            /usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}" -port "${config_port}" -webBasePath "${config_webBasePath}"
+            echo -e "Это свежая установка, генерируем случайные данные в целях безопасности:"
+            echo -e "###############################################"
+            echo -e "${green}Имя пользователя: ${config_username}${plain}"
+            echo -e "${green}Пароль: ${config_password}${plain}"
+            echo -e "${green}Порт: ${config_port}${plain}"
+            echo -e "${green}Путь: ${config_webBasePath}${plain}"
+            echo -e "${green}URL: http://${server_ip}:${config_port}/${config_webBasePath}${plain}"
+            echo -e "###############################################"
+            echo -e "${yellow}Если вы забыли данные для входа, выполните 'x-ui settings' для проверки после установки${plain}"
+        else
+            local config_webBasePath=$(gen_random_string 15)
+            echo -e "${yellow}Путь диспетчерской слишком короткий. Генерация...${plain}"
+            /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}"
+            echo -e "${green}Новый путь: ${config_webBasePath}${plain}"
+            echo -e "${green}URL: http://${server_ip}:${existing_port}/${config_webBasePath}${plain}"
+        fi
     else
-        local usernameTemp=$(gen_random_string 10)
-        local passwordTemp=$(gen_random_string 10)
-        local portTemp=$(shuf -i 1024-62000 -n 1)
-        local webBasePathTemp=$(gen_random_string 15)
+        if [[ "$existing_username" == "admin" && "$existing_password" == "admin" ]]; then
+            local config_username=$(gen_random_string 10)
+            local config_password=$(gen_random_string 10)
 
-        /usr/local/x-ui/x-ui setting -username "${usernameTemp}" -password "${passwordTemp}" -port "${portTemp}" -webBasePath "${webBasePathTemp}"
-
-        echo -e "Это свежая установка, генерируем случайные данные в целях безопасности:"
-        echo -e "###############################################"
-        echo -e "${green}Имя пользователя: ${usernameTemp}${plain}"
-        echo -e "${green}Пароль: ${passwordTemp}${plain}"
-        echo -e "${green}Путь диспетчерской: ${webBasePathTemp}${plain}"
-        echo -e "###############################################"
-        echo -e "${yellow}Если вы забыли данные для входа, выполните "x-ui settings" для проверки после установки${plain}"
+            echo -e "${yellow}Обнаружены стандартные настройки. Обновление...${plain}"
+            /usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}"
+            echo -e "Новые сгенерированные данные:"
+            echo -e "###############################################"
+            echo -e "${green}Имя пользователя: ${config_username}${plain}"
+            echo -e "${green}Пароль: ${config_password}${plain}"
+            echo -e "###############################################"
+            echo -e "${yellow}Если вы забыли данные для входа, выполните 'x-ui settings' для проверки после установки${plain}"
+        else
+            echo -e "${green}Имя пользователя, пароль и путь уже заданы. Завершение обновления...${plain}"
+        fi
     fi
+
     /usr/local/x-ui/x-ui migrate
 }
 
