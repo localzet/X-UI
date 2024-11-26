@@ -32,14 +32,16 @@
                     <a-form-item label="Ключ">
                         <a-input v-model="warpPlus"></a-input>
                         <a-button @click="updateLicense(warpPlus)" :disabled="warpPlus.length<26"
-                            :loading="warpModal.confirmLoading">Обновить</a-button>
+                                  :loading="warpModal.confirmLoading">Обновить
+                        </a-button>
                     </a-form-item>
                 </a-form>
             </a-collapse-panel>
         </a-collapse>
         <a-divider style="margin: 0;">Учетные данные</a-divider>
         <a-button icon="sync" @click="getConfig" style="margin-top: 5px; margin-bottom: 10px;"
-            :loading="warpModal.confirmLoading" type="primary">Информация</a-button>
+                  :loading="warpModal.confirmLoading" type="primary">Информация
+        </a-button>
         <template v-if="!ObjectUtil.isEmpty(warpModal.warpConfig)">
             <table style="width: 100%">
                 <tr class="client-table-odd-row">
@@ -81,7 +83,8 @@
             <a-form :label-col="{ md: {span:8} }" :wrapper-col="{ md: {span:14} }">
                 <template v-if="warpOutboundIndex>=0">
                     <a-tag color="green" style="line-height: 31px;">Включено</a-tag>
-                    <a-button @click="resetOutbound" :loading="warpModal.confirmLoading" type="danger">Сбросить</a-button>
+                    <a-button @click="resetOutbound" :loading="warpModal.confirmLoading" type="danger">Сбросить
+                    </a-button>
                 </template>
                 <template v-else>
                     <a-tag color="orange" style="line-height: 31px;">Отключено</a-tag>
@@ -147,8 +150,7 @@
                                 publicKey: peer.public_key,
                                 endpoint: peer.endpoint.host,
                             }],
-                            kernelMode: false,
-                            kernelTun: false,
+                            noKernelTun: false,
                         }
                     });
                 }
@@ -189,7 +191,7 @@
             },
             async updateLicense(l) {
                 warpModal.loading(true);
-                const msg = await HttpUtil.post('/panel/xray/warp/license', { license: l });
+                const msg = await HttpUtil.post('/panel/xray/warp/license', {license: l});
                 if (msg.success) {
                     warpModal.warpData = JSON.parse(msg.obj);
                     warpModal.warpConfig = null;

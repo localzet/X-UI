@@ -147,11 +147,8 @@
         <a-form-item label='Workers'>
           <a-input-number v-model.number="outbound.settings.workers" min="0"></a-input-number>
         </a-form-item>
-        <a-form-item label='Kernel Mode'>
-          <a-switch v-model="outbound.settings.kernelMode"></a-switch>
-        </a-form-item>
-        <a-form-item label='Kernel Tun'>
-          <a-switch v-model="outbound.settings.kernelTun"></a-switch>
+        <a-form-item label='No Kernel Tun'>
+          <a-switch v-model="outbound.settings.noKernelTun"></a-switch>
         </a-form-item>
         <a-form-item>
           <template slot="label">
@@ -268,26 +265,26 @@
 
       <!-- stream settings -->
       <template v-if="outbound.canEnableStream()">
-        <a-form-item label='{{ i18n "transmission" }}'>
+        <a-form-item label='Трансмиссия'>
           <a-select v-model="outbound.stream.network" @change="streamNetworkChange" :dropdown-class-name="themeSwitcher.currentTheme">
             <a-select-option value="tcp">TCP</a-select-option>
             <a-select-option value="kcp">mKCP</a-select-option>
             <a-select-option value="ws">WebSocket</a-select-option>
-            <a-select-option value="http">H2</a-select-option>
+            <a-select-option value="http">HTTP</a-select-option>
             <a-select-option value="grpc">gRPC</a-select-option>
             <a-select-option value="httpupgrade">HTTPUpgrade</a-select-option>
-            <a-select-option value="splithttp">SplitHTTP</a-select-option>
+            <a-select-option value="splithttp">SplitHTTP (XHTTP)</a-select-option>
           </a-select>
         </a-form-item>
         <template v-if="outbound.stream.network === 'tcp'">
-          <a-form-item label='HTTP {{ i18n "camouflage" }}'>
+          <a-form-item label='HTTP Маскировка'>
             <a-switch :checked="outbound.stream.tcp.type === 'http'" @change="checked => outbound.stream.tcp.type = checked ? 'http' : 'none'"></a-switch>
           </a-form-item>
           <template v-if="outbound.stream.tcp.type == 'http'">
-            <a-form-item label='{{ i18n "host" }}'>
+            <a-form-item label='Хост'>
               <a-input v-model.trim="outbound.stream.tcp.host"></a-input>
             </a-form-item>
-            <a-form-item label='{{ i18n "path" }}'>
+            <a-form-item label='Путь'>
               <a-input v-model.trim="outbound.stream.tcp.path"></a-input>
             </a-form-item>
           </template>
@@ -295,9 +292,9 @@
 
         <!-- kcp -->
         <template v-if="outbound.stream.network === 'kcp'">
-          <a-form-item label='{{ i18n "camouflage" }}'>
+          <a-form-item label='Маскировка'>
             <a-select v-model="outbound.stream.kcp.type" :dropdown-class-name="themeSwitcher.currentTheme">
-              <a-select-option value="none">None</a-select-option>
+              <a-select-option value="none">Отключить</a-select-option>
               <a-select-option value="srtp">SRTP</a-select-option>
               <a-select-option value="utp">uTP</a-select-option>
               <a-select-option value="wechat-video">WeChat</a-select-option>
@@ -306,7 +303,7 @@
               <a-select-option value="dns">DNS</a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item label='{{ i18n "password" }}'>
+          <a-form-item label='Пароль'>
             <a-input v-model="outbound.stream.kcp.seed"></a-input>
           </a-form-item>
           <a-form-item label='MTU'>
@@ -334,63 +331,68 @@
 
         <!-- ws -->
         <template v-if="outbound.stream.network === 'ws'">
-          <a-form-item label='{{ i18n "host" }}'>
+          <a-form-item label='Хост'>
             <a-input v-model="outbound.stream.ws.host"></a-input>
           </a-form-item>
-          <a-form-item label='{{ i18n "path" }}'>
+          <a-form-item label='Путь'>
             <a-input v-model.trim="outbound.stream.ws.path"></a-input>
           </a-form-item>
         </template>
 
         <!-- http -->
         <template v-if="outbound.stream.network === 'http'">
-          <a-form-item label='{{ i18n "host" }}'>
+          <a-form-item label='Хост'>
             <a-input v-model.trim="outbound.stream.http.host"></a-input>
           </a-form-item>
-          <a-form-item label='{{ i18n "path" }}'>
+          <a-form-item label='Путь'>
             <a-input v-model.trim="outbound.stream.http.path"></a-input>
           </a-form-item>
         </template>
         
         <!-- grpc -->
         <template v-if="outbound.stream.network === 'grpc'">
-          <a-form-item label='Service Name'>
+          <a-form-item label='Название'>
             <a-input v-model.trim="outbound.stream.grpc.serviceName"></a-input>
           </a-form-item>
-          <a-form-item label="Authority">
+          <a-form-item label="Авторитет">
             <a-input v-model.trim="outbound.stream.grpc.authority"></a-input>
           </a-form-item>
-          <a-form-item label='Multi Mode'>
+          <a-form-item label='Мультирежим'>
             <a-switch v-model="outbound.stream.grpc.multiMode"></a-switch>
           </a-form-item>
         </template>
 
         <!-- httpupgrade -->
         <template v-if="outbound.stream.network === 'httpupgrade'">
-          <a-form-item label='{{ i18n "host" }}'>
+          <a-form-item label='Хост'>
             <a-input v-model="outbound.stream.httpupgrade.host"></a-input>
           </a-form-item>
-          <a-form-item label='{{ i18n "path" }}'>
+          <a-form-item label='Путь'>
             <a-input v-model.trim="outbound.stream.httpupgrade.path"></a-input>
           </a-form-item>
         </template>
 
         <!-- splithttp -->
         <template v-if="outbound.stream.network === 'splithttp'">
-          <a-form-item label='{{ i18n "host" }}'>
+          <a-form-item label='Хост'>
             <a-input v-model="outbound.stream.splithttp.host"></a-input>
           </a-form-item>
-          <a-form-item label='{{ i18n "path" }}'>
+          <a-form-item label='Путь'>
             <a-input v-model.trim="outbound.stream.splithttp.path"></a-input>
+          </a-form-item>
+          <a-form-item label='Режим'>
+            <a-select v-model="outbound.stream.splithttp.mode" :dropdown-class-name="themeSwitcher.currentTheme">
+              <a-select-option v-for="key in MODE_OPTION" :value="key">[[ key ]]</a-select-option>
+            </a-select>
           </a-form-item>
         </template>
       </template>
 
       <!-- tls settings -->
       <template v-if="outbound.canEnableTls()">
-        <a-form-item label='{{ i18n "security" }}'>
+        <a-form-item label='Безопасность'>
           <a-radio-group v-model="outbound.stream.security" button-style="solid">
-            <a-radio-button value="none">{{ i18n "none" }}</a-radio-button>
+            <a-radio-button value="none">Нет</a-radio-button>
             <a-radio-button value="tls">TLS</a-radio-button>
             <a-radio-button v-if="outbound.canEnableReality()" value="reality">Reality</a-radio-button>
           </a-radio-group>
