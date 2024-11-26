@@ -236,6 +236,8 @@ location /sub {
 - Rocky Linux 9+
 - Oracle Linux 8+
 - OpenSUSE Tubleweed
+- Amazon Linux 2023
+- Windows x64
 
 ## Поддерживаемые архитектуры и устройства
 
@@ -459,9 +461,8 @@ location /sub {
 </details>
 
 
-- [API-документация](https://documenter.getpostman.com/view/16802678/2s9YkgD5jm)
-- [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/16802678-1a4c9270-ac77-40ed-959a-7aa56dc4a415?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D16802678-1a4c9270-ac77-40ed-959a-7aa56dc4a415%26entityType%3Dcollection%26workspaceId%3D2cd38c01-c851-4a15-a972-f181c23359d9)
-</details>
+- [API-документация](https://www.postman.com/hsanaei/3x-ui/collection/q1l5l0u/3x-ui)
+- [<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/5146551-dda3cab3-0e33-485f-96f9-d4262f437ac5?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D5146551-dda3cab3-0e33-485f-96f9-d4262f437ac5%26entityType%3Dcollection%26workspaceId%3Dd64f609f-485a-4951-9b8f-876b3f917124)</details>
 
 ## Переменные среды
 
