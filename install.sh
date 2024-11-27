@@ -63,7 +63,7 @@ elif [[ "${release}" == "manjaro" ]]; then
 elif [[ "${release}" == "armbian" ]]; then
     echo "Ваша OS - Armbian"
 elif [[ "${release}" == "alpine" ]]; then
-    echo "Your OS - Alpine Linux"
+    echo "Ваша OS - Alpine Linux"
 elif [[ "${release}" == "opensuse-tumbleweed" ]]; then
     echo "Ваша OS - OpenSUSE Tumbleweed"
 elif [[ "${release}" == "openEuler" ]]; then

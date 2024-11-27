@@ -60,6 +60,8 @@ elif [[ "${release}" == "manjaro" ]]; then
     echo "Ваша OS - Manjaro"
 elif [[ "${release}" == "armbian" ]]; then
     echo "Ваша OS - Armbian"
+elif [[ "${release}" == "alpine" ]]; then
+    echo "Ваша OS - Alpine Linux"
 elif [[ "${release}" == "opensuse-tumbleweed" ]]; then
     echo "Ваша OS - OpenSUSE Tumbleweed"
 elif [[ "${release}" == "centos" ]]; then
@@ -165,7 +167,7 @@ update() {
     bash <(curl -Ls https://raw.githubusercontent.com/localzet/x-ui/main/install.sh)
     if [[ $? == 0 ]]; then
         LOGI "Обновление завершено, панель автоматически перезагрузилась."
-        exit 0
+        before_show_menu
     fi
 }
 
@@ -186,7 +188,7 @@ update_menu() {
     
      if [[ $? == 0 ]]; then
         echo -e "${green}Обновление прошло успешно. Панель автоматически перезагрузилась..${plain}"
-        exit 0
+        before_show_menu
     else
         echo -e "${red}Не удалось обновить скрипт..${plain}"
         return 1
@@ -297,12 +299,30 @@ reset_config() {
 }
 
 check_config() {
-    info=$(/usr/local/x-ui/x-ui setting -show true)
+    local info=$(/usr/local/x-ui/x-ui setting -show true)
     if [[ $? != 0 ]]; then
         LOGE "Ошибка текущих настроек. Проверьте журналы."
         show_menu
+        return
     fi
     LOGI "${info}"
+
+    local existing_webBasePath=$(echo "$info" | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(echo "$info" | grep -Eo 'port: .+' | awk '{print $2}')
+    local existing_cert=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
+    local server_ip=$(curl -s https://api.ipify.org)
+
+    if [[ -n "$existing_cert" ]]; then
+        local domain=$(basename "$(dirname "$existing_cert")")
+
+        if [[ "$domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+            echo -e "${green}URL: https://${domain}:${existing_port}${existing_webBasePath}${plain}"
+        else
+            echo -e "${green}URL: https://${server_ip}:${existing_port}${existing_webBasePath}${plain}"
+        fi
+    else
+        echo -e "${green}URL: http://${server_ip}:${existing_port}${existing_webBasePath}${plain}"
+    fi
 }
 
 set_port() {
@@ -413,7 +433,7 @@ show_log() {
     read -p "Выберите вариант: " choice
 
     case "$choice" in
-    0) return ;;
+    0) show_menu ;;
     1)
         journalctl -u x-ui -e --no-pager -f -p debug
         if [[ $# == 0 ]]; then
@@ -422,22 +442,43 @@ show_log() {
     2)
         sudo journalctl --rotate
         sudo journalctl --vacuum-time=1s
-        echo "All Logs cleared."
+        echo "Все журналы очищены."
         restart ;;
-    *) echo "Неверный выбор" ;;
+    *)
+      echo "Неверный выбор"
+      show_log;;
     esac
 }
 
 show_banlog() {
-    if test -f "${iplimit_banned_log_path}"; then
+    local system_log="/var/log/fail2ban.log"
+
+    echo -e "${green}Проверка журнала блокировок...${plain}\n"
+
+    if ! systemctl is-active --quiet fail2ban; then
+        echo -e "${red}Fail2ban не запущен!${plain}\n"
+        return 1
+    fi
+
+    if [[ -f "$system_log" ]]; then
+        echo -e "${green}Последние действия по системному бану из fail2ban.log:${plain}"
+        grep "x-ipl" "$system_log" | grep -E "Ban|Unban" | tail -n 10 || echo -e "${yellow}Недавних действий по системному бану не обнаружено${plain}"
+        echo ""
+    fi
+
+    if [[ -f "${iplimit_banned_log_path}" ]]; then
+        echo -e "${green}Записи в журнале запретов X-IPL:${plain}"
         if [[ -s "${iplimit_banned_log_path}" ]]; then
-            cat ${iplimit_banned_log_path}
-        else
-            echo -e "${red}Файл журнала пуст.${plain}\n"
+            grep -v "INIT" "${iplimit_banned_log_path}" | tail -n 10 || echo -e "${yellow}Записи о бане не найдены${plain}"
+                    else
+            echo -e "${red}Файл журнала банов пуст.${plain}\n"
         fi
     else
-        echo -e "${red}Файл журнала не найден. Сначала установите Fail2ban и IP Limit.${plain}\n"
+        echo -e "${red}Файл журнала банов не найден в ${iplimit_banned_log_path}${plain}\n"
     fi
+
+        echo -e "\n${green}Текущий статус jail:${plain}"
+        fail2ban-client status x-ipl || echo -e "${yellow}Невозможно получить статус jail${plain}"
 }
 
 bbr_menu() {
@@ -448,16 +489,25 @@ bbr_menu() {
 
     case "$choice" in
       0) show_menu ;;
-      1) enable_bbr ;;
-      2) disable_bbr ;;
-      *) echo "Неверный выбор" ;;
-    esac
+      1)
+        enable_bbr
+        bbr_menu
+        ;;
+      2)
+        disable_bbr
+        bbr_menu
+        ;;
+    *)
+        echo -e "${red}Неверный вариант. Выберите корректный номер.${plain}\n"
+        bbr_menu
+        ;;
+      esac
 }
 
 disable_bbr() {
     if ! grep -q "net.core.default_qdisc=fq" /etc/sysctl.conf || ! grep -q "net.ipv4.tcp_congestion_control=bbr" /etc/sysctl.conf; then
         echo -e "${yellow}BBR в настоящее время не включен.${plain}"
-        exit 0
+        before_show_menu
     fi
 
     sed -i 's/net.core.default_qdisc=fq/net.core.default_qdisc=pfifo_fast/' /etc/sysctl.conf
@@ -475,7 +525,7 @@ disable_bbr() {
 enable_bbr() {
     if grep -q "net.core.default_qdisc=fq" /etc/sysctl.conf && grep -q "net.ipv4.tcp_congestion_control=bbr" /etc/sysctl.conf; then
         echo -e "${green}BBR уже включен!${plain}"
-        exit 0
+        before_show_menu
     fi
 
     case "${release}" in
@@ -517,7 +567,8 @@ update_shell() {
         before_show_menu
     else
         chmod +x /usr/bin/x-ui
-        LOGI "Обновление скрипта прошло успешно. Пожалуйста, перезапустите его." && exit 0
+        LOGI "Обновление скрипта прошло успешно. Пожалуйста, перезапустите его."
+        before_show_menu
     fi
 }
 
@@ -622,11 +673,22 @@ firewall_menu() {
     read -p "Выберите вариант: " choice
     case "$choice" in
       0) show_menu ;;
-      1) open_ports ;;
-      2) sudo ufw status ;;
-      3) delete_ports ;;
-      4) sudo ufw disable ;;
-      *) echo "Неверный выбор" ;;
+      1)
+        open_ports
+        firewall_menu
+        ;;
+      2) sudo ufw status
+        firewall_menu
+        ;;
+      3) delete_ports
+        firewall_menu
+        ;;
+      4) sudo ufw disable
+        firewall_menu
+        ;;
+      *) echo "Неверный выбор"
+        firewall_menu
+        ;;
     esac
 }
 
@@ -727,8 +789,9 @@ update_geo() {
     rm -f geoip.dat geosite.dat
     wget -N https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
     wget -N https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
-    systemctl start x-ui
     echo -e "${green}Geosite.dat + Geoip.dat успешно обновлены в '${binfolder}'!${plain}"
+    restart
+    systemctl start x-ui
     before_show_menu
 }
 
@@ -749,27 +812,111 @@ ssl_cert_issue_main() {
     echo -e "${green}\t1.${plain} Получить SSL"
     echo -e "${green}\t2.${plain} Отозвать"
     echo -e "${green}\t3.${plain} Принудительно продлить"
+    echo -e "${green}\t4.${plain} Показать существующие домены"
+    echo -e "${green}\t5.${plain} Set Cert paths for the panel"
     echo -e "${green}\t0.${plain} Вернуться в главное меню"
     read -p "Выберите вариант: " choice
     case "$choice" in
     0) show_menu ;;
-    1) ssl_cert_issue ;;
+    1)
+      ssl_cert_issue
+      ssl_cert_issue_main
+      ;;
     2)
-        local domain=""
-        read -p "Введите свой домен, чтобы отозвать сертификат.: " domain
-        ~/.acme.sh/acme.sh --revoke -d ${domain}
-        LOGI "Сертификат отозван"
-        ;;
-    3)
+        local domains=$(find /root/cert/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+        if [ -z "$domains" ]; then
+            echo "Сертификаты для отзыва не найдены."
+        else
+            echo "Существующие домены:"
+            echo "$domains"
+            read -p "Выберите домен из списка для отзыва сертификата.: " domain
+            if echo "$domains" | grep -qw "$domain"; then
+                ~/.acme.sh/acme.sh --revoke -d ${domain}
+                LOGI "Сертификат отозван для домена: $domain"
+            else
+                echo "Введен неверный домен."
+            fi
+        fi
+        ssl_cert_issue_main
+        ;;    3)
         local domain=""
         read -p "Введите свой домен для принудительного продления SSL-сертификата.: " domain
         ~/.acme.sh/acme.sh --renew -d ${domain} --force
         ;;
-    *) echo "Неверный выбор" ;;
+    3)
+        local domains=$(find /root/cert/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+        if [ -z "$domains" ]; then
+            echo "Сертификаты для продления не найдены."
+        else
+            echo "Существующие домены:"
+            echo "$domains"
+            read -p "Пожалуйста, введите домен из списка для обновления SSL-сертификата: " domain
+            if echo "$domains" | grep -qw "$domain"; then
+                ~/.acme.sh/acme.sh --renew -d ${domain} --force
+                LOGI "Сертификат принудительно продлен для домена: $domain"
+            else
+                echo "Введен неверный домен."
+            fi
+        fi
+        ssl_cert_issue_main
+        ;;
+    4)
+        local domains=$(find /root/cert/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+        if [ -z "$domains" ]; then
+            echo "Сертификаты не найдены."
+        else
+            echo "Существующие домены и их пути:"
+            for domain in $domains; do
+                local cert_path="/root/cert/${domain}/fullchain.pem"
+                local key_path="/root/cert/${domain}/privkey.pem"
+                if [[ -f "${cert_path}" && -f "${key_path}" ]]; then
+                    echo -e "Домен: ${domain}"
+                    echo -e "\tСертификат: ${cert_path}"
+                    echo -e "\tПриватный ключ: ${key_path}"
+                else
+                    echo -e "Домен: ${domain} -  Отсутствует сертификат или ключ."
+                fi
+            done
+        fi
+        ssl_cert_issue_main
+        ;;
+    5)
+        local domains=$(find /root/cert/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+        if [ -z "$domains" ]; then
+            echo "Сертификаты не найдены."
+        else
+            echo "Доступные домены:"
+            echo "$domains"
+            read -p "Пожалуйста, выберите домен, чтобы задать пути панели: " domain
+            if echo "$domains" | grep -qw "$domain"; then
+                local webCertFile="/root/cert/${domain}/fullchain.pem"
+                local webKeyFile="/root/cert/${domain}/privkey.pem"
+                if [[ -f "${webCertFile}" && -f "${webKeyFile}" ]]; then
+                    /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+                    echo "Пути панели установлены для: $domain"
+                    echo "  - Файл сертификата: $webCertFile"
+                    echo "  - Приватный ключ: $webKeyFile"
+                    restart
+                else
+                    echo "Сертификат или закрытый ключ не найден для домена: $domain."
+                fi
+            else
+                echo "Введен неверный домен."
+            fi
+        fi
+        ssl_cert_issue_main
+        ;;
+    *)
+      echo "Неверный выбор"
+      ssl_cert_issue_main
+      ;;
     esac
 }
 
 ssl_cert_issue() {
+    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+
     # Сначала проверим скрипт
     if ! command -v ~/.acme.sh/acme.sh &>/dev/null; then
         echo "acme.sh не найден. Так установим же его!"
@@ -868,16 +1015,36 @@ ssl_cert_issue() {
         ls -lah cert/*
         chmod 755 $certPath/*
     fi
+
+    read -p "Хотите ли вы установить этот сертификат для панели?? (y/n): " setPanel
+    if [[ "$setPanel" == "y" || "$setPanel" == "Y" ]]; then
+        local webCertFile="/root/cert/${domain}/fullchain.pem"
+        local webKeyFile="/root/cert/${domain}/privkey.pem"
+        if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
+            /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+            LOGI "Пути панели установлены для: $domain"
+            LOGI "  - Файл сертификата: $webCertFile"
+            LOGI "  - Приватный ключ: $webKeyFile"
+            echo -e "${green}URL: https://${domain}:${existing_port}${existing_webBasePath}${plain}"
+            restart
+        else
+            LOGE "Ошибка: сертификат или файл закрытого ключа не найдены для домена: $domain."
+        fi
+    else
+        LOGI "Пропуск настройки пути панели."
+    fi
 }
 
 ssl_cert_issue_CF() {
-    echo -E ""
+    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
     LOGD "******Инструкция по применению******"
     LOGI "Для этого скрипта требуются следующие данные:"
-    LOGI "1.Зарегистрированный Email Cloudflare"
-    LOGI "2.Глобальный API-ключ Cloudflare"
-    LOGI "3.Домен, добавленный в Cloudflare"
-    LOGI "4.Скрипт отправит запрос на сертификат. Путь установки по умолчанию: /root/cert "
+    LOGI "1. Зарегистрированный Email Cloudflare"
+    LOGI "2. Глобальный API-ключ Cloudflare"
+    LOGI "3. Домен, добавленный в Cloudflare"
+    LOGI "4. После выдачи сертификата вам будет предложено установить сертификат для панели (необязательно)"
+    LOGI "5. Скрипт также поддерживает автоматическое обновление SSL-сертификата после установки"
     confirm "Продолжить? [Д/н]" "д"
     if [ $? -eq 0 ]; then
         # Сначала проверим скрипт
@@ -890,18 +1057,19 @@ ssl_cert_issue_CF() {
             fi
         fi
         CF_Domain=""
-        CF_GlobalKey=""
-        CF_AccountEmail=""
-        certPath=/root/cert
+        certPath="/root/cert-CF"
         if [ ! -d "$certPath" ]; then
-            mkdir $certPath
+            mkdir -p $certPath
         else
             rm -rf $certPath
-            mkdir $certPath
+            mkdir -p $certPath
         fi
 
         read -p "Пожалуйста, укажите домен:" CF_Domain
         LOGD "Ваш домен: ${CF_Domain}"
+
+        CF_GlobalKey=""
+        CF_AccountEmail=""
 
         read -p "Пожалуйста, укажите ключ API:" CF_GlobalKey
         LOGD "Ваш ключ API: ${CF_GlobalKey}"
@@ -923,9 +1091,15 @@ ssl_cert_issue_CF() {
         else
             LOGI "Сертификат успешно выдан, установка..."
         fi
-        ~/.acme.sh/acme.sh --installcert -d ${CF_Domain} -d *.${CF_Domain} --ca-file /root/cert/ca.cer \
-            --cert-file /root/cert/${CF_Domain}.cer --key-file /root/cert/${CF_Domain}.key \
-            --fullchain-file /root/cert/fullchain.cer
+        mkdir -p ${certPath}/${CF_Domain}
+        if [ $? -ne 0 ]; then
+            LOGE "Failed to create directory: ${certPath}/${CF_Domain}"
+            exit 1
+        fi
+
+        ~/.acme.sh/acme.sh --installcert -d ${CF_Domain} -d *.${CF_Domain} \
+            --fullchain-file ${certPath}/${CF_Domain}/fullchain.pem \
+            --key-file ${certPath}/${CF_Domain}/privkey.pem
         if [ $? -ne 0 ]; then
             LOGE "Установка сертификата не удалась, мы его теряем..."
             exit 1
@@ -935,13 +1109,29 @@ ssl_cert_issue_CF() {
         ~/.acme.sh/acme.sh --upgrade --auto-upgrade
         if [ $? -ne 0 ]; then
             LOGE "Настройка автоматического обновления не удалась, мы его теряем..."
-            ls -lah cert
-            chmod 755 $certPath
             exit 1
         else
             LOGI "Сертификат установлен и включено автоматическое продление. Конкретная информация приведена ниже."
-            ls -lah cert
-            chmod 755 $certPath
+            ls -lah ${certPath}/${CF_Domain}
+            chmod 755 ${certPath}/${CF_Domain}
+        fi
+        read -p "Хотите ли вы установить этот сертификат для панели?? (y/n): " setPanel
+        if [[ "$setPanel" == "y" || "$setPanel" == "Y" ]]; then
+            local webCertFile="${certPath}/${CF_Domain}/fullchain.pem"
+            local webKeyFile="${certPath}/${CF_Domain}/privkey.pem"
+
+            if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
+                /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+                LOGI "Пути панели установлены для: $CF_Domain"
+                LOGI "  - Файл сертификата: $webCertFile"
+                LOGI "  - Приватный ключ: $webKeyFile"
+                echo -e "${green}URL: https://${CF_Domain}:${existing_port}${existing_webBasePath}${plain}"
+                restart
+            else
+                LOGE "Ошибка: сертификат или файл закрытого ключа не найдены для домена: $CF_Domain."
+            fi
+        else
+            LOGI "Пропуск настройки пути панели."
         fi
     else
         show_menu
@@ -951,30 +1141,36 @@ ssl_cert_issue_CF() {
 run_speedtest() {
     # Проверим, установлен ли тот самый Speedtest
     if ! command -v speedtest &>/dev/null; then
-        # Не можешь - научим, не хочешь - заставим
-        local pkg_manager=""
-        local speedtest_install_script=""
-
-        if command -v dnf &>/dev/null; then
-            pkg_manager="dnf"
-            speedtest_install_script="https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.rpm.sh"
-        elif command -v yum &>/dev/null; then
-            pkg_manager="yum"
-            speedtest_install_script="https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.rpm.sh"
-        elif command -v apt-get &>/dev/null; then
-            pkg_manager="apt-get"
-            speedtest_install_script="https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh"
-        elif command -v apt &>/dev/null; then
-            pkg_manager="apt"
-            speedtest_install_script="https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh"
-        fi
-
-        if [[ -z $pkg_manager ]]; then
-            echo "Ошибка: Менеджер пакетов не найден. Возможно, придется установить Speedtest вручную."
-            return 1
+        if command -v snap &>/dev/null; then
+            echo "Установка Speedtest с помощью snap..."
+            snap install speedtest
         else
-            curl -s $speedtest_install_script | bash
-            $pkg_manager install -y speedtest
+            # Не можешь - научим, не хочешь - заставим
+            local pkg_manager=""
+            local speedtest_install_script=""
+
+            if command -v dnf &>/dev/null; then
+                pkg_manager="dnf"
+                speedtest_install_script="https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.rpm.sh"
+            elif command -v yum &>/dev/null; then
+                pkg_manager="yum"
+                speedtest_install_script="https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.rpm.sh"
+            elif command -v apt-get &>/dev/null; then
+                pkg_manager="apt-get"
+                speedtest_install_script="https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh"
+            elif command -v apt &>/dev/null; then
+                pkg_manager="apt"
+                speedtest_install_script="https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh"
+            fi
+
+            if [[ -z $pkg_manager ]]; then
+                echo "Ошибка: Менеджер пакетов не найден. Возможно, придется установить Speedtest вручную."
+                return 1
+            else
+                echo "Установка Speedtest с помощью $pkg_manager..."
+                curl -s $speedtest_install_script | bash
+                $pkg_manager install -y speedtest
+            fi
         fi
     fi
 
@@ -994,28 +1190,28 @@ create_iplimit_jails() {
         sed -i '0,/action =/s/backend = auto/backend = systemd/' /etc/fail2ban/jail.conf
     fi
 
-    cat << EOF > /etc/fail2ban/jail.d/3x-ipl.conf
-[3x-ipl]
+    cat << EOF > /etc/fail2ban/jail.d/x-ipl.conf
+[x-ipl]
 enabled=true
 backend=auto
-filter=3x-ipl
-action=3x-ipl
+filter=x-ipl
+action=x-ipl
 logpath=${iplimit_log_path}
 maxretry=2
 findtime=32
 bantime=${bantime}m
 EOF
 
-    cat << EOF > /etc/fail2ban/filter.d/3x-ipl.conf
+    cat << EOF > /etc/fail2ban/filter.d/x-ipl.conf
 [Definition]
 datepattern = ^%%Y/%%m/%%d %%H:%%M:%%S
 failregex   = \[LIMIT_IP\]\s*Email\s*=\s*<F-USER>.+</F-USER>\s*\|\|\s*SRC\s*=\s*<ADDR>
 ignoreregex =
 EOF
 
-    cat << EOF > /etc/fail2ban/action.d/3x-ipl.conf
+    cat << EOF > /etc/fail2ban/action.d/x-ipl.conf
 [INCLUDES]
-before = iptables-allports.conf
+before = iptables-common.conf
 
 [Definition]
 actionstart = <iptables> -N f2b-<name>
@@ -1035,6 +1231,9 @@ actionunban = <iptables> -D f2b-<name> -s <ip> -j <blocktype>
               echo "\$(date +"%%Y/%%m/%%d %%H:%%M:%%S")   UNBAN   [Email] = <F-USER> [IP] = <ip> разбанен." >> ${iplimit_banned_log_path}
 
 [Init]
+name = default
+protocol = tcp
+chain = INPUT
 EOF
 
     echo -e "${green}Ограничения IP созданы на ${bantime} мин.${plain}"
@@ -1047,10 +1246,10 @@ iplimit_remove_conflicts() {
     )
 
     for file in "${jail_files[@]}"; do
-        # Проверка наличия конфигурации [3x-ipl] в файле jail, затем удаление.
-        if test -f "${file}" && grep -qw '3x-ipl' ${file}; then
-            sed -i "/\[3x-ipl\]/,/^$/d" ${file}
-            echo -e "${yellow}Устранение конфликтов [3x-ipl] в jail (${file})!${plain}\n"
+        # Проверка наличия конфигурации [x-ipl] в файле jail, затем удаление.
+        if test -f "${file}" && grep -qw 'x-ipl' ${file}; then
+            sed -i "/\[x-ipl\]/,/^$/d" ${file}
+            echo -e "${yellow}Устранение конфликтов [x-ipl] в jail (${file})!${plain}\n"
         fi
     done
 }
@@ -1059,10 +1258,11 @@ iplimit_main() {
     echo -e "\n${green}\t1.${plain} Установить Fail2ban и настроить ограничения IP"
     echo -e "${green}\t2.${plain} Изменить длительность бана"
     echo -e "${green}\t3.${plain} Разбанить всех"
-    echo -e "${green}\t4.${plain} Проверить логи"
-    echo -e "${green}\t5.${plain} Статус Fail2ban"
-    echo -e "${green}\t6.${plain} Перезапустить Fail2ban"
-    echo -e "${green}\t7.${plain} Удалить Fail2ban"
+    echo -e "${green}\t4.${plain} Проверить журналы"
+    echo -e "${green}\t5.${plain} Журналы в реальном времени"
+    echo -e "${green}\t6.${plain} Статус Fail2ban"
+    echo -e "${green}\t7.${plain} Перезапустить Fail2ban"
+    echo -e "${green}\t8.${plain} Удалить Fail2ban"
     echo -e "${green}\t0.${plain} Вернуться в главное меню"
     read -p "Выберите вариант: " choice
     case "$choice" in
@@ -1088,7 +1288,7 @@ iplimit_main() {
     3)
         confirm "Вы уверены, что хотите разбанить все IP? [Д/н]" "д"
         if [[ $? == 0 ]]; then
-            fail2ban-client reload --restart --unban 3x-ipl
+            fail2ban-client reload --restart --unban x-ipl
             truncate -s 0 "${iplimit_banned_log_path}"
             echo -e "${green}Все пользователи успешно разбанены.${plain}"
             iplimit_main
@@ -1096,11 +1296,30 @@ iplimit_main() {
             echo -e "${yellow}Отмена...${plain}"
         fi
         iplimit_main ;;
-    4) show_banlog ;;
-    5) service fail2ban status ;;
-    6) systemctl restart fail2ban ;;
-    7) remove_iplimit ;;
-    *) echo "Неверный выбор" ;;
+    4)
+      show_banlog
+      iplimit_main
+      ;;
+    5)
+      tail -f /var/log/fail2ban.log
+      iplimit_main
+      ;;
+    6)
+      service fail2ban status
+      iplimit_main
+      ;;
+    7)
+      systemctl restart fail2ban
+      iplimit_main
+      ;;
+    8)
+      remove_iplimit
+      iplimit_main
+      ;;
+    *)
+      echo "Неверный выбор"
+      iplimit_main
+      ;;
     esac
 }
 
@@ -1208,9 +1427,9 @@ remove_iplimit() {
     read -p "Выберите вариант: " num
     case "$num" in
     1)
-        rm -f /etc/fail2ban/filter.d/3x-ipl.conf
-        rm -f /etc/fail2ban/action.d/3x-ipl.conf
-        rm -f /etc/fail2ban/jail.d/3x-ipl.conf
+        rm -f /etc/fail2ban/filter.d/x-ipl.conf
+        rm -f /etc/fail2ban/action.d/x-ipl.conf
+        rm -f /etc/fail2ban/jail.d/x-ipl.conf
         systemctl restart fail2ban
         echo -e "${green}Все ограничения IP сняты!${plain}\n"
         before_show_menu ;;
@@ -1237,11 +1456,87 @@ remove_iplimit() {
         echo -e "${green}Fail2ban удалён, все ограничения IP сняты!${plain}\n"
         before_show_menu ;;
     0)
-        echo -e "${yellow}Отмена...${plain}\n"
-        iplimit_main ;;
+        show_menu ;;
     *)
         echo -e "${red}Неверный вариант. Выберите корректный номер.${plain}\n"
         remove_iplimit ;;
+    esac
+}
+
+SSH_port_forwarding() {
+    local server_ip=$(curl -s https://api.ipify.org)
+    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+    local existing_listenIP=$(/usr/local/x-ui/x-ui setting -getListen true | grep -Eo 'listenIP: .+' | awk '{print $2}')
+    local existing_cert=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
+    local existing_key=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'key: .+' | awk '{print $2}')
+
+    local config_listenIP=""
+    local listen_choice=""
+
+    if [[ -n "$existing_cert" && -n "$existing_key" ]]; then
+        echo -e "${green}Панель защищена с помощью SSL.${plain}"
+        before_show_menu
+    fi
+    if [[ -z "$existing_cert" && -z "$existing_key" && (-z "$existing_listenIP" || "$existing_listenIP" == "0.0.0.0") ]]; then
+        echo -e "\n${red}Внимание: Сертификат и ключ не найдены! Панель не защищена.${plain}"
+        echo "Получите сертификат или настройте переадресацию портов SSH.."
+    fi
+
+    if [[ -n "$existing_listenIP" && "$existing_listenIP" != "0.0.0.0" && (-z "$existing_cert" && -z "$existing_key") ]]; then
+        echo -e "\n${green}Текущая конфигурация переадресации портов SSH:${plain}"
+        echo -e "Стандартная команда SSH:"
+        echo -e "${yellow}ssh -L 2222:${existing_listenIP}:${existing_port} root@${server_ip}${plain}"
+        echo -e "\nПри использовании SSH-ключа:"
+        echo -e "${yellow}ssh -i <sshkeypath> -L 2222:${existing_listenIP}:${existing_port} root@${server_ip}${plain}"
+        echo -e "\nПосле подключения войдите в панель по адресу:"
+        echo -e "${yellow}http://localhost:2222${existing_webBasePath}${plain}"
+    fi
+
+    echo -e "\nВыберите вариант:"
+    echo -e "${green}1.${plain} Установить прослушиваемый IP"
+    echo -e "${green}2.${plain} Очистить прослушиваемый IP"
+    echo -e "${green}0.${plain} Вернуться в главное меню"
+    read -p "Выберите вариант: " num
+
+    case "$num" in
+    1)
+        if [[ -z "$existing_listenIP" || "$existing_listenIP" == "0.0.0.0" ]]; then
+            echo -e "\nПрослушиваемый IP не задан. Выберите вариант:"
+            echo -e "1. По умолчанию IP (127.0.0.1)"
+            echo -e "2. Установить пользовательский IP"
+            read -p "Выберите вариант (1 или 2): " listen_choice
+
+            config_listenIP="127.0.0.1"
+            [[ "$listen_choice" == "2" ]] && read -p "Введите пользовательский IP-адрес для прослушивания: " config_listenIP
+
+            /usr/local/x-ui/x-ui setting -listenIP "${config_listenIP}" >/dev/null 2>&1
+            echo -e "${green}Прослушивание IP было установлено на ${config_listenIP}.${plain}"
+            echo -e "\n${green}Конфигурация переадресации портов SSH:${plain}"
+            echo -e "Стандартная команда SSH:"
+            echo -e "${yellow}ssh -L 2222:${config_listenIP}:${existing_port} root@${server_ip}${plain}"
+            echo -e "\nПри использовании SSH-ключа:"
+            echo -e "${yellow}ssh -i <sshkeypath> -L 2222:${config_listenIP}:${existing_port} root@${server_ip}${plain}"
+            echo -e "\nПосле подключения войдите в панель по адресу:"
+            echo -e "${yellow}http://localhost:2222${existing_webBasePath}${plain}"
+            restart
+        else
+            config_listenIP="${existing_listenIP}"
+            echo -e "${green}Текущий IP-адрес прослушивания уже установлен на ${config_listenIP}.${plain}"
+        fi
+        ;;
+    2)
+        /usr/local/x-ui/x-ui setting -listenIP 0.0.0.0 >/dev/null 2>&1
+        echo -e "${green}Прослушиваемый IP был очищен.${plain}"
+        restart
+        ;;
+    0)
+        show_menu
+        ;;
+    *)
+        echo -e "${red}Неверный вариант. Выберите правильный номер.${plain}\n"
+        SSH_port_forwarding
+        ;;
     esac
 }
 
@@ -1296,14 +1591,15 @@ show_menu() {
   ${green}19.${plain} Сертификат SSL Cloudflare
   ${green}20.${plain} Управление лимитом IP
   ${green}21.${plain} Управление брандмауэром
+  ${green}21.${plain} Управление переадресацией портов SSH
 ————————————————
-  ${green}22.${plain} Включить BBR
-  ${green}23.${plain} Установить WARP
-  ${green}24.${plain} Обновить файлы Geoip
-  ${green}25.${plain} Speedtest от Ookla
+  ${green}23.${plain} Включить BBR
+  ${green}24.${plain} Установить WARP
+  ${green}25.${plain} Обновить файлы Geoip
+  ${green}26.${plain} Speedtest от Ookla
 "
     show_status
-    echo && read -p "Пожалуйста, введите ваш выбор [0-25]: " num
+    echo && read -p "Пожалуйста, введите ваш выбор [0-26]: " num
 
     case "${num}" in
       0) exit 0 ;;
@@ -1328,11 +1624,12 @@ show_menu() {
       19) ssl_cert_issue_CF ;;
       20) iplimit_main ;;
       21) firewall_menu ;;
-      22) bbr_menu ;;
-      23) install_warp ;;
-      24) update_geo ;;
-      25) run_speedtest ;;
-      *) LOGE "Пожалуйста, введите корректный номер [0-25]" ;;
+      22) SSH_port_forwarding ;;
+      23) bbr_menu ;;
+      24) install_warp ;;
+      25) update_geo ;;
+      26) run_speedtest ;;
+      *) LOGE "Пожалуйста, введите корректный номер [0-26]" ;;
     esac
 }
 
