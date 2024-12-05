@@ -36,7 +36,7 @@
                         </td>
                     </tr>
                     <template
-                            v-if="inbound.isTcp || inbound.isWs || inbound.isH2 || inbound.isHttpupgrade || inbound.isSplithttp">
+                            v-if="inbound.isTcp || inbound.isWs || inbound.isH2 || inbound.isHttpupgrade || inbound.isXHTTP">
                         <tr>
                             <td>Хост</td>
                             <td v-if="inbound.host">
@@ -60,11 +60,11 @@
                             </td>
                         </tr>
                     </template>
-                    <template v-if="inbound.isSplithttp">
+                    <template v-if="inbound.isXHTTP">
                         <tr>
                             <td>Режим</td>
                             <td>
-                                <a-tag>[[ inbound.stream.splithttp.mode ]]</a-tag>
+                                <a-tag>[[ inbound.stream.xhttp.mode ]]</a-tag>
                             </td>
                         </tr>
                     </template>
