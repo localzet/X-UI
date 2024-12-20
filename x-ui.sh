@@ -1617,7 +1617,7 @@ show_menu() {
   ${green}19.${plain} Сертификат SSL Cloudflare
   ${green}20.${plain} Управление лимитом IP
   ${green}21.${plain} Управление брандмауэром
-  ${green}21.${plain} Управление переадресацией портов SSH
+  ${green}22.${plain} Управление переадресацией портов SSH
 ————————————————
   ${green}23.${plain} Включить BBR
   ${green}24.${plain} Установить WARP
