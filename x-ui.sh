@@ -669,6 +669,7 @@ firewall_menu() {
     echo -e "${green}\t2.${plain} Разрешенный список"
     echo -e "${green}\t3.${plain} Удалить порты из списка"
     echo -e "${green}\t4.${plain} Отключить брандмауэр"
+    echo -e "${green}\t5.${plain} Статус брандмауэра"
     echo -e "${green}\t0.${plain} Вернуться в главное меню"
     read -p "Выберите вариант: " choice
     case "$choice" in
@@ -684,6 +685,10 @@ firewall_menu() {
         firewall_menu
         ;;
       4) sudo ufw disable
+        firewall_menu
+        ;;
+      6)
+        sudo ufw status verbose
         firewall_menu
         ;;
       *) echo "Неверный выбор"
@@ -1178,8 +1183,8 @@ run_speedtest() {
 }
 
 create_iplimit_jails() {
-    # Использовать время бана по умолчанию => 15 минут
-    local bantime="${1:-15}"
+    # Использовать время бана по умолчанию => 30 минут
+    local bantime="${1:-30}"
 
     # Раскомментируем «allowipv6 = auto» в fail2ban.conf
     sed -i 's/#allowipv6 = auto/allowipv6 = auto/g' /etc/fail2ban/fail2ban.conf
@@ -1210,7 +1215,7 @@ EOF
 
     cat << EOF > /etc/fail2ban/action.d/x-ipl.conf
 [INCLUDES]
-before = iptables-common.conf
+before = iptables-allports.conf
 
 [Definition]
 actionstart = <iptables> -N f2b-<name>
@@ -1254,14 +1259,16 @@ iplimit_remove_conflicts() {
 }
 
 iplimit_main() {
-    echo -e "\n${green}\t1.${plain} Установить Fail2ban и настроить ограничения IP"
+    echo -e "\n${green}\t1.${plain} Установить Fail2ban и настроить лимиты IP"
     echo -e "${green}\t2.${plain} Изменить длительность бана"
     echo -e "${green}\t3.${plain} Разбанить всех"
     echo -e "${green}\t4.${plain} Проверить журналы"
-    echo -e "${green}\t5.${plain} Журналы в реальном времени"
-    echo -e "${green}\t6.${plain} Статус Fail2ban"
-    echo -e "${green}\t7.${plain} Перезапустить Fail2ban"
-    echo -e "${green}\t8.${plain} Удалить Fail2ban"
+    echo -e "${green}\t5.${plain} Заблокировать IP-адрес"
+    echo -e "${green}\t6.${plain} Разблокировать IP-адрес"
+    echo -e "${green}\t7.${plain} Журналы в реальном времени"
+    echo -e "${green}\t8.${plain} Статус службы"
+    echo -e "${green}\t9.${plain} Перезапустить службу"
+    echo -e "${green}\t10.${plain} Удалить Fail2ban и лимиты IP"
     echo -e "${green}\t0.${plain} Вернуться в главное меню"
     read -p "Выберите вариант: " choice
     case "$choice" in
@@ -1287,7 +1294,7 @@ iplimit_main() {
     3)
         confirm "Вы уверены, что хотите разбанить все IP? [Д/н]" "д"
         if [[ $? == 0 ]]; then
-            fail2ban-client reload --restart --unban x-ipl
+            fail2ban-client set x-ipl unban --all
             truncate -s 0 "${iplimit_banned_log_path}"
             echo -e "${green}Все пользователи успешно разбанены.${plain}"
             iplimit_main
@@ -1300,18 +1307,38 @@ iplimit_main() {
       iplimit_main
       ;;
     5)
-      tail -f /var/log/fail2ban.log
+      read -rp "Введите IP-адрес, который вы хотите забанить: " ban_ip
+      if [[ $ban_ip =~ ^(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9]))$ || $ban_ip =~ ^(([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})$ ]]; then
+          fail2ban-client set 3x-ipl banip "$ban_ip"
+          echo -e "${green}IP-адрес ${ban_ip} был успешно забанен.${plain}"
+      else
+          echo -e "${red}Неверный формат IP-адреса! Попробуйте еще раз.${plain}"
+      fi
       iplimit_main
       ;;
     6)
-      service fail2ban status
+      read -rp "Введите IP-адрес, который вы хотите разбанить: " unban_ip
+      if [[ $unban_ip =~ ^(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9]))$ || $unban_ip =~ ^(([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})$ ]]; then
+          fail2ban-client set 3x-ipl unbanip "$unban_ip"
+          echo -e "${green}IP-адрес ${unban_ip} был успешно разбанен.${plain}"
+      else
+          echo -e "${red}Неверный формат IP-адреса! Попробуйте еще раз.${plain}"
+      fi
       iplimit_main
       ;;
     7)
-      systemctl restart fail2ban
+      tail -f /var/log/fail2ban.log
       iplimit_main
       ;;
     8)
+      service fail2ban status
+      iplimit_main
+      ;;
+    9)
+      systemctl restart fail2ban
+      iplimit_main
+      ;;
+    10)
       remove_iplimit
       iplimit_main
       ;;
