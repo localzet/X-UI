@@ -111,8 +111,8 @@ else
 fi
 
 log_folder="${XUI_LOG_FOLDER:=/var/log}"
-iplimit_log_path="${log_folder}/3xipl.log"
-iplimit_banned_log_path="${log_folder}/3xipl-banned.log"
+iplimit_log_path="${log_folder}/xipl.log"
+iplimit_banned_log_path="${log_folder}/xipl-banned.log"
 
 confirm() {
     if [[ $# > 1 ]]; then
@@ -1323,7 +1323,7 @@ iplimit_main() {
       read -rp "Введите IP-адрес, который вы хотите забанить: " ban_ip
         ip_validation
         if [[ $ban_ip =~ $ipv4_regex || $ban_ip =~ $ipv6_regex ]]; then
-          fail2ban-client set 3x-ipl banip "$ban_ip"
+          fail2ban-client set x-ipl banip "$ban_ip"
           echo -e "${green}IP-адрес ${ban_ip} был успешно забанен.${plain}"
       else
           echo -e "${red}Неверный формат IP-адреса! Попробуйте еще раз.${plain}"
@@ -1334,7 +1334,7 @@ iplimit_main() {
       read -rp "Введите IP-адрес, который вы хотите разбанить: " unban_ip
         ip_validation
         if [[ $unban_ip =~ $ipv4_regex || $unban_ip =~ $ipv6_regex ]]; then
-          fail2ban-client set 3x-ipl unbanip "$unban_ip"
+          fail2ban-client set x-ipl unbanip "$unban_ip"
           echo -e "${green}IP-адрес ${unban_ip} был успешно разбанен.${plain}"
       else
           echo -e "${red}Неверный формат IP-адреса! Попробуйте еще раз.${plain}"
