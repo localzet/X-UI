@@ -678,17 +678,17 @@ firewall_menu() {
         open_ports
         firewall_menu
         ;;
-      2) sudo ufw status
+      2) ufw status numbered
         firewall_menu
         ;;
       3) delete_ports
         firewall_menu
         ;;
-      4) sudo ufw disable
+      4) ufw disable
         firewall_menu
         ;;
-      6)
-        sudo ufw status verbose
+      5)
+        ufw status verbose
         firewall_menu
         ;;
       *) echo "Неверный выбор"
@@ -715,6 +715,7 @@ open_ports() {
         ufw allow http
         ufw allow https
         ufw allow 2053/tcp
+        ufw allow 2096/tcp
 
         ufw --force enable
     fi
@@ -740,10 +741,17 @@ open_ports() {
     done
 
     echo "Следующие порты теперь открыты:"
-    ufw status | grep "ALLOW" | grep -Eo "[0-9]+(/[a-z]+)?"
-
-    echo "Статус брандмауэра:"
-    ufw status verbose
+    for port in "${PORT_LIST[@]}"; do
+        if [[ $port == *-* ]]; then
+            start_port=$(echo $port | cut -d'-' -f1)
+            end_port=$(echo $port | cut -d'-' -f2)
+            # Check if the port range has been successfully opened
+            (ufw status | grep -q "$start_port:$end_port") && echo "$start_port-$end_port"
+        else
+            # Check if the individual port has been successfully opened
+            (ufw status | grep -q "$port") && echo "$port"
+        fi
+    done
 }
 
 delete_ports() {
@@ -1258,6 +1266,11 @@ iplimit_remove_conflicts() {
     done
 }
 
+ip_validation() {
+    ipv6_regex="^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$"
+    ipv4_regex="^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
+}
+
 iplimit_main() {
     echo -e "\n${green}\t1.${plain} Установить Fail2ban и настроить лимиты IP"
     echo -e "${green}\t2.${plain} Изменить длительность бана"
@@ -1308,7 +1321,8 @@ iplimit_main() {
       ;;
     5)
       read -rp "Введите IP-адрес, который вы хотите забанить: " ban_ip
-      if [[ $ban_ip =~ ^(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9]))$ || $ban_ip =~ ^(([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})$ ]]; then
+        ip_validation
+        if [[ $ban_ip =~ $ipv4_regex || $ban_ip =~ $ipv6_regex ]]; then
           fail2ban-client set 3x-ipl banip "$ban_ip"
           echo -e "${green}IP-адрес ${ban_ip} был успешно забанен.${plain}"
       else
@@ -1318,7 +1332,8 @@ iplimit_main() {
       ;;
     6)
       read -rp "Введите IP-адрес, который вы хотите разбанить: " unban_ip
-      if [[ $unban_ip =~ ^(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9]))$ || $unban_ip =~ ^(([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})$ ]]; then
+        ip_validation
+        if [[ $unban_ip =~ $ipv4_regex || $unban_ip =~ $ipv6_regex ]]; then
           fail2ban-client set 3x-ipl unbanip "$unban_ip"
           echo -e "${green}IP-адрес ${unban_ip} был успешно разбанен.${plain}"
       else
@@ -1659,6 +1674,7 @@ show_menu() {
     esac
 }
 
+# shellcheck disable=SC2071
 if [[ $# > 0 ]]; then
     case $1 in
       "start") check_install 0 && start 0 ;;

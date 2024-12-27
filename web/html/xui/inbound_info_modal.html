@@ -191,6 +191,33 @@
                         </a-tag>
                     </td>
                 </tr>
+                <tr v-if="infoModal.clientSettings.comment">
+                    <td>Комментарий</td>
+                    <td>
+                        <a-tooltip :title="[[ infoModal.clientSettings.comment  ]]">
+                            <a-tag class="info-large-tag">[[ infoModal.clientSettings.comment ]]</a-tag>
+                        </a-tooltip>
+                    </td>
+                </tr>
+                <tr v-if="app.ipLimitEnable">
+                    <td>Лимит IP</td>
+                    <td>
+                        <a-tag>[[ infoModal.clientSettings.limitIp ]]</a-tag>
+                    </td>
+                </tr>
+                <tr v-if="app.ipLimitEnable">
+                    <td>Лог IP-адресов</td>
+                    <td>
+                        <a-tag>[[ infoModal.clientIps ]]</a-tag>
+                        <a-icon type="sync" :spin="refreshing" @click="refreshIPs" style="margin: 0 5px;"></a-icon>
+                        <a-tooltip :title="[[ dbInbound.address ]]">
+                            <template slot="title">
+                                <span>Очистить лог</span>
+                            </template>
+                            <a-icon type="delete" @click="clearClientIps"></a-icon>
+                        </a-tooltip>
+                    </td>
+                </tr>
             </table>
             <table style="display: inline-table; margin-block: 10px; width: 100%; text-align: center;">
                 <tr>
@@ -441,6 +468,18 @@
         </template>
 </a-modal>
 <script>
+    function refreshIPs(email) {
+        return HttpUtil.post(`/panel/inbound/clientIps/${email}`).then((msg) => {
+            if (msg.success) {
+                try {
+                    return JSON.parse(msg.obj).join(', ');
+                } catch (e) {
+                    return msg.obj;
+                }
+            }
+        });
+    }
+
     const infoModal = {
         visible: false,
         inbound: new Inbound(),
@@ -455,6 +494,7 @@
         isExpired: false,
         subLink: '',
         subJsonLink: '',
+        clientIps: '',
         show(dbInbound, index) {
             this.index = index;
             this.inbound = dbInbound.toInbound();
@@ -462,6 +502,11 @@
             this.clientSettings = this.inbound.clients ? this.inbound.clients[index] : null;
             this.isExpired = this.inbound.clients ? this.inbound.isExpiry(index) : this.dbInbound.isExpiry;
             this.clientStats = this.inbound.clients ? this.dbInbound.clientStats.find(row => row.email === this.clientSettings.email) : [];
+            if (app.ipLimitEnable && this.clientSettings.limitIp) {
+                refreshIPs(this.clientStats.email).then((ips) => {
+                    this.clientIps = ips;
+                })
+            }
             if (this.inbound.protocol == Protocols.WIREGUARD) {
                 this.links = this.inbound.genInboundLinks(dbInbound.remark).split('\r\n')
             } else {
@@ -490,6 +535,7 @@
         el: '#inbound-info-modal',
         data: {
             infoModal,
+            refreshing: false,
             get dbInbound() {
                 return this.infoModal.dbInbound;
             },
@@ -525,6 +571,27 @@
             getRemStats() {
                 remained = this.infoModal.clientStats.total - this.infoModal.clientStats.up - this.infoModal.clientStats.down;
                 return remained > 0 ? sizeFormat(remained) : '-';
+            },
+            refreshIPs() {
+                this.refreshing = true;
+                refreshIPs(this.infoModal.clientStats.email)
+                    .then((ips) => {
+                        this.infoModal.clientIps = ips;
+                    })
+                    .finally(() => {
+                        this.refreshing = false;
+                    });
+            },
+            clearClientIps() {
+                HttpUtil.post(`/panel/inbound/clearClientIps/${this.infoModal.clientStats.email}`)
+                    .then((msg) => {
+                        if (!msg.success) {
+                            return;
+                        }
+                        this.infoModal.clientIps = 'No IP Record';
+                    })
+                    .catch(() => {
+                    });
             },
         },
     });
