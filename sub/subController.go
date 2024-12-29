@@ -14,6 +14,7 @@ type SUBController struct {
 	subEncrypt     bool
 	updateInterval string
 
+	jsonRules      string
 	subService     *SubService
 	subJsonService *SubJsonService
 }
@@ -32,26 +33,24 @@ func NewSUBController(
 	jsonRules string,
 ) *SUBController {
 	sub := NewSubService(showInfo, rModel)
+	subJson := NewSubJsonService(jsonFragment, jsonNoise, jsonMux, jsonRules, sub)
 	a := &SUBController{
 		subPath:        subPath,
 		subJsonPath:    jsonPath,
 		subEncrypt:     encrypt,
 		updateInterval: update,
 
+		jsonRules:      jsonRules,
 		subService:     sub,
-		subJsonService: NewSubJsonService(jsonFragment, jsonNoise, jsonMux, jsonRules, sub),
+		subJsonService: subJson,
 	}
 	a.initRouter(g)
 	return a
 }
 
 func (a *SUBController) initRouter(g *gin.RouterGroup) {
-	gLink := g.Group(a.subPath)
-	gJson := g.Group(a.subJsonPath)
-
-	gLink.GET(":subid", a.subs)
-
-	gJson.GET(":subid", a.subJsons)
+	g.Group(a.subPath).GET(":subid", a.subs)
+	g.Group(a.subJsonPath).GET(":subid", a.subJsons)
 }
 
 func (a *SUBController) subs(c *gin.Context) {
@@ -80,9 +79,13 @@ func (a *SUBController) subs(c *gin.Context) {
 		}
 
 		// Add headers
+		c.Writer.Header().Set("Profile-Title", subId)
 		c.Writer.Header().Set("Subscription-Userinfo", header)
 		c.Writer.Header().Set("Profile-Update-Interval", a.updateInterval)
-		c.Writer.Header().Set("Profile-Title", subId)
+
+		// v2RayTun iOS routing support
+		r, _ := a.subJsonService.GetRouting(a.jsonRules)
+		c.Writer.Header().Set("Routing", base64.StdEncoding.EncodeToString(r))
 
 		if a.subEncrypt {
 			c.String(200, base64.StdEncoding.EncodeToString([]byte(result)))
@@ -117,6 +120,10 @@ func (a *SUBController) subJsons(c *gin.Context) {
 		c.Writer.Header().Set("Subscription-Userinfo", header)
 		c.Writer.Header().Set("Profile-Update-Interval", a.updateInterval)
 		c.Writer.Header().Set("Profile-Title", subId)
+
+		// v2RayTun iOS routing support
+		r, _ := a.subJsonService.GetRouting(a.jsonRules)
+		c.Writer.Header().Set("Routing", base64.StdEncoding.EncodeToString(r))
 
 		c.String(200, jsonSub)
 	}

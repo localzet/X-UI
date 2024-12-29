@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"strings"
 
 	"x-ui/database/model"
@@ -21,11 +22,40 @@ type SubJsonService struct {
 	configJson       map[string]interface{}
 	defaultOutbounds []json_util.RawMessage
 	fragment         string
-	noises            string
+	noises           string
 	mux              string
 
 	inboundService service.InboundService
 	SubService     *SubService
+}
+
+func (s *SubJsonService) GetRouting(rules string) ([]byte, error) {
+	var configJson map[string]interface{}
+	json.Unmarshal([]byte(defaultJson), &configJson)
+
+	var newRules []interface{}
+	routing, _ := configJson["routing"].(map[string]interface{})
+
+	// Добавляем дополнительные поля
+	routing["name"] = "Proxy Rules"
+	routing["id"] = uuid.New().String()
+	routing["domainMatcher"] = "hybrid"
+	routing["balancers"] = []interface{}{}
+
+	if rules != "" {
+		defaultRules, _ := routing["rules"].([]interface{})
+		json.Unmarshal([]byte(rules), &newRules)
+		for i, rule := range newRules {
+			ruleMap := rule.(map[string]interface{})
+			ruleMap["__id__"] = uuid.New().String()
+			ruleMap["__name__"] = "rule-" + uuid.New().String()
+			newRules[i] = ruleMap
+		}
+		defaultRules = append(newRules, defaultRules...)
+		routing["rules"] = defaultRules
+	}
+
+	return json.Marshal(routing)
 }
 
 func NewSubJsonService(fragment string, noises string, mux string, rules string, subService *SubService) *SubJsonService {
@@ -61,7 +91,7 @@ func NewSubJsonService(fragment string, noises string, mux string, rules string,
 		configJson:       configJson,
 		defaultOutbounds: defaultOutbounds,
 		fragment:         fragment,
-		noises:            noises,
+		noises:           noises,
 		mux:              mux,
 		SubService:       subService,
 	}
