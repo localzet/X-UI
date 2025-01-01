@@ -124,6 +124,10 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 
 	g := engine.Group("/")
 
+	g.GET("/robots.txt", func(c *gin.Context) {
+		c.File(basePath + "assets/robots.txt")
+	})
+
 	s.sub = NewSUBController(
 		g, LinksPath, JsonPath, Encrypt, ShowInfo, RemarkModel, SubUpdates,
 		SubJsonFragment, SubJsonNoises, SubJsonMux, SubJsonRules)

@@ -234,6 +234,10 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 
 	g := engine.Group(basePath)
 
+	g.GET("/robots.txt", func(c *gin.Context) {
+		c.File(basePath + "assets/robots.txt")
+	})
+
 	s.index = controller.NewIndexController(g)
 	s.server = controller.NewServerController(g)
 	s.panel = controller.NewXUIController(g)
