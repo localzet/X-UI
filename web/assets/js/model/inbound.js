@@ -818,7 +818,7 @@ class SockoptStreamSettings extends XrayCommonClass {
         mark = 0,
         tproxy = "off",
         tcpMptcp = false,
-        penetrate  = false,
+        penetrate = false,
         domainStrategy = DOMAIN_STRATEGY_OPTION.USE_IP,
         tcpMaxSeg = 1440,
         dialerProxy = "",
@@ -836,7 +836,7 @@ class SockoptStreamSettings extends XrayCommonClass {
         this.mark = mark;
         this.tproxy = tproxy;
         this.tcpMptcp = tcpMptcp;
-        this.penetrate  = penetrate;
+        this.penetrate = penetrate;
         this.domainStrategy = domainStrategy;
         this.tcpMaxSeg = tcpMaxSeg;
         this.dialerProxy = dialerProxy;
@@ -894,18 +894,19 @@ class SockoptStreamSettings extends XrayCommonClass {
 }
 
 class StreamSettings extends XrayCommonClass {
-    constructor(network = 'tcp',
-                security = 'none',
-                externalProxy = [],
-                tlsSettings = new TlsStreamSettings(),
-                realitySettings = new RealityStreamSettings(),
-                tcpSettings = new TcpStreamSettings(),
-                kcpSettings = new KcpStreamSettings(),
-                wsSettings = new WsStreamSettings(),
-                grpcSettings = new GrpcStreamSettings(),
-                httpupgradeSettings = new HTTPUpgradeStreamSettings(),
-                xhttpSettings = new xHTTPStreamSettings(),
-                sockopt = undefined,
+    constructor(
+        network = 'tcp',
+        security = 'none',
+        externalProxy = [],
+        tlsSettings = new TlsStreamSettings(),
+        realitySettings = new RealityStreamSettings(),
+        tcpSettings = new TcpStreamSettings(),
+        kcpSettings = new KcpStreamSettings(),
+        wsSettings = new WsStreamSettings(),
+        grpcSettings = new GrpcStreamSettings(),
+        httpupgradeSettings = new HTTPUpgradeStreamSettings(),
+        xhttpSettings = new xHTTPStreamSettings(),
+        sockopt = undefined,
     ) {
         super();
         this.network = network;
@@ -927,11 +928,7 @@ class StreamSettings extends XrayCommonClass {
     }
 
     set isTls(isTls) {
-        if (isTls) {
-            this.security = 'tls';
-        } else {
-            this.security = 'none';
-        }
+        this.security = isTls ? 'tls': 'none';
     }
 
     //for Reality
@@ -940,11 +937,7 @@ class StreamSettings extends XrayCommonClass {
     }
 
     set isReality(isReality) {
-        if (isReality) {
-            this.security = 'reality';
-        } else {
-            this.security = 'none';
-        }
+        this.security = isReality ? 'reality': 'none';
     }
 
     get sockoptSwitch() {
@@ -1750,8 +1743,10 @@ Inbound.Settings = class extends XrayCommonClass {
 };
 
 Inbound.VmessSettings = class extends Inbound.Settings {
-    constructor(protocol,
-                vmesses = [new Inbound.VmessSettings.VMESS()]) {
+    constructor(
+        protocol,
+        vmesses = [new Inbound.VmessSettings.VMESS()]
+    ) {
         super(protocol);
         this.vmesses = vmesses;
     }
@@ -1787,7 +1782,6 @@ Inbound.VmessSettings = class extends Inbound.Settings {
         };
     }
 };
-
 Inbound.VmessSettings.VMESS = class extends XrayCommonClass {
     constructor(
         id = RandomUtil.randomUUID(),
@@ -1898,7 +1892,6 @@ Inbound.VLESSSettings = class extends Inbound.Settings {
         };
     }
 };
-
 Inbound.VLESSSettings.VLESS = class extends XrayCommonClass {
     constructor(
         id = RandomUtil.randomUUID(),
@@ -1970,27 +1963,19 @@ Inbound.VLESSSettings.VLESS = class extends XrayCommonClass {
     }
 };
 Inbound.VLESSSettings.Fallback = class extends XrayCommonClass {
-    constructor(name = "", alpn = '', path = '', dest = '', xver = 0) {
+    constructor(
+        name = '',
+        alpn = '',
+        path = '',
+        dest = '',
+        xver = 0
+    ) {
         super();
         this.name = name;
         this.alpn = alpn;
         this.path = path;
         this.dest = dest;
         this.xver = xver;
-    }
-
-    toJson() {
-        let xver = this.xver;
-        if (!Number.isInteger(xver)) {
-            xver = 0;
-        }
-        return {
-            name: this.name,
-            alpn: this.alpn,
-            path: this.path,
-            dest: this.dest,
-            xver: xver,
-        }
     }
 
     static fromJson(json = []) {
@@ -2006,12 +1991,28 @@ Inbound.VLESSSettings.Fallback = class extends XrayCommonClass {
         }
         return fallbacks;
     }
+
+    toJson() {
+        let xver = this.xver;
+        if (!Number.isInteger(xver)) {
+            xver = 0;
+        }
+        return {
+            name: this.name,
+            alpn: this.alpn,
+            path: this.path,
+            dest: this.dest,
+            xver: xver,
+        }
+    }
 };
 
 Inbound.TrojanSettings = class extends Inbound.Settings {
-    constructor(protocol,
-                trojans = [new Inbound.TrojanSettings.Trojan()],
-                fallbacks = [],) {
+    constructor(
+        protocol,
+        trojans = [new Inbound.TrojanSettings.Trojan()],
+        fallbacks = []
+    ) {
         super(protocol);
         this.trojans = trojans;
         this.fallbacks = fallbacks;
@@ -2039,7 +2040,6 @@ Inbound.TrojanSettings = class extends Inbound.Settings {
         };
     }
 };
-
 Inbound.TrojanSettings.Trojan = class extends XrayCommonClass {
     constructor(
         password = RandomUtil.randomSeq(10),
@@ -2123,29 +2123,20 @@ Inbound.TrojanSettings.Trojan = class extends XrayCommonClass {
     }
 
 };
-
 Inbound.TrojanSettings.Fallback = class extends XrayCommonClass {
-    constructor(name = "", alpn = '', path = '', dest = '', xver = 0) {
+    constructor(
+        name = '',
+        alpn = '',
+        path = '',
+        dest = '',
+        xver = 0
+    ) {
         super();
         this.name = name;
         this.alpn = alpn;
         this.path = path;
         this.dest = dest;
         this.xver = xver;
-    }
-
-    toJson() {
-        let xver = this.xver;
-        if (!Number.isInteger(xver)) {
-            xver = 0;
-        }
-        return {
-            name: this.name,
-            alpn: this.alpn,
-            path: this.path,
-            dest: this.dest,
-            xver: xver,
-        }
     }
 
     static fromJson(json = []) {
@@ -2161,15 +2152,30 @@ Inbound.TrojanSettings.Fallback = class extends XrayCommonClass {
         }
         return fallbacks;
     }
+
+    toJson() {
+        let xver = this.xver;
+        if (!Number.isInteger(xver)) {
+            xver = 0;
+        }
+        return {
+            name: this.name,
+            alpn: this.alpn,
+            path: this.path,
+            dest: this.dest,
+            xver: xver,
+        }
+    }
 };
 
 Inbound.ShadowsocksSettings = class extends Inbound.Settings {
-    constructor(protocol,
-                method = SSMethods.BLAKE3_AES_256_GCM,
-                password = RandomUtil.randomShadowsocksPassword(),
-                network = 'tcp,udp',
-                shadowsockses = [new Inbound.ShadowsocksSettings.Shadowsocks()],
-                ivCheck = false,
+    constructor(
+        protocol,
+        method = SSMethods.BLAKE3_AES_256_GCM,
+        password = RandomUtil.randomShadowsocksPassword(),
+        network = 'tcp,udp',
+        shadowsockses = [new Inbound.ShadowsocksSettings.Shadowsocks()],
+        ivCheck = false,
     ) {
         super(protocol);
         this.method = method;
@@ -2200,7 +2206,6 @@ Inbound.ShadowsocksSettings = class extends Inbound.Settings {
         };
     }
 };
-
 Inbound.ShadowsocksSettings.Shadowsocks = class extends XrayCommonClass {
     constructor(
         method = '',
@@ -2325,7 +2330,13 @@ Inbound.DokodemoSettings = class extends Inbound.Settings {
 };
 
 Inbound.SocksSettings = class extends Inbound.Settings {
-    constructor(protocol, auth = 'password', accounts = [new Inbound.SocksSettings.SocksAccount()], udp = false, ip = '127.0.0.1') {
+    constructor(
+        protocol,
+        auth = 'password',
+        accounts = [new Inbound.SocksSettings.SocksAccount()],
+        udp = false,
+        ip = '127.0.0.1'
+    ) {
         super(protocol);
         this.auth = auth;
         this.accounts = accounts;
@@ -2367,7 +2378,10 @@ Inbound.SocksSettings = class extends Inbound.Settings {
     }
 };
 Inbound.SocksSettings.SocksAccount = class extends XrayCommonClass {
-    constructor(user = RandomUtil.randomSeq(10), pass = RandomUtil.randomSeq(10)) {
+    constructor(
+        user = RandomUtil.randomSeq(10),
+        pass = RandomUtil.randomSeq(10)
+    ) {
         super();
         this.user = user;
         this.pass = pass;
@@ -2412,9 +2426,11 @@ Inbound.HttpSettings = class extends Inbound.Settings {
         };
     }
 };
-
 Inbound.HttpSettings.HttpAccount = class extends XrayCommonClass {
-    constructor(user = RandomUtil.randomSeq(10), pass = RandomUtil.randomSeq(10)) {
+    constructor(
+        user = RandomUtil.randomSeq(10),
+        pass = RandomUtil.randomSeq(10)
+    ) {
         super();
         this.user = user;
         this.pass = pass;
@@ -2468,9 +2484,14 @@ Inbound.WireguardSettings = class extends XrayCommonClass {
         };
     }
 };
-
 Inbound.WireguardSettings.Peer = class extends XrayCommonClass {
-    constructor(privateKey, publicKey, psk = '', allowedIPs = ['10.0.0.2/32'], keepAlive = 0) {
+    constructor(
+        privateKey,
+        publicKey,
+        psk = '',
+        allowedIPs = ['10.0.0.2/32'],
+        keepAlive = 0
+    ) {
         super();
         this.privateKey = privateKey
         this.publicKey = publicKey;
