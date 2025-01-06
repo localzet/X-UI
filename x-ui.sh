@@ -668,8 +668,9 @@ firewall_menu() {
     echo -e "${green}\t1.${plain} Установить брандмауэр и открыть порты"
     echo -e "${green}\t2.${plain} Разрешенный список"
     echo -e "${green}\t3.${plain} Удалить порты из списка"
-    echo -e "${green}\t4.${plain} Отключить брандмауэр"
-    echo -e "${green}\t5.${plain} Статус брандмауэра"
+    echo -e "${green}\t4.${plain} Включить брандмауэр"
+    echo -e "${green}\t5.${plain} Отключить брандмауэр"
+    echo -e "${green}\t6.${plain} Статус брандмауэра"
     echo -e "${green}\t0.${plain} Вернуться в главное меню"
     read -p "Выберите вариант: " choice
     case "$choice" in
@@ -684,10 +685,13 @@ firewall_menu() {
       3) delete_ports
         firewall_menu
         ;;
-      4) ufw disable
+      4) ufw enable
         firewall_menu
         ;;
-      5)
+      5) ufw disable
+        firewall_menu
+        ;;
+      6)
         ufw status verbose
         firewall_menu
         ;;
@@ -755,36 +759,65 @@ open_ports() {
 }
 
 delete_ports() {
-    read -p "Введите порты, которые вы хотите удалить (например, 80,443,2053 или диапазон 400-500): " ports
+    echo "Текущие правила UFW:"
+    ufw status numbered
 
-    if ! [[ $ports =~ ^([0-9]+|[0-9]+-[0-9]+)(,([0-9]+|[0-9]+-[0-9]+))*$ ]]; then
-        echo "Ошибка: Неверный ввод. Введите список портов, разделенных запятыми, или диапазон портов (например, 80,443,2053 или 400-500)." >&2
+    echo "Вы хотите удалить правила по:"
+    echo "1) Номерам правил"
+    echo "2) Портам"
+    read -p "Введите 1 или 2: " choice
+
+    if [[ $choice -eq 1 ]]; then
+        read -p "Введите номера правил, которые вы хотите удалить (1, 2 и т. д.): " rule_numbers
+
+        if ! [[ $rule_numbers =~ ^([0-9]+)(,[0-9]+)*$ ]]; then
+            echo "Ошибка: Неверный ввод. Введите список номеров правил, разделенных запятыми." >&2
+            exit 1
+        fi
+
+        IFS=',' read -ra RULE_NUMBERS <<<"$rule_numbers"
+        for rule_number in "${RULE_NUMBERS[@]}"; do
+            ufw delete "$rule_number" || echo "Не удалось удалить правило № $rule_number"
+        done
+
+        echo "Выбранные правила были удалены."
+
+    elif [[ $choice -eq 2 ]]; then
+
+        read -p "Введите порты, которые вы хотите удалить (например, 80,443,2053 или диапазон 400-500): " ports
+
+        if ! [[ $ports =~ ^([0-9]+|[0-9]+-[0-9]+)(,([0-9]+|[0-9]+-[0-9]+))*$ ]]; then
+            echo "Ошибка: Неверный ввод. Введите список портов, разделенных запятыми, или диапазон портов (например, 80,443,2053 или 400-500)." >&2
+            exit 1
+        fi
+
+        IFS=',' read -ra PORT_LIST <<<"$ports"
+        for port in "${PORT_LIST[@]}"; do
+            if [[ $port == *-* ]]; then
+                start_port=$(echo $port | cut -d'-' -f1)
+                end_port=$(echo $port | cut -d'-' -f2)
+
+                ufw delete allow $start_port:$end_port/tcp
+                ufw delete allow $start_port:$end_port/udp
+            else
+                ufw delete allow "$port"
+            fi
+        done
+
+        echo "Удаляю указанные порты:"
+        for port in "${PORT_LIST[@]}"; do
+            if [[ $port == *-* ]]; then
+                start_port=$(echo $port | cut -d'-' -f1)
+                end_port=$(echo $port | cut -d'-' -f2)
+                (ufw status | grep -q "$start_port:$end_port") || echo "$start_port-$end_port"
+            else
+                (ufw status | grep -q "$port") || echo "$port"
+            fi
+        done
+    else
+        echo "${red}Error:${plain} Invalid choice. Please enter 1 or 2." >&2
         exit 1
     fi
-
-    IFS=',' read -ra PORT_LIST <<<"$ports"
-    for port in "${PORT_LIST[@]}"; do
-        if [[ $port == *-* ]]; then
-            start_port=$(echo $port | cut -d'-' -f1)
-            end_port=$(echo $port | cut -d'-' -f2)
-
-            ufw delete allow $start_port:$end_port/tcp
-            ufw delete allow $start_port:$end_port/udp
-        else
-            ufw delete allow "$port"
-        fi
-    done
-    
-    echo "Удаляю указанные порты:"
-    for port in "${PORT_LIST[@]}"; do
-        if [[ $port == *-* ]]; then
-            start_port=$(echo $port | cut -d'-' -f1)
-            end_port=$(echo $port | cut -d'-' -f2)
-            (ufw status | grep -q "$start_port:$end_port") || echo "$start_port-$end_port"
-        else
-            (ufw status | grep -q "$port") || echo "$port"
-        fi
-    done
 }
 
 update_geo() {
@@ -799,10 +832,12 @@ update_geo() {
 
     cd ${binFolder}
     systemctl stop x-ui
-    rm -f geoip.dat geosite.dat
+    rm -f geoip.dat geosite.dat geoip_RU.dat geosite_RU.dat
     wget -N https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
     wget -N https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
-    echo -e "${green}Geosite.dat + Geoip.dat успешно обновлены в '${binfolder}'!${plain}"
+    wget -O geoip_RU.dat -N https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/latest/download/geoip.dat
+    wget -O geosite_RU.dat -N https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/latest/download/geosite.dat
+    echo -e "${green}Geosite.dat + Geoip.dat успешно обновлены в '${binFolder}'!${plain}"
     restart
     before_show_menu
 }
