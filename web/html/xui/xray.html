@@ -294,7 +294,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta title='Прямые IP'/>
+                                <a-list-item-meta title='Direct: IP'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <template>
@@ -312,7 +312,7 @@
                     <a-list-item>
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
-                                <a-list-item-meta title='Прямые домены'/>
+                                <a-list-item-meta title='Direct: Домены'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <template>
@@ -339,7 +339,7 @@
                         <a-row style="padding: 0 20px">
                             <a-col :lg="24" :xl="12">
                                 <a-list-item-meta
-                                    title='Домены IPv4'/>
+                                    title='IPv4: Домены'/>
                             </a-col>
                             <a-col :lg="24" :xl="12">
                                 <template>
@@ -368,7 +368,7 @@
                             <a-row style="padding: 0 20px">
                                 <a-col :lg="24" :xl="12">
                                     <a-list-item-meta
-                                        title='Домены WARP'/>
+                                        title='WARP: Домены'/>
                                 </a-col>
                                 <a-col :lg="24" :xl="12">
                                     <template>
@@ -383,6 +383,25 @@
                                 </a-col>
                             </a-row>
                         </a-list-item>
+                          <a-list-item>
+                              <a-row style="padding: 0 20px">
+                                  <a-col :lg="24" :xl="12">
+                                      <a-list-item-meta
+                                              title='WARP: IP'/>
+                                  </a-col>
+                                  <a-col :lg="24" :xl="12">
+                                      <template>
+                                          <a-select mode="tags" style="width: 100%"
+                                                    v-model="warpIPs"
+                                                    :dropdown-class-name="themeSwitcher.currentTheme">
+                                              <a-select-option :value="p.value" :label="p.label"
+                                                               v-for="p in settingsData.ServicesOptions"> [[ p.label ]]
+                                              </a-select-option>
+                                          </a-select>
+                                      </template>
+                                  </a-col>
+                              </a-row>
+                          </a-list-item>
                       </template>
                       <a-button style="margin-left: 20px;" v-else type="primary" icon="cloud" @click="showWarp()">WARP</a-button>
                     </a-list-item>
@@ -1900,6 +1919,14 @@
                 },
                 set: function (newValue) {
                     this.templateRuleSetter({ outboundTag: "warp", property: "domain", data: newValue });
+                }
+            },
+            warpIPs: {
+                get: function () {
+                    return this.templateRuleGetter({ outboundTag: "warp", property: "ip" });
+                },
+                set: function (newValue) {
+                    this.templateRuleSetter({ outboundTag: "warp", property: "ip", data: newValue });
                 }
             },
             torrentSettings: {
