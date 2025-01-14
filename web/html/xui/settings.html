@@ -410,7 +410,10 @@
           outboundTag: "direct",
           domain: [
             "geosite:category-ru",
-            "geosite:category-gov-ru"
+            "geosite:category-gov-ru",
+            "regexp:.*\\.ru",
+            "regexp:.*\\.su",
+            "regexp:.*\\.xn--p1ai$"
           ]
         },
         {
@@ -429,6 +432,10 @@
       DomainsOptions: [
         { label: 'geosite:category-ru', value: 'ru' },
         { label: 'geosite:category-gov-ru', value: 'gov-ru' },
+        { label: '.ru', value: 'regexp:.*\\.ru' },
+        { label: '.su', value: 'regexp:.*\\.su' },
+        { label: '.рф', value: 'regexp:.*\\.xn--p1ai$' },
+
         { label: 'Apple', value: 'apple' },
         { label: 'Meta', value: 'meta' },
         { label: 'Google', value: 'google' },

@@ -1,14 +1,36 @@
 {
   "remarks": "",
   "dns": {
-    "tag": "dns_out",
     "queryStrategy": "UseIP",
     "servers": [
       {
-        "address": "8.8.8.8",
+        "address": "https://cloudflare-dns.com/dns-query",
+        "skipFallback": false
+      },
+      {
+        "address": "https://dns.google/dns-query",
+        "skipFallback": false
+      },
+      {
+        "address": "https://dns.quad9.net/dns-query",
+        "skipFallback": false
+      },
+      {
+        "address": "https://doh.opendns.com/dns-query",
+        "skipFallback": false
+      },
+      {
+        "address": "dns://dns.torproject.org",
+        "skipFallback": false
+      },
+      {
+        "address": "dns://dns4tor.icu",
         "skipFallback": false
       }
-    ]
+    ],
+    "clientIp": "1.1.1.1",
+    "disableCache": false,
+    "tag": "dns_out"
   },
   "inbounds": [
     {
