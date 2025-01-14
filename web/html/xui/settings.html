@@ -743,10 +743,14 @@
             rules[ruleIndex].domain = [];
             v.forEach(d => {
               let category = '';
+              let prefix = '';
               if (["ru", "gov-ru"].includes(d)) {
                 category = "category-";
               }
-              rules[ruleIndex].domain.push("geosite:" + category + d);
+              if (!d.startsWith("regexp:")) {
+                prefix = "geosite:";
+              }
+              rules[ruleIndex].domain.push(prefix + category + d);
             });
           }
           this.allSetting.subJsonRules = JSON.stringify(rules);
