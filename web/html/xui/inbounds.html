@@ -222,6 +222,10 @@
                         <a-icon type="rest"></a-icon>
                         Удалить истекших клиентов
                       </a-menu-item>
+                      <a-menu-item v-if="subSettings.enable && dbInbounds.length > 0" key="addGroupClient">
+                        <a-icon type="usergroup-add"></a-icon>
+                        Добавить пользователя подписки
+                      </a-menu-item>
                     </a-menu>
                   </a-dropdown>
                 </a-col>
@@ -301,10 +305,6 @@
                       <a-menu-item key="delDepletedClients" style="color: #FF4D4F;">
                         <a-icon type="rest"></a-icon>
                         Удалить истекших клиентов
-                      </a-menu-item>
-                      <a-menu-item v-if="subSettings.enable && dbInbounds.length > 0" key="addGroupClient">
-                        <a-icon type="usergroup-add"></a-icon>
-                        Добавить пользователя подписки
                       </a-menu-item>
                     </template>
                     <template v-else>
