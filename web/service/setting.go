@@ -50,7 +50,7 @@ var defaultValueMap = map[string]string{
 	"tgLang":             "ru-RU",
 	"secretEnable":       "false",
 	"subEnable":          "false",
-	"subSyncEnable":      "false",
+	"subSyncEnable":      "true",
 	"subListen":          "",
 	"subPort":            "2096",
 	"subPath":            "/sub/",
