@@ -214,6 +214,7 @@
               <a-tab-pane key="4" tab='Подписки'>
                 <a-list item-layout="horizontal">
                   <setting-list-item type="switch" title='Включить подписки' desc='Активация подписок для клиентов' v-model="allSetting.subEnable"></setting-list-item>
+                  <setting-list-item type="switch" title='Включить синхронизацию подписки' desc='Трафик от клиентов с одной подпиской будет синхронизироваться каждые 10 секунд' v-model="allSetting.subSyncEnable"></setting-list-item>
                   <setting-list-item type="switch" title='Шифровать конфигурацию' desc='Шифрование конфигурации в подписках в целях безопасности' v-model="allSetting.subEncrypt"></setting-list-item>
                   <setting-list-item type="switch" title='Информация об использовании' desc='Дописывать в название подключения оставшийся объём трафика или срок действия' v-model="allSetting.subShowInfo"></setting-list-item>
                   <setting-list-item type="text" title='IP-адрес подписок' desc='IP-адрес для подписок. Оставьте пустым, чтобы слушать любой IP-адрес' v-model="allSetting.subListen"></setting-list-item>
