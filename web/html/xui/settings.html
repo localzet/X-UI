@@ -329,13 +329,37 @@
                     </a-row>
                     <a-collapse v-if="enableDirect" style="margin-top: 14px;">
                       <a-collapse-panel header='Подключение к IP-зонами'>
-                        <a-list-item style="padding: 10px 20px">
-                          <a-checkbox-group v-model="directIPs" :options="IPsOptions"></a-checkbox-group>
+                        <a-list-item>
+                            <a-row style="padding: 0 20px">
+                                <a-col :lg="24" :xl="12">
+                                    <a-list-item-meta title='IP-адреса'/>
+                                </a-col>
+                                <a-col :lg="24" :xl="12">
+                                    <a-select mode="tags" style="width: 100%"
+                                    v-model="directIPs"
+                                    :dropdown-class-name="themeSwitcher.currentTheme">
+                                        <a-select-option :value="p.value" :label="p.label"
+                                            v-for="p in directIPsOptions"> [[ p.label ]]
+                                        </a-select-option>
+                                    </a-select>
+                                </a-col>
+                            </a-row>
                         </a-list-item>
-                      </a-collapse-panel>
-                      <a-collapse-panel header='Подключение к доменам'>
-                        <a-list-item style="padding: 10px 20px">
-                          <a-checkbox-group v-model="directDomains" :options="DomainsOptions"></a-checkbox-group>
+                        <a-list-item>
+                            <a-row style="padding: 0 20px">
+                                <a-col :lg="24" :xl="12">
+                                    <a-list-item-meta title='Домены'/>
+                                </a-col>
+                                <a-col :lg="24" :xl="12">
+                                    <a-select mode="tags" style="width: 100%"
+                                    v-model="directDomains"
+                                    :dropdown-class-name="themeSwitcher.currentTheme">
+                                        <a-select-option :value="p.value" :label="p.label"
+                                            v-for="p in diretDomainsOptions"> [[ p.label ]]
+                                        </a-select-option>
+                                    </a-select>
+                                </a-col>
+                            </a-row>
                         </a-list-item>
                       </a-collapse-panel>
                     </a-collapse>
@@ -426,20 +450,26 @@
           ]
         },
       ],
-      IPsOptions: [
-        { label: 'geoip:private', value: 'private' },
-        { label: 'geoip:ru', value: 'ru' },
+      directIPsOptions: [
+        { label: 'Локальные IP', value: 'geoip:private' },
+
+        { label: 'Китай', value: 'geoip:cn' },
+        { label: 'Россия', value: 'geoip:ru' },
       ],
-      DomainsOptions: [
-        { label: 'geosite:category-ru', value: 'ru' },
-        { label: 'geosite:category-gov-ru', value: 'gov-ru' },
+      diretDomainsOptions: [
+        { label: 'Локальные домены', value: 'geosite:private' },
+
+        { label: 'Китай', value: 'geosite:cn' },
+        { label: 'Россия', value: 'geosite:ru' },
+        { label: 'Россия (гос)', value: 'geosite:gov-ru' },
+
         { label: '.ru', value: 'regexp:.*\\.ru' },
         { label: '.su', value: 'regexp:.*\\.su' },
         { label: '.рф', value: 'regexp:.*\\.xn--p1ai$' },
 
-        { label: 'Apple', value: 'apple' },
-        { label: 'Meta', value: 'meta' },
-        { label: 'Google', value: 'google' },
+        { label: 'Apple', value: 'geosite:apple' },
+        { label: 'Meta', value: 'geosite:meta' },
+        { label: 'Google', value: 'geosite:google' },
       ],
       get remarkModel() {
         rm = this.allSetting.remarkModel;
@@ -697,7 +727,7 @@
           const rules = JSON.parse(this.allSetting.subJsonRules);
           if (!Array.isArray(rules)) return [];
           const ipRule = rules.find(r => r.ip);
-          return ipRule?.ip.map(d => d.replace("geoip:", "")) ?? [];
+          return ipRule?.ip ?? [];
         },
         set: function (v) {
           let rules = JSON.parse(this.allSetting.subJsonRules);
@@ -711,7 +741,7 @@
 
             rules[ruleIndex].ip = [];
             v.forEach(d => {
-              rules[ruleIndex].ip.push("geoip:" + d);
+              rules[ruleIndex].ip.push(d);
             });
           }
           this.allSetting.subJsonRules = JSON.stringify(rules);
@@ -723,13 +753,7 @@
           const rules = JSON.parse(this.allSetting.subJsonRules);
           if (!Array.isArray(rules)) return [];
           const domainRule = rules.find(r => r.domain);
-          return domainRule?.domain.map(d => {
-            if (d.startsWith("geosite:category-")) {
-              return d.replace("geosite:category-", "");
-            }
-            return d.replace("geosite:", "");
-          })
-          ?? [];
+          return domainRule?.domain ?? [];
         },
         set: function (v) {
           let rules = JSON.parse(this.allSetting.subJsonRules);
@@ -741,18 +765,7 @@
             let ruleIndex = rules.findIndex(r => r.domain);
             if (ruleIndex == -1) ruleIndex = rules.push(this.defaultRules[0]) - 1;
 
-            rules[ruleIndex].domain = [];
-            v.forEach(d => {
-              let category = '';
-              let prefix = '';
-              if (["ru", "gov-ru"].includes(d)) {
-                category = "category-";
-              }
-              if (!d.startsWith("regexp:")) {
-                prefix = "geosite:";
-              }
-              rules[ruleIndex].domain.push(prefix + category + d);
-            });
+            rules[ruleIndex].domain = v;
           }
           this.allSetting.subJsonRules = JSON.stringify(rules);
         }
