@@ -77,7 +77,7 @@ jobs:
             export GOARCH=s390x
             export CC=s390x-linux-gnu-gcc
           fi
-          go build -ldflags "-w -s" -o build/x-ui main.go
+          go build -ldflags "-w -s" -o xui-release main.go
           
           mkdir x-ui
           cp xui-release x-ui/
