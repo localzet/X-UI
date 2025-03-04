@@ -92,6 +92,10 @@ elif [[ "${release}" == "oracle" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
         echo -e "${red} Пожалуйста используйте Oracle Linux 8 или выше ${plain}\n" && exit 1
     fi
+elif [[ "${release}" == "virtuozzo" ]]; then
+    if [[ ${os_version} -lt 8 ]]; then
+        echo -e "${red} Пожалуйста используйте Virtuozzo Linux 8 или выше ${plain}\n" && exit 1
+    fi
 else
     echo -e "${red}Ваша операционная система не поддерживается данным скриптом.${plain}\n"
     echo "Убедитесь, что вы используете одну из поддерживаемых операционных систем:"
@@ -107,6 +111,8 @@ else
     echo "- Rocky Linux 9+"
     echo "- Oracle Linux 8+"
     echo "- OpenSUSE Tumbleweed"
+    echo "- Amazon Linux 2023"
+    echo "- Virtuozzo Linux 8+"
     exit 1
 fi
 
@@ -182,7 +188,7 @@ update_menu() {
         return 0
     fi
     
-    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/localzet/x-ui/main/x-ui.sh
+    wget -O /usr/bin/x-ui https://raw.githubusercontent.com/localzet/x-ui/main/x-ui.sh
     chmod +x /usr/local/x-ui/x-ui.sh
     chmod +x /usr/bin/x-ui
     
@@ -535,7 +541,7 @@ enable_bbr() {
     centos | almalinux | rocky | oracle)
         yum -y update && yum -y install ca-certificates
         ;;
-    fedora)
+    fedora | amzn | virtuozzo)
         dnf -y update && dnf -y install ca-certificates
         ;;
     arch | manjaro | parch)
@@ -560,7 +566,7 @@ enable_bbr() {
 }
 
 update_shell() {
-    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/localzet/x-ui/raw/main/x-ui.sh
+    wget -O /usr/bin/x-ui -N https://github.com/localzet/x-ui/raw/main/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
         LOGE "Не удалось загрузить скрипт. Проверьте, может ли устройство подключиться к Github."
@@ -979,7 +985,7 @@ ssl_cert_issue() {
           apt update && apt install socat -y ;;
       centos | almalinux | rocky | oracle)
           yum -y update && yum -y install socat ;;
-      fedora)
+      fedora | amzn | virtuozzo)
           dnf -y update && dnf -y install socat ;;
       arch | manjaro | parch)
           pacman -Sy --noconfirm socat ;;
@@ -1408,7 +1414,7 @@ install_warp() {
               apt update && apt install wget net-tools -y ;;
           centos | almalinux | rocky | oracle)
               yum update -y && yum install wget net-tools -y ;;
-          fedora)
+          fedora | amzn | virtuozzo)
               dnf -y update && dnf -y install wget net-tools ;;
           *)
               echo -e "${red}Неподдерживаемая операционная система. Проверьте скрипт и установите необходимые пакеты вручную.${plain}\n"
@@ -1446,7 +1452,7 @@ install_iplimit() {
         centos | almalinux | rocky | oracle)
             yum update -y && yum install epel-release -y
             yum -y install fail2ban ;;
-        fedora)
+        fedora | amzn | virtuozzo)
             dnf -y update && dnf -y install fail2ban ;;
         arch | manjaro | parch)
             pacman -Syu --noconfirm fail2ban ;;
@@ -1520,7 +1526,7 @@ remove_iplimit() {
         centos | almalinux | rocky | oracle)
             yum remove fail2ban -y
             yum autoremove -y ;;
-        fedora)
+        fedora | amzn | virtuozzo)
             dnf remove fail2ban -y
             dnf autoremove -y ;;
         arch | manjaro | parch)

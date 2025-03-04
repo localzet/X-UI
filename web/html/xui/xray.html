@@ -842,96 +842,146 @@
                             <textarea style="position:absolute; left: -800px;" id="obsSetting"></textarea>
                         </a-tab-pane>
                         <a-tab-pane key="tpl-dns" tab='DNS' style="padding-top: 20px;" force-render="true">
-                            <setting-list-item type="switch" title='DNS-сервер'
-                                               desc='Активация встроенного DNS-сервера'
-                                               v-model="enableDNS"></setting-list-item>
-                            <template v-if="enableDNS">
-                                <setting-list-item style="padding: 10px 20px" type="text" title='Тег (для Входящих)'
-                                                   desc='Тег для обращения в маршрутизаторе'
-                                                   v-model="dnsTag"></setting-list-item>
-                                <a-list-item style="padding: 10px 20px">
-                                    <a-row>
-                                        <a-col :lg="24" :xl="12">
-                                            <a-list-item-meta title='Стратегия доменов'
-                                                              description='Общая стратегия DNS-сервера'/>
-                                        </a-col>
-                                        <a-col :lg="24" :xl="12">
-                                            <a-select v-model="dnsStrategy" style="width: 100%"
-                                                      :dropdown-class-name="themeSwitcher.currentTheme">
-                                                <a-select-option :value="l" :label="l"
-                                                                 v-for="l in ['UseIP', 'UseIPv4', 'UseIPv6']">
-                                                    [[ l ]]
-                                                </a-select-option>
-                                            </a-select>
-                                        </a-col>
-                                    </a-row>
-                                </a-list-item>
-                                <a-divider>DNS</a-divider>
-                                <a-button type="primary" icon="plus" @click="addDNSServer()"
-                                          style="margin-bottom: 10px;">Добавить DNS-сервер
-                                </a-button>
-                                <a-table :columns="dnsColumns" bordered v-if="dnsServers.length>0" :row-key="r => r.key"
-                                         :data-source="dnsServers" :scroll="isMobile ? {} : { x: 200 }"
-                                         :pagination="false" :indent-size="0"
-                                         :style="isMobile ? 'padding: 5px 0' : 'margin-left: 1px;'">
-                                    <template slot="action" slot-scope="text,dns,index">
-                                        [[ index+1 ]]
-                                        <a-dropdown :trigger="['click']">
-                                            <a-icon @click="e => e.preventDefault()" type="more"
-                                                    style="font-size: 16px; text-decoration: bold;"></a-icon>
-                                            <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
-                                                <a-menu-item @click="editDNSServer(index)">
-                                                    <a-icon type="edit"></a-icon>
-                                                    Изменить
-                                                </a-menu-item>
-                                                <a-menu-item @click="deleteDNSServer(index)">
-                                        <span style="color: #FF4D4F">
-                                            <a-icon type="delete"></a-icon> Удалить
-                                        </span>
-                                                </a-menu-item>
-                                            </a-menu>
-                                        </a-dropdown>
-                                    </template>
-                                    <template slot="address" slot-scope="dns,index">
-                                        <span v-if="typeof dns == 'object'">[[ dns.address ]]</span>
-                                        <span v-else>[[ dns ]]</span>
-                                    </template>
-                                    <template slot="domain" slot-scope="dns,index">
-                                        <span v-if="typeof dns == 'object'">[[ dns.domains.join(",") ]]</span>
-                                    </template>
-                                    <template slot="expectIPs" slot-scope="dns,index">
-                                        <span v-if="typeof dns == 'object'">[[ dns.expectIPs.join(",") ]]</span>
-                                    </template>
-                                </a-table>
-                                <a-divider>Fake DNS</a-divider>
-                                <a-button type="primary" icon="plus" @click="addFakedns()" style="margin-bottom: 10px;">
-                                    Добавить FakeDNS-сервера
-                                </a-button>
-                                <a-table :columns="fakednsColumns" bordered v-if="fakeDns && fakeDns.length>0"
-                                         :row-key="r => r.key"
-                                         :data-source="fakeDns" :scroll="isMobile ? {} : { x: 200 }" :pagination="false"
-                                         :indent-size="0"
-                                         :style="isMobile ? 'padding: 5px 0' : 'margin-left: 1px;'">
-                                    <template slot="action" slot-scope="text,fakedns,index">
-                                        [[ index+1 ]]
-                                        <a-dropdown :trigger="['click']">
-                                            <a-icon @click="e => e.preventDefault()" type="more"
-                                                    style="font-size: 16px; text-decoration: bold;"></a-icon>
-                                            <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
-                                                <a-menu-item @click="editFakedns(index)">
-                                                    <a-icon type="edit"></a-icon>
-                                                    Изменить
-                                                </a-menu-item>
-                                                <a-menu-item @click="deleteFakedns(index)">
-                                        <span style="color: #FF4D4F">
-                                            <a-icon type="delete"></a-icon> Удалить
-                                        </span>
-                                                </a-menu-item>
-                                            </a-menu>
-                                        </a-dropdown>
-                                    </template>
-                                </a-table>
-                            </template>
+                            <a-collapse>
+                                <a-collapse-panel header='{{ i18n "pages.xray.generalConfigs"}}'>
+                                    <a-list-item>
+                                        <a-row style="padding: 10px 20px; padding-top: 0;">
+                                            <a-col :lg="24" :xl="12">
+                                                <a-list-item-meta title='DNS-сервер'
+                                                    description='Активация встроенного DNS-сервера' />
+                                            </a-col>
+                                            <a-col :lg="24" :xl="12">
+                                                <a-switch v-model="enableDNS"></a-switch>
+                                            </a-col>
+                                        </a-row>
+                                        <template v-if="enableDNS">
+                                            <a-row style="padding: 10px 20px;">
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-list-item-meta title='Тег (для Входящих)'
+                                                        description='Тег для обращения в маршрутизаторе' />
+                                                </a-col>
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-input type="text" v-model="dnsTag"></a-input>
+                                                </a-col>
+                                            </a-row>
+                                            <a-row style="padding: 10px 20px;">
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-list-item-meta title='IP клиента'
+                                                        description='Используется для уведомления сервера о указанном местоположении IP во время DNS-запросов'/>
+                                                </a-col>
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-input type="text" v-model="dnsClientIp"></a-input>
+                                                </a-col>
+                                            </a-row>
+                                            <a-row style="padding: 10px 20px;">
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-list-item-meta title='Стратегия доменов'
+                                                        description='Общая стратегия DNS-сервера' />
+                                                </a-col>
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-select v-model="dnsStrategy" style="width: 100%"
+                                                        :dropdown-class-name="themeSwitcher.currentTheme">
+                                                        <a-select-option :value="l" :label="l" v-for="l in ['UseIP', 'UseIPv4', 'UseIPv6']">
+                                                            [[ l ]]
+                                                        </a-select-option>
+                                                    </a-select>
+                                                </a-col>
+                                            </a-row>
+                                            <a-row style="padding: 10px 20px;">
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-list-item-meta title='Отключить кэш'
+                                                        description='Отключает кэширование DNS'/>
+                                                </a-col>
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-switch v-model="dnsDisableCache"></a-switch>
+                                                </a-col>
+                                            </a-row>
+                                            <a-row style="padding: 10px 20px;">
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-list-item-meta title='Отключить резервный DNS'
+                                                        description='Отключает резервные DNS-запросы'/>
+                                                </a-col>
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-switch v-model="dnsDisableFallback"></a-switch>
+                                                </a-col>
+                                            </a-row>
+                                            <a-row style="padding: 10px 20px;">
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-list-item-meta title='Отключить резервный DNS при совпадении'
+                                                        description='Отключает резервные DNS-запросы при совпадении списка доменов DNS-сервера'/>
+                                                </a-col>
+                                                <a-col :lg="24" :xl="12">
+                                                    <a-switch v-model="dnsDisableFallbackIfMatch"></a-switch>
+                                                </a-col>
+                                            </a-row>
+                                        </template>
+                                    </a-list-item>
+                                </a-collapse-panel>
+
+                                <template v-if="enableDNS">
+                                    <a-collapse-panel header='DNS'>
+                                        <a-button type="primary" icon="plus" @click="addDNSServer()" style="margin: 10px;">Добавить DNS-сервер</a-button>
+                                        <a-table :columns="dnsColumns" bordered v-if="dnsServers.length>0" :row-key="r => r.key"
+                                            :data-source="dnsServers" :scroll="isMobile ? {} : { x: 200 }" :pagination="false" :indent-size="0"
+                                            style="margin: 10px; margin-top: 10px;">
+                                            <template slot="action" slot-scope="text,dns,index">
+                                                [[ index+1 ]]
+                                                <a-dropdown :trigger="['click']">
+                                                    <a-icon @click="e => e.preventDefault()" type="more"
+                                                        style="font-size: 16px; text-decoration: bold;"></a-icon>
+                                                    <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
+                                                        <a-menu-item @click="editDNSServer(index)">
+                                                            <a-icon type="edit"></a-icon>
+                                                            Изменить
+                                                        </a-menu-item>
+                                                        <a-menu-item @click="deleteDNSServer(index)">
+                                                            <span style="color: #FF4D4F">
+                                                                <a-icon type="delete"></a-icon> Удалить
+                                                            </span>
+                                                        </a-menu-item>
+                                                    </a-menu>
+                                                </a-dropdown>
+                                            </template>
+                                            <template slot="address" slot-scope="dns,index">
+                                                <span v-if="typeof dns == 'object'">[[ dns.address ]]</span>
+                                                <span v-else>[[ dns ]]</span>
+                                            </template>
+                                            <template slot="domain" slot-scope="dns,index">
+                                                <span v-if="typeof dns == 'object'">[[ dns.domains.join(",") ]]</span>
+                                            </template>
+                                            <template slot="expectIPs" slot-scope="dns,index">
+                                                <span v-if="typeof dns == 'object'">[[ dns.expectIPs.join(",") ]]</span>
+                                            </template>
+                                        </a-table>
+                                    </a-collapse-panel>
+
+                                    <a-collapse-panel header='FakeDNS'>
+                                        <a-button type="primary" icon="plus" @click="addFakedns()" style="margin: 10px;">Добавить FakeDNS-сервера</a-button>
+                                        <a-table :columns="fakednsColumns" bordered v-if="fakeDns && fakeDns.length>0" :row-key="r => r.key"
+                                            :data-source="fakeDns" :scroll="isMobile ? {} : { x: 200 }" :pagination="false" :indent-size="0"
+                                            style="margin: 10px; margin-top: 10px;">
+                                            <template slot="action" slot-scope="text,fakedns,index">
+                                                [[ index+1 ]]
+                                                <a-dropdown :trigger="['click']">
+                                                    <a-icon @click="e => e.preventDefault()" type="more"
+                                                        style="font-size: 16px; text-decoration: bold;"></a-icon>
+                                                    <a-menu slot="overlay" :theme="themeSwitcher.currentTheme">
+                                                        <a-menu-item @click="editFakedns(index)">
+                                                            <a-icon type="edit"></a-icon>
+                                                            Изменить
+                                                        </a-menu-item>
+                                                        <a-menu-item @click="deleteFakedns(index)">
+                                                            <span style="color: #FF4D4F">
+                                                                <a-icon type="delete"></a-icon> Удалить
+                                                            </span>
+                                                        </a-menu-item>
+                                                    </a-menu>
+                                                </a-dropdown>
+                                            </template>
+                                        </a-table>
+                                    </a-collapse-panel>
+                                </template>
+                            </a-collapse>
                         </a-tab-pane>
                         <a-tab-pane key="tpl-advanced" tab='Ручная конфигурация' style="padding-top: 20px;"
                                     force-render="true">
@@ -2156,7 +2206,11 @@
                 set: function (newValue) {
                     newTemplateSettings = this.templateSettings;
                     if (newValue) {
-                        newTemplateSettings.dns = {servers: [], queryStrategy: "UseIP", tag: "dns_inbound"};
+                        newTemplateSettings.dns = {
+                            servers: [],
+                            queryStrategy: "UseIP",
+                            tag: "dns_inbound"
+                        };
                         newTemplateSettings.fakedns = null;
                     } else {
                         delete newTemplateSettings.dns;
@@ -2172,6 +2226,62 @@
                 set: function (newValue) {
                     newTemplateSettings = this.templateSettings;
                     newTemplateSettings.dns.tag = newValue;
+                    this.templateSettings = newTemplateSettings;
+                }
+            },
+                        dnsClientIp: {
+                get: function () {
+                    return this.enableDNS ? this.templateSettings.dns.clientIp : null;
+                },
+                set: function (newValue) {
+                    newTemplateSettings = this.templateSettings;
+                    if (newValue) {
+                        newTemplateSettings.dns.clientIp = newValue;
+                    } else {
+                        delete newTemplateSettings.dns.clientIp;
+                    }
+                    this.templateSettings = newTemplateSettings;
+                }
+            },
+            dnsDisableCache: {
+                get: function () {
+                    return this.enableDNS ? this.templateSettings.dns.disableCache : false;
+                },
+                set: function (newValue) {
+                    newTemplateSettings = this.templateSettings;
+                    if (newValue) {
+                        newTemplateSettings.dns.disableCache = newValue;
+                    } else {
+                        delete newTemplateSettings.dns.disableCache
+                    }
+                    this.templateSettings = newTemplateSettings;
+                }
+            },
+            dnsDisableFallback: {
+                get: function () {
+                    return this.enableDNS ? this.templateSettings.dns.disableFallback : false;
+                },
+                set: function (newValue) {
+                    newTemplateSettings = this.templateSettings;
+                    if (newValue) {
+                        newTemplateSettings.dns.disableFallback = newValue;
+                    } else {
+                        delete newTemplateSettings.dns.disableFallback
+                    }
+                    this.templateSettings = newTemplateSettings;
+                }
+            },
+            dnsDisableFallbackIfMatch: {
+                get: function () {
+                    return this.enableDNS ? this.templateSettings.dns.disableFallbackIfMatch : false;
+                },
+                set: function (newValue) {
+                    newTemplateSettings = this.templateSettings;
+                    if (newValue) {
+                        newTemplateSettings.dns.disableFallbackIfMatch = newValue;
+                    } else {
+                        delete newTemplateSettings.dns.disableFallbackIfMatch
+                    }
                     this.templateSettings = newTemplateSettings;
                 }
             },

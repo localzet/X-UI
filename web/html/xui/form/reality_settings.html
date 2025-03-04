@@ -7,7 +7,7 @@
         <a-input-number v-model.number="inbound.stream.reality.xver" :min="0"></a-input-number>
     </a-form-item>
     <a-form-item label='uTLS'>
-        <a-select v-model="inbound.stream.reality.settings.fingerprint" style="width: 50%"
+        <a-select v-model="inbound.stream.reality.settings.fingerprint" style="width: 100%"
             :dropdown-class-name="themeSwitcher.currentTheme">
             <a-select-option v-for="key in UTLS_FINGERPRINT" :value="key">[[ key ]]</a-select-option>
         </a-select>
@@ -44,10 +44,10 @@
         <a-input v-model.trim="inbound.stream.reality.settings.spiderX"></a-input>
     </a-form-item>
     <a-form-item label='Приватный ключ'>
-        <a-input v-model.trim="inbound.stream.reality.privateKey"></a-input>
+        <a-input type="password" v-model="inbound.stream.reality.privateKey"></a-input>
     </a-form-item>
     <a-form-item label='Публичный ключ'>
-        <a-input v-model.trim="inbound.stream.reality.settings.publicKey"></a-input>
+        <a-input v-model="inbound.stream.reality.settings.publicKey"></a-input>
     </a-form-item>
     <a-form-item label=" ">
         <a-button type="primary" icon="import" @click="getNewX25519Cert">Генерировать ключи</a-button>

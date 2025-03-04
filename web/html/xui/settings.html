@@ -142,61 +142,93 @@
                   <setting-list-item type="number" title='Кол-во элементов на странице' desc='Кол-во элементов на одной странице в списках. (0 - отключает деление на страницы)' v-model="allSetting.pageSize" :min="0" :step="5"></setting-list-item>
                   <setting-list-item type="number" title='Порог уведомления о сроке' desc='За сколько дней до истечения срока пользователя показывать предупреждение? (Дни)' v-model="allSetting.expireDiff" :min="0"></setting-list-item>
                   <setting-list-item type="number" title='Порог уведомления о трафике' desc='При каком остатке трафика показывать предупреждение? (ГБ)' v-model="allSetting.trafficDiff" :min="0"></setting-list-item>
+                  <setting-list-item type="switch" title='Информация о внешнем трафике' desc='Информировать внешний API о каждом обновлении трафика' v-model="allSetting.externalTrafficInformEnable"></setting-list-item>
+                  <setting-list-item type="text" title='URI информации о внешнем трафике' desc='Обновления трафика отправляются на этот URI' v-model="allSetting.externalTrafficInformURI" placeholder="(http|https)://domain[:port]/path/"></setting-list-item>
                   <setting-list-item type="text" title='Часовой пояс' desc='Необходим для расписания задач' v-model="allSetting.timeLocation"></setting-list-item>
                 </a-list>
               </a-tab-pane>
-              <a-tab-pane key="2" tab='Безопасность' style="padding: 20px;">
-                <a-divider>Администратор</a-divider>
-                <a-form layout="horizontal" :colon="false" style="float: left; margin-bottom: 2rem;" :label-col="{ md: {span:10} }" :wrapper-col="{ md: {span:14} }">
-                  <a-form-item label='Текущий логин'>
-                    <a-input autocomplete="username" v-model="user.oldUsername"></a-input>
-                  </a-form-item>
-                  <a-form-item label='Текущий пароль'>
-                    <password-input autocomplete="current-password" v-model="user.oldPassword"></password-input>
-                  </a-form-item>
-                  <a-form-item label='Новый логин'>
-                    <a-input v-model="user.newUsername"></a-input>
-                  </a-form-item>
-                  <a-form-item label='Новый пароль'>
-                    <password-input autocomplete="new-password" v-model="user.newPassword"></password-input>
-                  </a-form-item>
-                  <a-form-item label=" ">
-                    <a-button type="primary" @click="updateUser">Сохранить</a-button>
-                  </a-form-item>
-                </a-form>
-                <a-divider>Дополнительно</a-divider>
-                <a-form style="padding: 0 20px;">
-                  <a-list-item>
-                    <a-row>
-                      <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='Безопасность 2.0'
-                          description='Активация дополнительных мер безопасности'>
-                        </a-list-item-meta>
-                      </a-col>
-                      <a-col :lg="24" :xl="12">
-                        <template>
-                          <a-switch @change="toggleToken(allSetting.secretEnable)" v-model="allSetting.secretEnable"></a-switch>
-                          <a-icon style="margin-left: 1rem;" v-if="allSetting.secretEnable" :spin="this.changeSecret" type="sync" @click="getNewSecret"></a-icon>
-                        </template>
-                      </a-col>
-                    </a-row>
-                  </a-list-item>
-                  <a-list-item>
-                    <a-row>
-                      <a-col :lg="24" :xl="12">
-                        <a-list-item-meta title='Секретный токен'
-                          description='Пожалуйста, скопируйте и сохраните этот токен в безопасном месте. Он необходим для входа в систему и НЕ может быть восстановлен!'>
-                        </a-list-item-meta>
-                      </a-col>
-                      <a-col :lg="24" :xl="12">
-                        <template>
-                          <a-textarea type="text" :disabled="!allSetting.secretEnable" v-model="user.loginSecret"></a-textarea>
-                        </template>
-                      </a-col>
-                    </a-row>
-                  </a-list-item>
-                  <a-button type="primary" :loading="this.changeSecret" @click="updateSecret">Сохранить</a-button>
-                </a-form>
+              <a-tab-pane key="2" tab='Безопасность' style="padding-top: 20px;">
+                <a-collapse>
+                  <a-collapse-panel header='Администратор'>
+                    <a-list-item>
+                      <a-row style="padding: 0 20px; padding-bottom: 10px;">
+                        <a-col :lg="24" :xl="12">
+                          <a-list-item-meta title='Текущий логин'></a-list-item-meta>
+                        </a-col>
+                        <a-col :lg="24" :xl="12">
+                          <template>
+                            <a-input autocomplete="username" v-model="user.oldUsername"></a-input>
+                          </template>
+                        </a-col>
+                      </a-row>
+                      <a-row style="padding: 10px 20px">
+                        <a-col :lg="24" :xl="12">
+                          <a-list-item-meta title='Текущий пароль'></a-list-item-meta>
+                        </a-col>
+                        <a-col :lg="24" :xl="12">
+                          <template>
+                            <password-input autocomplete="current-password" v-model="user.oldPassword"></password-input>
+                          </template>
+                        </a-col>
+                      </a-row>
+                      <a-row style="padding: 10px 20px">
+                        <a-col :lg="24" :xl="12">
+                          <a-list-item-meta title='Новый логин'></a-list-item-meta>
+                        </a-col>
+                        <a-col :lg="24" :xl="12">
+                          <template>
+                            <a-input v-model="user.newUsername"></a-input>
+                          </template>
+                        </a-col>
+                      </a-row>
+                      <a-row style="padding: 10px 20px">
+                        <a-col :lg="24" :xl="12">
+                          <a-list-item-meta title='Новый пароль'></a-list-item-meta>
+                        </a-col>
+                        <a-col :lg="24" :xl="12">
+                          <template>
+                            <password-input autocomplete="new-password" v-model="user.newPassword"></password-input>
+                          </template>
+                        </a-col>
+                      </a-row>
+                      <a-space direction="horizontal" style="padding: 0 20px; padding-top: 20px;">
+                        <a-button type="primary" @click="updateUser">Сохранить</a-button>
+                      </a-space>
+                    </a-list-item>
+                  </a-collapse-panel>
+                  <a-collapse-panel header='Дополнительно'>
+                    <a-list-item>
+                      <a-row style="padding: 0 20px; padding-bottom: 10px;">
+                        <a-col :lg="24" :xl="12">
+                          <a-list-item-meta title='Безопасность 2.0'
+                            description='Активация дополнительных мер безопасности'>
+                          </a-list-item-meta>
+                        </a-col>
+                        <a-col :lg="24" :xl="12">
+                          <template>
+                            <a-switch @change="toggleToken(allSetting.secretEnable)" v-model="allSetting.secretEnable"></a-switch>
+                            <a-icon style="margin-left: 1rem;" v-if="allSetting.secretEnable" :spin="this.changeSecret" type="sync" @click="getNewSecret"></a-icon>
+                          </template>
+                        </a-col>
+                      </a-row>
+                      <a-row style="padding: 10px 20px">
+                        <a-col :lg="24" :xl="12">
+                          <a-list-item-meta title='Секретный токен'
+                            description='Пожалуйста, скопируйте и сохраните этот токен в безопасном месте. Он необходим для входа в систему и НЕ может быть восстановлен!'>
+                          </a-list-item-meta>
+                        </a-col>
+                        <a-col :lg="24" :xl="12">
+                          <template>
+                            <a-textarea type="text" :disabled="!allSetting.secretEnable" v-model="user.loginSecret"></a-textarea>
+                          </template>
+                        </a-col>
+                      </a-row>
+                      <a-space direction="horizontal" style="padding: 0 20px; padding-top: 20px;">
+                        <a-button type="primary" :loading="this.changeSecret" @click="updateSecret">Сохранить</a-button>
+                      </a-space>
+                    </a-list-item>
+                  </a-collapse-panel>
+                </a-collapse>
               </a-tab-pane>
               <a-tab-pane key="3" tab='Telegram бот'>
                 <a-list item-layout="horizontal">
@@ -214,7 +246,6 @@
               <a-tab-pane key="4" tab='Подписки'>
                 <a-list item-layout="horizontal">
                   <setting-list-item type="switch" title='Включить подписки' desc='Активация подписок для клиентов' v-model="allSetting.subEnable"></setting-list-item>
-                  <setting-list-item type="switch" title='Включить синхронизацию подписки' desc='Трафик от клиентов с одной подпиской будет синхронизироваться каждые 10 секунд' v-model="allSetting.subSyncEnable"></setting-list-item>
                   <setting-list-item type="switch" title='Шифровать конфигурацию' desc='Шифрование конфигурации в подписках в целях безопасности' v-model="allSetting.subEncrypt"></setting-list-item>
                   <setting-list-item type="switch" title='Информация об использовании' desc='Дописывать в название подключения оставшийся объём трафика или срок действия' v-model="allSetting.subShowInfo"></setting-list-item>
                   <setting-list-item type="text" title='IP-адрес подписок' desc='IP-адрес для подписок. Оставьте пустым, чтобы слушать любой IP-адрес' v-model="allSetting.subListen"></setting-list-item>

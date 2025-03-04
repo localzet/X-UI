@@ -37,7 +37,7 @@ type Inbound struct {
 	Enable      bool                 `json:"enable" form:"enable"`
 	ExpiryTime  int64                `json:"expiryTime" form:"expiryTime"`
 	ClientStats []xray.ClientTraffic `gorm:"foreignKey:InboundId;references:Id" json:"clientStats" form:"clientStats"`
-
+	
 	// config part
 	Listen         string   `json:"listen" form:"listen"`
 	Port           int      `json:"port" form:"port"`

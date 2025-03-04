@@ -102,6 +102,10 @@ elif [[ "${release}" == "ol" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
         echo -e "${red} Пожалуйста используйте Oracle Linux 8 или выше ${plain}\n" && exit 1
     fi
+elif [[ "${release}" == "virtuozzo" ]]; then
+    if [[ ${os_version} -lt 8 ]]; then
+        echo -e "${red} Пожалуйста используйте Virtuozzo Linux 8 или выше ${plain}\n" && exit 1
+    fi
 else
     echo -e "${red}Ваша операционная система не поддерживается данным скриптом.${plain}\n"
     echo "Убедитесь, что вы используете одну из поддерживаемых операционных систем:"
@@ -119,6 +123,7 @@ else
     echo "- Oracle Linux 8+"
     echo "- OpenSUSE Tumbleweed"
     echo "- Amazon Linux 2023"
+    echo "- Virtuozzo Linux 8+"
     exit 1
 fi
 
@@ -130,7 +135,7 @@ install_base() {
     centos | almalinux | rocky | ol)
         yum -y update && yum install -y -q wget curl tar tzdata
         ;;
-    fedora | amzn)
+    fedora | amzn | virtuozzo)
         dnf -y update && dnf install -y -q wget curl tar tzdata
         ;;
     arch | manjaro | parch)
@@ -232,7 +237,7 @@ install_x-ui() {
             exit 1
         fi
         echo -e "Получена версия x-ui: ${tag_version}, запуск установки..."
-        wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch).tar.gz https://github.com/localzet/x-ui/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz
+        wget -N -O /usr/local/x-ui-linux-$(arch).tar.gz https://github.com/localzet/x-ui/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz
         if [[ $? -ne 0 ]]; then
             echo -e "${red}Ошибка загрузки x-ui, пожалуйста, убедитесь, что ваш сервер имеет доступ к Github ${plain}"
             exit 1
@@ -249,7 +254,7 @@ install_x-ui() {
 
         url="https://github.com/localzet/x-ui/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz"
         echo -e "Запуск установки x-ui $1"
-        wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch).tar.gz ${url}
+        wget -N -O /usr/local/x-ui-linux-$(arch).tar.gz ${url}
         if [[ $? -ne 0 ]]; then
             echo -e "${red}Ошибка загрузки x-ui $1, пожалуйста, проверьте, существует ли версия ${plain}"
             exit 1
@@ -274,7 +279,7 @@ install_x-ui() {
 
     chmod +x x-ui bin/xray-linux-$(arch)
     cp -f x-ui.service /etc/systemd/system/
-    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/localzet/x-ui/main/x-ui.sh
+    wget -O /usr/bin/x-ui https://raw.githubusercontent.com/localzet/x-ui/main/x-ui.sh
     chmod +x /usr/local/x-ui/x-ui.sh
     chmod +x /usr/bin/x-ui
     config_after_install

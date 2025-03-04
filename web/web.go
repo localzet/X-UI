@@ -269,14 +269,7 @@ func (s *Server) startTask() {
 		// Statistics every 10 seconds, start the delay for 5 seconds for the first time, and staggered with the time to restart xray
 		s.cron.AddJob("@every 10s", job.NewXrayTrafficJob())
 	}()
-
-	isSubEnable, err1 := s.settingService.GetSubEnable()
-	isSubSyncEnable, err2 := s.settingService.GetSubSyncEnable()
-	if err1 == nil && err2 == nil && isSubEnable && isSubSyncEnable {
-		// Sync the client traffic with the same SubId every 10 seconds
-		s.cron.AddJob("@every 10s", job.NewClientTrafficSyncJob())
-	}
-
+	
 	// check client ips from log file every 10 sec
 	s.cron.AddJob("@every 10s", job.NewCheckClientIpJob())
 

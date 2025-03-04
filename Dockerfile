@@ -1,7 +1,7 @@
 # ========================================================
 # Stage: Builder
 # ========================================================
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24-alpine AS builder
 LABEL authors="Ivan Zorin <creator@localzet.com>"
 LABEL org.opencontainers.image.source="https://github.com/localzet/x-ui"
 LABEL org.opencontainers.image.description="x-ui"
