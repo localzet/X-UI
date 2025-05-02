@@ -117,13 +117,17 @@ func (a *SUBController) subJsons(c *gin.Context) {
 	} else {
 
 		// Add headers
-		c.Writer.Header().Set("Subscription-Userinfo", header)
-		c.Writer.Header().Set("Profile-Update-Interval", a.updateInterval)
-		c.Writer.Header().Set("Profile-Title", subId)
+		c.Writer.Header().Set("subscription-userinfo", header)
+		c.Writer.Header().Set("profile-update-interval", a.updateInterval)
+		c.Writer.Header().Set("profile-title", subId)
+
+		c.Writer.Header().Set("update-always", "true")
+		c.Writer.Header().Set("announce", "💜 По всем вопросам обращайтесь в #7854BAподдержку!")
+		c.Writer.Header().Set("announce-url", "https://t.me/userlay_support")
 
 		// v2RayTun iOS routing support
 		r, _ := a.subJsonService.GetRouting(a.jsonRules)
-		c.Writer.Header().Set("Routing", base64.StdEncoding.EncodeToString(r))
+		c.Writer.Header().Set("routing", base64.StdEncoding.EncodeToString(r))
 
 		c.String(200, jsonSub)
 	}
