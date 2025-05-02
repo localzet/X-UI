@@ -7,6 +7,9 @@
     "disableFallback": false,
     "servers": [
       {
+        "address": "localhost"
+      },
+      {
         "address": "https://1.1.1.1/dns-query"
       },
       {
@@ -18,11 +21,11 @@
       {
         "address": "https://doh.opendns.com/dns-query"
       }
-    ],
-    "fakedns": {
-      "ipPool": "198.18.0.0/15",
-      "poolSize": 65535
-    }
+    ]
+  },
+  "fakedns": {
+    "ipPool": "198.18.0.0/15",
+    "poolSize": 65535
   },
   "inbounds": [
     {
