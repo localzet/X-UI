@@ -43,6 +43,7 @@ func GetLoginUser(c *gin.Context) *model.User {
 	}
 	user, ok := obj.(model.User)
 	if !ok {
+
 		s.Delete(loginUserKey)
 		return nil
 	}

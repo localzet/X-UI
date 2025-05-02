@@ -92,6 +92,8 @@ type Release struct {
 type ServerService struct {
 	xrayService    XrayService
 	inboundService InboundService
+	cachedIPv4     string
+	cachedIPv6     string
 }
 
 func getPublicIP(url string) string {
@@ -120,6 +122,7 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		T: now,
 	}
 
+	// CPU stats
 	percents, err := cpu.Percent(0, false)
 	if err != nil {
 		logger.Warning("get cpu percent failed:", err)
@@ -133,22 +136,17 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 	}
 
 	status.LogicalPro = runtime.NumCPU()
-	if p != nil && p.IsRunning() {
-		status.AppStats.Uptime = p.GetUptime()
-	} else {
-		status.AppStats.Uptime = 0
-	}
 
 	cpuInfos, err := cpu.Info()
 	if err != nil {
 		logger.Warning("get cpu info failed:", err)
 	} else if len(cpuInfos) > 0 {
-		cpuInfo := cpuInfos[0]
-		status.CpuSpeedMhz = cpuInfo.Mhz // setting CPU speed in MHz
+		status.CpuSpeedMhz = cpuInfos[0].Mhz
 	} else {
 		logger.Warning("could not find cpu info")
 	}
 
+	// Uptime
 	upTime, err := host.Uptime()
 	if err != nil {
 		logger.Warning("get uptime failed:", err)
@@ -156,6 +154,7 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		status.Uptime = upTime
 	}
 
+	// Memory stats
 	memInfo, err := mem.VirtualMemory()
 	if err != nil {
 		logger.Warning("get virtual memory failed:", err)
@@ -172,14 +171,16 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		status.Swap.Total = swapInfo.Total
 	}
 
-	distInfo, err := disk.Usage("/")
+	// Disk stats
+	diskInfo, err := disk.Usage("/")
 	if err != nil {
-		logger.Warning("get dist usage failed:", err)
+		logger.Warning("get disk usage failed:", err)
 	} else {
-		status.Disk.Current = distInfo.Used
-		status.Disk.Total = distInfo.Total
+		status.Disk.Current = diskInfo.Used
+		status.Disk.Total = diskInfo.Total
 	}
 
+	// Load averages
 	avgState, err := load.Avg()
 	if err != nil {
 		logger.Warning("get load avg failed:", err)
@@ -187,6 +188,7 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		status.Loads = []float64{avgState.Load1, avgState.Load5, avgState.Load15}
 	}
 
+	// Network stats
 	ioStats, err := net.IOCounters(false)
 	if err != nil {
 		logger.Warning("get io counters failed:", err)
@@ -207,6 +209,7 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		logger.Warning("can not find io counters")
 	}
 
+	// TCP/UDP connections
 	status.TcpCount, err = sys.GetTCPCount()
 	if err != nil {
 		logger.Warning("get tcp connections failed:", err)
@@ -217,9 +220,15 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		logger.Warning("get udp connections failed:", err)
 	}
 
-	status.PublicIP.IPv4 = getPublicIP("https://api.ipify.org")
-	status.PublicIP.IPv6 = getPublicIP("https://api6.ipify.org")
+	// IP fetching with caching
+	if s.cachedIPv4 == "" || s.cachedIPv6 == "" {
+		s.cachedIPv4 = getPublicIP("https://api.ipify.org")
+		s.cachedIPv6 = getPublicIP("https://api6.ipify.org")
+	}
+	status.PublicIP.IPv4 = s.cachedIPv4
+	status.PublicIP.IPv6 = s.cachedIPv6
 
+	// Xray status
 	if s.xrayService.IsXrayRunning() {
 		status.Xray.State = Running
 		status.Xray.ErrorMsg = ""
@@ -233,9 +242,10 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		status.Xray.ErrorMsg = s.xrayService.GetXrayResult()
 	}
 	status.Xray.Version = s.xrayService.GetXrayVersion()
+
+	// Application stats
 	var rtm runtime.MemStats
 	runtime.ReadMemStats(&rtm)
-
 	status.AppStats.Mem = rtm.Sys
 	status.AppStats.Threads = uint32(runtime.NumGoroutine())
 	if p != nil && p.IsRunning() {
@@ -257,8 +267,8 @@ func (s *ServerService) GetXrayVersions() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
+
 	buffer := bytes.NewBuffer(make([]byte, bufferSize))
 	buffer.Reset()
 	if _, err := buffer.ReadFrom(resp.Body); err != nil {
@@ -269,6 +279,7 @@ func (s *ServerService) GetXrayVersions() ([]string, error) {
 	if err := json.Unmarshal(buffer.Bytes(), &releases); err != nil {
 		return nil, err
 	}
+
 	var versions []string
 	for _, release := range releases {
 		tagVersion := strings.TrimPrefix(release.TagName, "v")
@@ -439,7 +450,7 @@ func (s *ServerService) GetLogs(count string, level string, syslog string) []str
 	return lines
 }
 
-func (s *ServerService) GetConfigJson() (interface{}, error) {
+func (s *ServerService) GetConfigJson() (any, error) {
 	config, err := s.xrayService.GetXrayConfig()
 	if err != nil {
 		return nil, err
@@ -449,7 +460,7 @@ func (s *ServerService) GetConfigJson() (interface{}, error) {
 		return nil, err
 	}
 
-	var jsonData interface{}
+	var jsonData any
 	err = json.Unmarshal(contents, &jsonData)
 	if err != nil {
 		return nil, err
@@ -580,7 +591,7 @@ func (s *ServerService) ImportDB(file multipart.File) error {
 	return nil
 }
 
-func (s *ServerService) GetNewX25519Cert() (interface{}, error) {
+func (s *ServerService) GetNewX25519Cert() (any, error) {
 	// Run the command
 	cmd := exec.Command(xray.GetBinaryPath(), "x25519")
 	var out bytes.Buffer
@@ -598,7 +609,7 @@ func (s *ServerService) GetNewX25519Cert() (interface{}, error) {
 	privateKey := strings.TrimSpace(privateKeyLine[1])
 	publicKey := strings.TrimSpace(publicKeyLine[1])
 
-	keyPair := map[string]interface{}{
+	keyPair := map[string]any{
 		"privateKey": privateKey,
 		"publicKey":  publicKey,
 	}

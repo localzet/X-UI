@@ -50,6 +50,7 @@ var defaultValueMap = map[string]string{
 	"tgLang":                      "en-US",
 	"secretEnable":                "false",
 	"subEnable":                   "false",
+	"subTitle":                    "",
 	"subListen":                   "",
 	"subPort":                     "2096",
 	"subPath":                     "/sub/",
@@ -74,8 +75,8 @@ var defaultValueMap = map[string]string{
 
 type SettingService struct{}
 
-func (s *SettingService) GetDefaultJsonConfig() (interface{}, error) {
-	var jsonData interface{}
+func (s *SettingService) GetDefaultJsonConfig() (any, error) {
+	var jsonData any
 	err := json.Unmarshal([]byte(xrayTemplateConfig), &jsonData)
 	if err != nil {
 		return nil, err
@@ -265,16 +266,16 @@ func (s *SettingService) GetTgBotProxy() (string, error) {
 	return s.getString("tgBotProxy")
 }
 
+func (s *SettingService) SetTgBotProxy(token string) error {
+	return s.setString("tgBotProxy", token)
+}
+
 func (s *SettingService) GetTgBotAPIServer() (string, error) {
 	return s.getString("tgBotAPIServer")
 }
 
 func (s *SettingService) SetTgBotAPIServer(token string) error {
 	return s.setString("tgBotAPIServer", token)
-}
-
-func (s *SettingService) SetTgBotProxy(token string) error {
-	return s.setString("tgBotProxy", token)
 }
 
 func (s *SettingService) GetTgBotChatId() (string, error) {
@@ -418,6 +419,10 @@ func (s *SettingService) GetSubEnable() (bool, error) {
 	return s.getBool("subEnable")
 }
 
+func (s *SettingService) GetSubTitle() (string, error) {
+	return s.getString("subTitle")
+}
+
 func (s *SettingService) GetSubListen() (string, error) {
 	return s.getString("subListen")
 }
@@ -543,8 +548,8 @@ func (s *SettingService) UpdateAllSetting(allSetting *entity.AllSetting) error {
 	return common.Combine(errs...)
 }
 
-func (s *SettingService) GetDefaultXrayConfig() (interface{}, error) {
-	var jsonData interface{}
+func (s *SettingService) GetDefaultXrayConfig() (any, error) {
+	var jsonData any
 	err := json.Unmarshal([]byte(xrayTemplateConfig), &jsonData)
 	if err != nil {
 		return nil, err
@@ -552,24 +557,25 @@ func (s *SettingService) GetDefaultXrayConfig() (interface{}, error) {
 	return jsonData, nil
 }
 
-func (s *SettingService) GetDefaultSettings(host string) (interface{}, error) {
-	type settingFunc func() (interface{}, error)
+func (s *SettingService) GetDefaultSettings(host string) (any, error) {
+	type settingFunc func() (any, error)
 	settings := map[string]settingFunc{
-		"expireDiff":    func() (interface{}, error) { return s.GetExpireDiff() },
-		"trafficDiff":   func() (interface{}, error) { return s.GetTrafficDiff() },
-		"pageSize":      func() (interface{}, error) { return s.GetPageSize() },
-		"defaultCert":   func() (interface{}, error) { return s.GetCertFile() },
-		"defaultKey":    func() (interface{}, error) { return s.GetKeyFile() },
-		"tgBotEnable":   func() (interface{}, error) { return s.GetTgbotEnabled() },
-		"subEnable":     func() (interface{}, error) { return s.GetSubEnable() },
-		"subURI":        func() (interface{}, error) { return s.GetSubURI() },
-		"subJsonURI":    func() (interface{}, error) { return s.GetSubJsonURI() },
-		"remarkModel":   func() (interface{}, error) { return s.GetRemarkModel() },
-		"datepicker":    func() (interface{}, error) { return s.GetDatepicker() },
-		"ipLimitEnable": func() (interface{}, error) { return s.GetIpLimitEnable() },
+		"expireDiff":    func() (any, error) { return s.GetExpireDiff() },
+		"trafficDiff":   func() (any, error) { return s.GetTrafficDiff() },
+		"pageSize":      func() (any, error) { return s.GetPageSize() },
+		"defaultCert":   func() (any, error) { return s.GetCertFile() },
+		"defaultKey":    func() (any, error) { return s.GetKeyFile() },
+		"tgBotEnable":   func() (any, error) { return s.GetTgbotEnabled() },
+		"subEnable":     func() (any, error) { return s.GetSubEnable() },
+		"subTitle":      func() (any, error) { return s.GetSubTitle() },
+		"subURI":        func() (any, error) { return s.GetSubURI() },
+		"subJsonURI":    func() (any, error) { return s.GetSubJsonURI() },
+		"remarkModel":   func() (any, error) { return s.GetRemarkModel() },
+		"datepicker":    func() (any, error) { return s.GetDatepicker() },
+		"ipLimitEnable": func() (any, error) { return s.GetIpLimitEnable() },
 	}
 
-	result := make(map[string]interface{})
+	result := make(map[string]any)
 
 	for key, fn := range settings {
 		value, err := fn()
@@ -581,6 +587,7 @@ func (s *SettingService) GetDefaultSettings(host string) (interface{}, error) {
 
 	if result["subEnable"].(bool) && (result["subURI"].(string) == "" || result["subJsonURI"].(string) == "") {
 		subURI := ""
+		subTitle, _ := s.GetSubTitle()
 		subPort, _ := s.GetSubPort()
 		subPath, _ := s.GetSubPath()
 		subJsonPath, _ := s.GetSubJsonPath()
@@ -606,6 +613,9 @@ func (s *SettingService) GetDefaultSettings(host string) (interface{}, error) {
 		}
 		if result["subURI"].(string) == "" {
 			result["subURI"] = subURI + subPath
+		}
+		if result["subTitle"].(string) == "" {
+			result["subTitle"] = subTitle
 		}
 		if result["subJsonURI"].(string) == "" {
 			result["subJsonURI"] = subURI + subJsonPath
