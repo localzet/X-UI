@@ -11,6 +11,7 @@ import (
 	"sort"
 	"time"
 
+	"slices"
 	"x-ui/database"
 	"x-ui/database/model"
 	"x-ui/logger"
@@ -105,6 +106,7 @@ func (j *CheckClientIpJob) hasLimitIp() bool {
 }
 
 func (j *CheckClientIpJob) processLogFile() bool {
+
 	ipRegex := regexp.MustCompile(`from (?:tcp:|udp:)?\[?([0-9a-fA-F\.:]+)\]?:\d+ accepted`)
 	emailRegex := regexp.MustCompile(`email: (.+)$`)
 
@@ -124,9 +126,11 @@ func (j *CheckClientIpJob) processLogFile() bool {
 		}
 
 		ip := ipMatches[1]
+
 		if ip == "127.0.0.1" || ip == "::1" {
 			continue
 		}
+
 		emailMatches := emailRegex.FindStringSubmatch(line)
 		if len(emailMatches) < 2 {
 			continue
@@ -141,6 +145,7 @@ func (j *CheckClientIpJob) processLogFile() bool {
 
 	shouldCleanLog := false
 	for email, uniqueIps := range inboundClientIps {
+
 		ips := make([]string, 0, len(uniqueIps))
 		for ip := range uniqueIps {
 			ips = append(ips, ip)
@@ -189,13 +194,7 @@ func (j *CheckClientIpJob) checkError(e error) {
 }
 
 func (j *CheckClientIpJob) contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(s, str)
 }
 
 func (j *CheckClientIpJob) getInboundClientIps(clientEmail string) (*model.InboundClientIps, error) {

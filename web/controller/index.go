@@ -50,6 +50,7 @@ func (a *IndexController) index(c *gin.Context) {
 
 func (a *IndexController) login(c *gin.Context) {
 	var form LoginForm
+
 	if err := c.ShouldBind(&form); err != nil {
 		pureJsonMsg(c, http.StatusOK, false, I18nWeb(c, "pages.login.toasts.invalidFormData"))
 		return
@@ -68,6 +69,7 @@ func (a *IndexController) login(c *gin.Context) {
 	safeUser := template.HTMLEscapeString(form.Username)
 	safePass := template.HTMLEscapeString(form.Password)
 	safeSecret := template.HTMLEscapeString(form.LoginSecret)
+
 	if user == nil {
 		logger.Warningf("wrong username: \"%s\", password: \"%s\", secret: \"%s\", IP: \"%s\"", safeUser, safePass, safeSecret, getRemoteIp(c))
 		a.tgbot.UserLoginNotify(safeUser, safePass, getRemoteIp(c), timeStr, 0)
