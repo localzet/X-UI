@@ -26,7 +26,7 @@ const (
 )
 
 func initModels() error {
-	models := []interface{}{
+	models := []any{
 		&model.User{},
 		&model.Inbound{},
 		&model.OutboundTraffics{},
@@ -84,12 +84,7 @@ func InitDB(dbPath string) error {
 	c := &gorm.Config{
 		Logger: gormLogger,
 	}
-
 	db, err = gorm.Open(sqlite.Open(dbPath), c)
-	if err != nil {
-		return err
-	}
-
 	if err != nil {
 		return err
 	}
