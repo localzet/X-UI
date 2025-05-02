@@ -86,6 +86,16 @@ const MODE_OPTION = {
     STREAM_ONE: "stream-one",
 };
 
+const Address_Port_Strategy = {
+    NONE: "none",
+    SrvPortOnly: "srvportonly",
+    SrvAddressOnly: "srvaddressonly",
+    SrvPortAndAddress: "srvportandaddress",
+    TxtPortOnly: "txtportonly",
+    TxtAddressOnly: "txtaddressonly",
+    TxtPortAndAddress: "txtportandaddress"
+};
+
 Object.freeze(Protocols);
 Object.freeze(SSMethods);
 Object.freeze(TLS_FLOW_CONTROL);
@@ -95,6 +105,7 @@ Object.freeze(OutboundDomainStrategies);
 Object.freeze(WireguardDomainStrategy);
 Object.freeze(USERS_SECURITY);
 Object.freeze(MODE_OPTION);
+Object.freeze(Address_Port_Strategy);
 
 class CommonClass {
 
@@ -208,9 +219,10 @@ class KcpStreamSettings extends CommonClass {
 
 class WsStreamSettings extends CommonClass {
     constructor(
-        path = '/',
+        path = '/', 
         host = '',
         heartbeatPeriod = 0,
+
     ) {
         super();
         this.path = path;
@@ -232,37 +244,6 @@ class WsStreamSettings extends CommonClass {
             host: this.host,
             heartbeatPeriod: this.heartbeatPeriod
         };
-    }
-}
-
-class QuicStreamSettings extends CommonClass {
-    constructor(
-        security = 'none',
-        key = '',
-        type = 'none'
-    ) {
-        super();
-        this.security = security;
-        this.key = key;
-        this.type = type;
-    }
-
-    static fromJson(json = {}) {
-        return new QuicStreamSettings(
-            json.security,
-            json.key,
-            json.header ? json.header.type : 'none',
-        );
-    }
-
-    toJson() {
-        return {
-            security: this.security,
-            key: this.key,
-            header: {
-                type: this.type,
-            }
-        }
     }
 }
 
@@ -416,7 +397,6 @@ class RealityStreamSettings extends CommonClass {
         this.shortId = shortId
         this.spiderX = spiderX;
     }
-
     static fromJson(json = {}) {
         return new RealityStreamSettings(
             json.publicKey,
@@ -426,7 +406,6 @@ class RealityStreamSettings extends CommonClass {
             json.spiderX,
         );
     }
-
     toJson() {
         return {
             publicKey: this.publicKey,
@@ -436,15 +415,15 @@ class RealityStreamSettings extends CommonClass {
             spiderX: this.spiderX,
         };
     }
-}
-
+};
 class SockoptStreamSettings extends CommonClass {
     constructor(
         dialerProxy = "",
         tcpFastOpen = false,
         tcpKeepAliveInterval = 0,
         tcpMptcp = false,
-        penetrate = false
+        penetrate = false,
+        addressPortStrategy = Address_Port_Strategy.NONE,
     ) {
         super();
         this.dialerProxy = dialerProxy;
@@ -452,6 +431,7 @@ class SockoptStreamSettings extends CommonClass {
         this.tcpKeepAliveInterval = tcpKeepAliveInterval;
         this.tcpMptcp = tcpMptcp;
         this.penetrate = penetrate;
+        this.addressPortStrategy = addressPortStrategy;
     }
 
     static fromJson(json = {}) {
@@ -462,6 +442,7 @@ class SockoptStreamSettings extends CommonClass {
             json.tcpKeepAliveInterval,
             json.tcpMptcp,
             json.penetrate,
+            json.addressPortStrategy
         );
     }
 
@@ -472,6 +453,7 @@ class SockoptStreamSettings extends CommonClass {
             tcpKeepAliveInterval: this.tcpKeepAliveInterval,
             tcpMptcp: this.tcpMptcp,
             penetrate: this.penetrate,
+            addressPortStrategy: this.addressPortStrategy
         };
     }
 }
@@ -682,7 +664,7 @@ class Outbound extends CommonClass {
             stream = this.stream.toJson();
         } else {
             if (this.stream?.sockopt)
-                stream = {sockopt: this.stream.sockopt.toJson()};
+                stream = { sockopt: this.stream.sockopt.toJson() };
         }
         return {
             tag: this.tag == '' ? undefined : this.tag,
@@ -832,55 +814,33 @@ Outbound.Settings = class extends CommonClass {
 
     static getSettings(protocol) {
         switch (protocol) {
-            case Protocols.Freedom:
-                return new Outbound.FreedomSettings();
-            case Protocols.Blackhole:
-                return new Outbound.BlackholeSettings();
-            case Protocols.DNS:
-                return new Outbound.DNSSettings();
-            case Protocols.VMess:
-                return new Outbound.VmessSettings();
-            case Protocols.VLESS:
-                return new Outbound.VLESSSettings();
-            case Protocols.Trojan:
-                return new Outbound.TrojanSettings();
-            case Protocols.Shadowsocks:
-                return new Outbound.ShadowsocksSettings();
-            case Protocols.Socks:
-                return new Outbound.SocksSettings();
-            case Protocols.HTTP:
-                return new Outbound.HttpSettings();
-            case Protocols.Wireguard:
-                return new Outbound.WireguardSettings();
-            default:
-                return null;
+            case Protocols.Freedom: return new Outbound.FreedomSettings();
+            case Protocols.Blackhole: return new Outbound.BlackholeSettings();
+            case Protocols.DNS: return new Outbound.DNSSettings();
+            case Protocols.VMess: return new Outbound.VmessSettings();
+            case Protocols.VLESS: return new Outbound.VLESSSettings();
+            case Protocols.Trojan: return new Outbound.TrojanSettings();
+            case Protocols.Shadowsocks: return new Outbound.ShadowsocksSettings();
+            case Protocols.Socks: return new Outbound.SocksSettings();
+            case Protocols.HTTP: return new Outbound.HttpSettings();
+            case Protocols.Wireguard: return new Outbound.WireguardSettings();
+            default: return null;
         }
     }
 
     static fromJson(protocol, json) {
         switch (protocol) {
-            case Protocols.Freedom:
-                return Outbound.FreedomSettings.fromJson(json);
-            case Protocols.Blackhole:
-                return Outbound.BlackholeSettings.fromJson(json);
-            case Protocols.DNS:
-                return Outbound.DNSSettings.fromJson(json);
-            case Protocols.VMess:
-                return Outbound.VmessSettings.fromJson(json);
-            case Protocols.VLESS:
-                return Outbound.VLESSSettings.fromJson(json);
-            case Protocols.Trojan:
-                return Outbound.TrojanSettings.fromJson(json);
-            case Protocols.Shadowsocks:
-                return Outbound.ShadowsocksSettings.fromJson(json);
-            case Protocols.Socks:
-                return Outbound.SocksSettings.fromJson(json);
-            case Protocols.HTTP:
-                return Outbound.HttpSettings.fromJson(json);
-            case Protocols.Wireguard:
-                return Outbound.WireguardSettings.fromJson(json);
-            default:
-                return null;
+            case Protocols.Freedom: return Outbound.FreedomSettings.fromJson(json);
+            case Protocols.Blackhole: return Outbound.BlackholeSettings.fromJson(json);
+            case Protocols.DNS: return Outbound.DNSSettings.fromJson(json);
+            case Protocols.VMess: return Outbound.VmessSettings.fromJson(json);
+            case Protocols.VLESS: return Outbound.VLESSSettings.fromJson(json);
+            case Protocols.Trojan: return Outbound.TrojanSettings.fromJson(json);
+            case Protocols.Shadowsocks: return Outbound.ShadowsocksSettings.fromJson(json);
+            case Protocols.Socks: return Outbound.SocksSettings.fromJson(json);
+            case Protocols.HTTP: return Outbound.HttpSettings.fromJson(json);
+            case Protocols.Wireguard: return Outbound.WireguardSettings.fromJson(json);
+            default: return null;
         }
     }
 
@@ -922,7 +882,7 @@ Outbound.FreedomSettings = class extends CommonClass {
     toJson() {
         return {
             domainStrategy: ObjectUtil.isEmpty(this.domainStrategy) ? undefined : this.domainStrategy,
-            redirect: ObjectUtil.isEmpty(this.redirect) ? undefined : this.redirect,
+            redirect: ObjectUtil.isEmpty(this.redirect) ? undefined: this.redirect,
             fragment: Object.keys(this.fragment).length === 0 ? undefined : this.fragment,
             noises: this.noises.length === 0 ? undefined : Outbound.FreedomSettings.Noise.toJsonArray(this.noises),
         };
@@ -930,7 +890,11 @@ Outbound.FreedomSettings = class extends CommonClass {
 };
 
 Outbound.FreedomSettings.Fragment = class extends CommonClass {
-    constructor(packets = '1-3', length = '', interval = '') {
+    constructor(
+        packets = '1-3',
+        length = '',
+        interval = ''
+    ) {
         super();
         this.packets = packets;
         this.length = length;
@@ -989,7 +953,7 @@ Outbound.BlackholeSettings = class extends CommonClass {
 
     toJson() {
         return {
-            response: ObjectUtil.isEmpty(this.type) ? undefined : {type: this.type},
+            response: ObjectUtil.isEmpty(this.type) ? undefined : { type: this.type },
         };
     }
 };
@@ -1043,7 +1007,7 @@ Outbound.VmessSettings = class extends CommonClass {
             vnext: [{
                 address: this.address,
                 port: this.port,
-                users: [{id: this.id, security: this.security}],
+                users: [{ id: this.id, security: this.security }],
             }],
         };
     }
@@ -1074,7 +1038,7 @@ Outbound.VLESSSettings = class extends CommonClass {
             vnext: [{
                 address: this.address,
                 port: this.port,
-                users: [{id: this.id, flow: this.flow, encryption: 'none',}],
+                users: [{ id: this.id, flow: this.flow, encryption: 'none', }],
             }],
         };
     }
@@ -1155,7 +1119,7 @@ Outbound.SocksSettings = class extends CommonClass {
 
     static fromJson(json = {}) {
         let servers = json.servers;
-        if (ObjectUtil.isArrEmpty(servers)) servers = [{users: [{}]}];
+        if (ObjectUtil.isArrEmpty(servers)) servers = [{ users: [{}] }];
         return new Outbound.SocksSettings(
             servers[0].address,
             servers[0].port,
@@ -1169,7 +1133,7 @@ Outbound.SocksSettings = class extends CommonClass {
             servers: [{
                 address: this.address,
                 port: this.port,
-                users: ObjectUtil.isEmpty(this.user) ? [] : [{user: this.user, pass: this.pass}],
+                users: ObjectUtil.isEmpty(this.user) ? [] : [{ user: this.user, pass: this.pass }],
             }],
         };
     }
@@ -1185,7 +1149,7 @@ Outbound.HttpSettings = class extends CommonClass {
 
     static fromJson(json = {}) {
         let servers = json.servers;
-        if (ObjectUtil.isArrEmpty(servers)) servers = [{users: [{}]}];
+        if (ObjectUtil.isArrEmpty(servers)) servers = [{ users: [{}] }];
         return new Outbound.HttpSettings(
             servers[0].address,
             servers[0].port,
@@ -1199,7 +1163,7 @@ Outbound.HttpSettings = class extends CommonClass {
             servers: [{
                 address: this.address,
                 port: this.port,
-                users: ObjectUtil.isEmpty(this.user) ? [] : [{user: this.user, pass: this.pass}],
+                users: ObjectUtil.isEmpty(this.user) ? [] : [{ user: this.user, pass: this.pass }],
             }],
         };
     }
