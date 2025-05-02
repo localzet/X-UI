@@ -20,14 +20,6 @@ case $1 in
         ARCH="arm32-v6"
         FNAME="armv6"
         ;;
-    armv5)
-        ARCH="arm32-v5"
-        FNAME="armv5"
-        ;;
-    s390x)
-        ARCH="s390x"
-        FNAME="s390x"
-        ;;
     *)
         ARCH="64"
         FNAME="amd64"
@@ -35,7 +27,7 @@ case $1 in
 esac
 mkdir -p build/bin
 cd build/bin
-wget -q "https://github.com/XTLS/Xray-core/releases/download/v25.3.3/Xray-linux-${ARCH}.zip"
+wget -q "https://github.com/XTLS/Xray-core/releases/download/v25.4.30/Xray-linux-${ARCH}.zip"
 unzip "Xray-linux-${ARCH}.zip"
 rm -f "Xray-linux-${ARCH}.zip" geoip.dat geosite.dat
 mv xray "xray-linux-${FNAME}"
@@ -43,5 +35,4 @@ wget -q https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download
 wget -q https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
 wget -q -O geoip_RU.dat https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/latest/download/geoip.dat
 wget -q -O geosite_RU.dat https://github.com/runetfreedom/russia-v2ray-rules-dat/releases/latest/download/geosite.dat
-
 cd ../../
