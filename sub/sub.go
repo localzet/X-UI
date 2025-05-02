@@ -112,6 +112,11 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		return nil, err
 	}
 
+	SubTitle, err := s.settingService.GetSubTitle()
+	if err != nil {
+		SubTitle = ""
+	}
+
 	engine.Use(func(c *gin.Context) {
 		c.Set("base_path", basePath)
 	})
@@ -130,7 +135,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 
 	s.sub = NewSUBController(
 		g, LinksPath, JsonPath, Encrypt, ShowInfo, RemarkModel, SubUpdates,
-		SubJsonFragment, SubJsonNoises, SubJsonMux, SubJsonRules)
+		SubJsonFragment, SubJsonNoises, SubJsonMux, SubJsonRules, SubTitle)
 
 	return engine, nil
 }

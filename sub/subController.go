@@ -9,12 +9,12 @@ import (
 )
 
 type SUBController struct {
+	subTitle       string
 	subPath        string
 	subJsonPath    string
 	subEncrypt     bool
 	updateInterval string
 
-	jsonRules      string
 	subService     *SubService
 	subJsonService *SubJsonService
 }
@@ -31,26 +31,30 @@ func NewSUBController(
 	jsonNoise string,
 	jsonMux string,
 	jsonRules string,
+	subTitle string,
 ) *SUBController {
 	sub := NewSubService(showInfo, rModel)
-	subJson := NewSubJsonService(jsonFragment, jsonNoise, jsonMux, jsonRules, sub)
 	a := &SUBController{
+		subTitle:       subTitle,
 		subPath:        subPath,
 		subJsonPath:    jsonPath,
 		subEncrypt:     encrypt,
 		updateInterval: update,
 
-		jsonRules:      jsonRules,
 		subService:     sub,
-		subJsonService: subJson,
+		subJsonService: NewSubJsonService(jsonFragment, jsonNoise, jsonMux, jsonRules, sub),
 	}
 	a.initRouter(g)
 	return a
 }
 
 func (a *SUBController) initRouter(g *gin.RouterGroup) {
-	g.Group(a.subPath).GET(":subid", a.subs)
-	g.Group(a.subJsonPath).GET(":subid", a.subJsons)
+	gLink := g.Group(a.subPath)
+	gJson := g.Group(a.subJsonPath)
+
+	gLink.GET(":subid", a.subs)
+
+	gJson.GET(":subid", a.subJsons)
 }
 
 func (a *SUBController) subs(c *gin.Context) {
@@ -79,13 +83,9 @@ func (a *SUBController) subs(c *gin.Context) {
 		}
 
 		// Add headers
-		c.Writer.Header().Set("Profile-Title", subId)
 		c.Writer.Header().Set("Subscription-Userinfo", header)
 		c.Writer.Header().Set("Profile-Update-Interval", a.updateInterval)
-
-		// v2RayTun iOS routing support
-		r, _ := a.subJsonService.GetRouting(a.jsonRules)
-		c.Writer.Header().Set("Routing", base64.StdEncoding.EncodeToString(r))
+		c.Writer.Header().Set("Profile-Title", "base64:"+base64.StdEncoding.EncodeToString([]byte(a.subTitle)))
 
 		if a.subEncrypt {
 			c.String(200, base64.StdEncoding.EncodeToString([]byte(result)))
@@ -117,17 +117,13 @@ func (a *SUBController) subJsons(c *gin.Context) {
 	} else {
 
 		// Add headers
-		c.Writer.Header().Set("subscription-userinfo", header)
-		c.Writer.Header().Set("profile-update-interval", a.updateInterval)
-		c.Writer.Header().Set("profile-title", subId)
+		c.Writer.Header().Set("Subscription-Userinfo", header)
+		c.Writer.Header().Set("Profile-Update-Interval", a.updateInterval)
+		c.Writer.Header().Set("Profile-Title", "base64:"+base64.StdEncoding.EncodeToString([]byte(a.subTitle)))
 
-		c.Writer.Header().Set("update-always", "true")
-		c.Writer.Header().Set("announce", "💜 По всем вопросам обращайтесь в #7854BAподдержку!")
-		c.Writer.Header().Set("announce-url", "https://t.me/userlay_support")
-
-		// v2RayTun iOS routing support
-		r, _ := a.subJsonService.GetRouting(a.jsonRules)
-		c.Writer.Header().Set("routing", base64.StdEncoding.EncodeToString(r))
+		c.Writer.Header().Set("Update-Always", "true")
+		c.Writer.Header().Set("Announce", "💜 По всем вопросам обращайтесь в #7854BAподдержку!")
+		c.Writer.Header().Set("Announce-Url", "https://t.me/userlay_support")
 
 		c.String(200, jsonSub)
 	}
