@@ -7,9 +7,6 @@
     "disableFallback": false,
     "servers": [
       {
-        "address": "localhost"
-      },
-      {
         "address": "https://1.1.1.1/dns-query"
       },
       {
