@@ -3,6 +3,8 @@
   "dns": {
     "tag": "dns_out",
     "queryStrategy": "UseIPv4",
+    "disableCache": true,
+    "disableFallback": false,
     "servers": [
       {
         "address": "https://1.1.1.1/dns-query"
@@ -17,8 +19,10 @@
         "address": "https://doh.opendns.com/dns-query"
       }
     ],
-    "disableCache": true,
-    "disableFallback": false
+    "fakedns": {
+      "ipPool": "198.18.0.0/15",
+      "poolSize": 65535
+    }
   },
   "inbounds": [
     {
@@ -55,8 +59,7 @@
       "tag": "direct",
       "protocol": "freedom",
       "settings": {
-        "domainStrategy": "UseIP",
-        "userLevel": 0
+        "domainStrategy": "UseIP"
       }
     },
     {
@@ -103,14 +106,14 @@
         "outboundTag": "direct"
       },
       {
+        "type": "field",
         "domain": [
           "geosite:category-ru",
           "geosite:category-gov-ru",
           "regexp:.*\\.ru",
           "regexp:.*\\.xn--p1ai$"
         ],
-        "outboundTag": "direct",
-        "type": "field"
+        "outboundTag": "direct"
       },
       {
         "type": "field",
