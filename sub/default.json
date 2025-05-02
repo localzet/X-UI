@@ -1,6 +1,7 @@
 {
   "remarks": "",
   "dns": {
+    "tag": "dns_out",
     "queryStrategy": "UseIP",
     "servers": [
       {
@@ -27,10 +28,7 @@
         "address": "dns://dns4tor.icu",
         "skipFallback": false
       }
-    ],
-    "clientIp": "1.1.1.1",
-    "disableCache": false,
-    "tag": "dns_out"
+    ]
   },
   "inbounds": [
     {
