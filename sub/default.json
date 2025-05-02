@@ -2,33 +2,23 @@
   "remarks": "",
   "dns": {
     "tag": "dns_out",
-    "queryStrategy": "UseIP",
+    "queryStrategy": "UseIPv4",
     "servers": [
       {
-        "address": "https://cloudflare-dns.com/dns-query",
-        "skipFallback": false
+        "address": "https://1.1.1.1/dns-query"
       },
       {
-        "address": "https://dns.google/dns-query",
-        "skipFallback": false
+        "address": "https://8.8.8.8/dns-query"
       },
       {
-        "address": "https://dns.quad9.net/dns-query",
-        "skipFallback": false
+        "address": "https://9.9.9.9/dns-query"
       },
       {
-        "address": "https://doh.opendns.com/dns-query",
-        "skipFallback": false
-      },
-      {
-        "address": "dns://dns.torproject.org",
-        "skipFallback": false
-      },
-      {
-        "address": "dns://dns4tor.icu",
-        "skipFallback": false
+        "address": "https://doh.opendns.com/dns-query"
       }
-    ]
+    ],
+    "disableCache": true,
+    "disableFallback": false
   },
   "inbounds": [
     {
@@ -37,25 +27,23 @@
       "settings": {
         "auth": "noauth",
         "udp": true,
-        "userLevel": 8
+        "ip": "127.0.0.1"
       },
       "sniffing": {
         "destOverride": [
           "http",
           "tls",
-          "quic",
-          "fakedns"
+          "quic"
         ],
-        "enabled": true
+        "enabled": true,
+        "metadataOnly": false
       },
       "tag": "socks"
     },
     {
       "port": 10809,
       "protocol": "http",
-      "settings": {
-        "userLevel": 8
-      },
+      "settings": {},
       "tag": "http"
     }
   ],
@@ -67,9 +55,8 @@
       "tag": "direct",
       "protocol": "freedom",
       "settings": {
-        "domainStrategy": "AsIs",
-        "redirect": "",
-        "noises": []
+        "domainStrategy": "UseIP",
+        "userLevel": 0
       }
     },
     {
@@ -84,21 +71,54 @@
   ],
   "policy": {
     "levels": {
-      "8": {
+      "0": {
+        "uplinkOnly": 0,
+        "downlinkOnly": 0,
         "connIdle": 300,
-        "downlinkOnly": 1,
-        "handshake": 4,
-        "uplinkOnly": 1
+        "handshake": 4
       }
     },
     "system": {
+      "statsInboundUplink": true,
+      "statsInboundDownlink": true,
       "statsOutboundUplink": true,
       "statsOutboundDownlink": true
     }
   },
   "routing": {
-    "domainStrategy": "AsIs",
+    "domainStrategy": "IPIfNonMatch",
     "rules": [
+      {
+        "type": "field",
+        "domain": [
+          "geosite:category-ads"
+        ],
+        "outboundTag": "block"
+      },
+      {
+        "type": "field",
+        "ip": [
+          "geoip:private"
+        ],
+        "outboundTag": "direct"
+      },
+      {
+        "domain": [
+          "geosite:category-ru",
+          "geosite:category-gov-ru",
+          "regexp:.*\\.ru",
+          "regexp:.*\\.xn--p1ai$"
+        ],
+        "outboundTag": "direct",
+        "type": "field"
+      },
+      {
+        "type": "field",
+        "ip": [
+          "geoip:ru"
+        ],
+        "outboundTag": "direct"
+      },
       {
         "type": "field",
         "network": "tcp,udp",
