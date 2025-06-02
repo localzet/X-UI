@@ -78,6 +78,10 @@ elif [[ "${release}" == "ubuntu" ]]; then
     if [[ ${os_version} -lt 2004 ]]; then
         echo -e "${red} Пожалуйста используйте Ubuntu 20 или выше ${plain}\n" && exit 1
     fi
+elif [[ "${release}" == "zorin" ]]; then
+    if [[ ${os_version} -lt 17 ]]; then
+        echo -e "${red} Пожалуйста используйте Zorin OS 17 или выше ${plain}\n" && exit 1
+    fi
 elif [[ "${release}" == "fedora" ]]; then
     if [[ ${os_version} -lt 36 ]]; then
         echo -e "${red} Пожалуйста используйте Fedora 36 или выше ${plain}\n" && exit 1
@@ -110,6 +114,7 @@ else
     echo -e "${red}Ваша операционная система не поддерживается данным скриптом.${plain}\n"
     echo "Убедитесь, что вы используете одну из поддерживаемых операционных систем:"
     echo "- Ubuntu 20.04+"
+    echo "- ZorinOS 17+"
     echo "- Debian 11+"
     echo "- CentOS 8+"
     echo "- OpenEuler 22.03+"
